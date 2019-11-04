@@ -13,9 +13,38 @@
 * Partition key should be analogus to "GROUP BY" related column in typical rdbms table, Here we pre-compute whereas in RDBMS it might do full-table-scan
 * Group rows physically together on disk based on the partition key.
 * It hashes the partition key values to create a partition token.
+* We can choose partition after table were constructed and data inserted
 
 
-### To start Cassandra  
+## Clustering Columns
+
+* This constitutes part of Primary Key along with partition key
+* We can have one or more clustering column
+* Rows are sorted within the partition based on clustering column
+* PRIMARY KEY ((state), city, name)
+  * By default they are sorted in Ascending order
+* Example
+  * (PRIMARY KEY((state), city, name, id) WITH CLUSTERING ORDER BY (city DESC, name ASC))  
+
+## Primary Key
+
+* Primary Key = Partition Key + Clustering Column
+* Decides uniqueness and date order (sorted and stored)
+
+
+## Impact of partition key on query (CQL)
+
+* All equality comparision comes before inequality (<, >)
+* Inequality comparision or range queries on clustering columns are allowed
+* Since data is already sorted on disk
+  * Range queries are binary search and followed by a linear read
+* If we use datetime or timeuuid and stored them in descending order, later record always contains most recent one.
+* ALLOW FILTERING
+  * *Scans all partitions in the table*
+  * Relaxes querying on parition key constraint
+  * allows query on just clustering columns without knowing partition key 
+  * Don't use it
+
 
 ```bash
 cqlsh:killrvideo> desc table video;
