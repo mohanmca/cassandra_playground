@@ -11,6 +11,8 @@
   * In 1000 node ring, state is used to find the ring-number using consistent hashing algorithm
   * It's complexity is - o(1)
 * Partition key should be analogus to "GROUP BY" related column in typical rdbms table, Here we pre-compute whereas in RDBMS it might do full-table-scan
+* Group rows physically together on disk based on the partition key.
+* It hashes the partition key values to create a partition token.
 
 
 ### To start Cassandra  
