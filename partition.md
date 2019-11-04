@@ -42,12 +42,13 @@ drop table video;
 
 create table KillrVideo.videos_by_tag(
     tag Text,
-    video_id timeuuid PRIMARY KEY,
+    video_id timeuuid,
     added_date timestamp,
-    Title Text
+    Title Text,
+    PRIMARY KEY (tag, video_id)
 );
 COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos-by-tag.csv' WITH HEADER=TRUE;
-select token(video_id), video_id from videos_by_tag where tag='cassandra' allow FILTERING;
+select token(video_id), video_id from videos_by_tag where tag='cassandra';
 select token(video_id), video_id from videos_by_tag where title='Cassandra Intro' allow FILTERING;
 ```  
 
