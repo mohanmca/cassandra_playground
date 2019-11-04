@@ -1,6 +1,17 @@
 * Base installation location - /home/osboxes/node
 * Base location for lab - /home/osboxes/Downloads/labwork/data-files
-*  /home/osboxes/Downloads/labwork/data-files/videos-by-tag.csv
+* /home/osboxes/Downloads/labwork/data-files/videos-by-tag.csv
+
+
+## Partition
+
+* The most important concept in Cassandra is patition.
+* Primary Key (state, (id))
+  * First part of the primary is always partition keys, in the above primary key state is used as partition key
+  * In 1000 node ring, state is used to find the ring-number using consistent hashing algorithm
+  * It's complexity is - o(1)
+* Partition key should be analogus to "GROUP BY" related column in typical rdbms table, Here we pre-compute whereas in RDBMS it might do full-table-scan
+
 
 ### To start Cassandra  
 
