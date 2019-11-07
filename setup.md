@@ -7,6 +7,10 @@
 ```bash
 cd /home/osboxes/node/
 nohup ./bin/dse cassandra 
+
+## Via docker
+docker run --name some-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
+docker exec -it some-cassandra cqlsh
 ```  
 
 ### Find status Cassandra  
@@ -27,14 +31,14 @@ UN   127.0.0.1        180.95 KiB       100.00%              0                   
 ```SQL
 ## CQL
 
-CREATE KEYSPACE KillrVideo WITH REPLICATION = { 
+CREATE KEYSPACE "KillrVideo" WITH REPLICATION = { 
  'class' : 'SimpleStrategy', 
  'replication_factor' : 1
 };
 
 USE KillrVideo;
 
-create table KillrVideo.video(
+create table KillrVideo.videos(
     video_id timeuuid PRIMARY KEY,
     added_date timestamp,
     Title Text
@@ -48,11 +52,14 @@ TRUNCATE video;
 COPY video(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
 ```
 
-### Known errors
-```
-#Typo in your command
-cqlsh:killrvideo> TRUCATE TABLE "video";
-SyntaxException: line 1:0 no viable alternative at input 'TRUCATE' ([TRUCATE]...)
+
+## To start CQLSH
+
+```bash
+set PATH=D:\Apps\Python\Python27;%PATH%;
+
+#via Docker
+docker exec -it some-cassandra cqlsh
 ```
 
 

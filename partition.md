@@ -25,6 +25,13 @@
   * By default they are sorted in Ascending order
 * Example
   * (PRIMARY KEY((state), city, name, id) WITH CLUSTERING ORDER BY (city DESC, name ASC))  
+  * "CREATE TABLE videos_by_tag (
+      tag text,
+      video_id uuid,
+      added_date timestamp,
+      title text,
+      PRIMARY KEY(tag, added_date) 
+    ) WITH CLUSTERING ORDER BY (added_date DESC);"
 
 ## Primary Key
 
@@ -92,53 +99,21 @@ create table KillrVideo.videos_by_tag(
 COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos-by-tag.csv' WITH HEADER=TRUE;
 select token(video_id), video_id from videos_by_tag where tag='cassandra';
 select token(video_id), video_id from videos_by_tag where title='Cassandra Intro' allow FILTERING;
+select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
+drop table videos_by_tag;
+
+CREATE TABLE videos_by_tag (
+     tag text,
+     video_id uuid,
+     added_date timestamp,
+     title text,
+     PRIMARY KEY(tag, added_date) 
+ ) WITH CLUSTERING ORDER BY (added_date DESC); 
+
+COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.csv' WITH HEADER = TRUE; 
+select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```  
 
-
-### Find status Cassandra  
-
-```bash
-osboxes@osboxes:~/node/bin$ ./dsetool status
-```
-
-```pre
-C: Cassandra       Workload: Cassandra       Graph: no     
-======================================================
-Status=Up/Down
-|/ State=Normal/Leaving/Joining/Moving
---   Address          Load             Effective-Ownership  Token                                        Rack         Health [0,1] 
-UN   127.0.0.1        180.95 KiB       100.00%              0                                            rack1        0.70         
-```
-
-```SQL
-## CQL
-
-CREATE KEYSPACE KillrVideo WITH REPLICATION = { 
- 'class' : 'SimpleStrategy', 
- 'replication_factor' : 1
-};
-
-USE KillrVideo;
-
-create table KillrVideo.video(
-    video_id timeuuid PRIMARY KEY,
-    added_date timestamp,
-    Title Text
-);
-
-insert into video (video_id, added_date, Title) values (1645ea59-14bd-11e5-a993-8138354b7e31, '2014-01-29', 'Cassandra History');
-select * from video where video_id=1645ea59-14bd-11e5-a993-8138354b7e31;
-insert into video (video_id, added_date, Title) values (245e8024-14bd-11e5-9743-8238356b7e32, '2012-04-03', 'Cassandra & SSDs');
-select * from video;
-TRUNCATE video;
-COPY video(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
-```
-
-### Known errors
-```
-#Typo in your command
-cqlsh:killrvideo> TRUCATE TABLE "video";
-SyntaxException: line 1:0 no viable alternative at input 'TRUCATE' ([TRUCATE]...)
 ```
 
 
