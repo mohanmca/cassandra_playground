@@ -363,6 +363,12 @@ rack=RAC
   * Mostly latest paritions will have latest records
   * If two keys are matching, but if there is tombstone, and gc-grace-seconds are elapsed deleted records evicted, not written to new SS-TABLE
   * Despite there could be tombstore, but if gc_grace_seconds not breached, tombstone stored in new partition (for data-resurrection during repair)
+* Not all tombstones are discarded during compaction.
+* A new partition on disk be larger than either of its input partition segments after a compaction, if later partition segments are made up of mostly INSERT operations.
+* Benefits from compactions are
+  * More optimal disk usage
+  * Faster reads
+  * Less memory pressure
 
 ### Compacting SSTables
 
@@ -378,7 +384,15 @@ rack=RAC
 
 * Alter table ks.myTable  WITH compaction = { 'class': 'LeveledCompactionStrategy'}
 
+## Datastax ES6
 
+* Only one core per CPU and Non-blocking-IO
+  * Claims to be more performant than OSS version
+  * These threads are never block
+  * Writes and Reads, both are asynchronous
+  * Each thread has its own mem-table
+  * Separate management thread for Mem-table-flush, Compaction, Hints, Streaming
+* OSS - Executor thread-pool 
 
 
 
