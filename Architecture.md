@@ -370,6 +370,14 @@ rack=RAC
 * Merge might reduce the partition as all the stale values inside the parition are evicted
 * Once new SS-Table is created, old SS-Table is dropped
 
+### Types of compaction
+
+* SizeTiered Compaction (default for write heavy-load)
+* Leveled Compaction (read optimized compaction)
+* TimeWindow Compaction (for timeseries data)
+
+* Alter table ks.myTable  WITH compaction = { 'class': 'LeveledCompactionStrategy'}
+
 
 
 
