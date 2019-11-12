@@ -47,35 +47,6 @@ nodtool flush
 cassandra-stress write n=50000 no-warmup -rate threads=1
 ```
 
-```bash
-# nodetool status
-Datacenter: datacenter1
-=======================
-Status=Up/Down
-|/ State=Normal/Leaving/Joining/Moving
---  Address     Load       Tokens       Owns (effective)  Host ID                               Rack
-UN  172.19.0.3  5.85 MiB   256          46.7%             2b3576cd-3f5d-4b9c-80bf-9c5a5fce7dc5  rack1
-UN  172.19.0.2  6.65 MiB   256          53.3%             4936c442-00c7-4242-87cb-4cf265c5ae78  rack1
-
-# nodetool ring | grep "172.19.0.3" | wc -l
-256
-
-# nodetool ring
-
-Datacenter: datacenter1
-==========
-Address     Rack        Status State   Load            Owns                Token
-                                                                           9126432156340756354
-172.19.0.2  rack1       Up     Normal  6.65 MiB        53.31%              -9163250791483814686
-172.19.0.3  rack1       Up     Normal  5.85 MiB        46.69%              -9137673090615533091
-172.19.0.2  rack1       Up     Normal  6.65 MiB        53.31%              -9083337207055421835
-172.19.0.2  rack1       Up     Normal  6.65 MiB        53.31%              -8994933303427082675
-172.19.0.3  rack1       Up     Normal  5.85 MiB        46.69%              -8931107877434468662
-172.19.0.3  rack1       Up     Normal  5.85 MiB        46.69%              -8862098302720005632
-172.19.0.2  rack1       Up     Normal  6.65 MiB        53.31%              -8835701033996281573
-172.19.0.3  rack1       Up     Normal  5.85 MiB        46.69%              -8779311204712756082
-```
-
 ## Cassandra directory (Apache Cassandra)
 
 * /etc/cassandra

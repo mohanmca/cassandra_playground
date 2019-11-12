@@ -16,6 +16,11 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/videos-by-tag.csv' W
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
 ```
 
+```SQL
+## Gosspinfo
+SELECT peer, data_center, host_id, preferred_ip, rach, release_version, rpc_address, schema_version FROM system.peers;
+``` 
+
 ```pre
  system.token(tag)    | tag
 ----------------------+-----------
