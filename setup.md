@@ -7,10 +7,17 @@
 ```bash
 cd /home/osboxes/node/
 nohup ./bin/dse cassandra 
+```
 
 ## Via docker
-docker run --name some-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
-docker exec -it some-cassandra cqlsh
+
+```bash
+docker pull cassandra
+docker network create cass-network
+docker run -d --name my-cassandra --network cass-network cassandra
+docker run -d --name my-cassandra-2 --network cass-network cassandra
+#docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
+docker exec -it my-cassandra cqlsh
 ```  
 
 ### Find status Cassandra  
