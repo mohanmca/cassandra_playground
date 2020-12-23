@@ -58,7 +58,64 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 
 * Calvin transaction protocol vs Google’s Spanner paper
 * FaunaDB is an example of a database that implements the approach on the Calvin paper
+
+
+
+## Cassandra in 50 Words or Less
+
+* “Apache Cassandra is an open source, distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database. Cassandra bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable, with a query language similar to SQL"
+
+## Cassandra features
+
+* It uses gossip protcol (feature of peer-to-peer architecture) to maintain details of other nodes.
+* It allows tunable cosistency and client can decide for each write/read (how many RF?)
 * 
+
+## Cap Theorem (Brewer's theorem)
+
+* CAP - Choose two (as of 2000)
+* Network issue would certainly happens, hence network partition failures is un-avoidable, And should be handled. Hence choose between compromise on A or C (Availablity or consistency)
+* CA -  MySQL, Postgres, SQL
+* CP -  Neo4j, MongoDB, HBase, BigTable
+* AP -  DNS, Cassandra, Amazon Dynamo
+
+
+
+## Consistencey levels
+
+* Strong consistency (sequential consistency)
+  * “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.”
+* Casual consistency (Happens before)
+* Eventual consisteny (matter of milli-seconds)
+
+## Row-Oriented (Wide column store)
+
+* Partitioned row store - sparse multidimensional hash tables
+* Partitioned - means that each row has a unique partition key used to distribute the rows across multiple data stores.
+* Sparse - not all rows has same number of columns
+* Cassandra stores data in a multidimensional, sorted hash table.
+* As data is stored in each column, it is stored as a separate entry in the hash table.
+* Column values are stored according to a consistent sort order, omitting columns that are not populated.
+
+
+## Cassandra - schema free?
+
+* Started as schema free using Thrift API, later CQL was introduced
+* No! Till 2.0 CQL and Thrit API co-exist, It was known as "Schema Optional"
+* From 3.0, Thrift API is deprecated, and from 4.0 Thrif API is removed
+* Additional values for columns can be added using List, Sets and Maps
+  * Now-a-days it is considered flexible-schema
+* Schema free -> "Optional Schema" -> "Flexible Schema"  
+
+## Cassandra - use-cases?
+
+* Storing user activity updates
+* Social network usage, recommendations/reviews, 
+* Application statistics
+* Inverted index for document searching
+* Distributed job priority queue
+* Ability to handle application workloads that require high performance at significant write volumes with many concurrent client threads is one of the primary features of Cassandra.
+
 
 ## What is anti-entropy repair?
 
@@ -68,8 +125,6 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 
 
 ## Failure boundaries of Cassandra
-
-*
 
 ## cluster topology of Cassandra
 
@@ -162,12 +217,34 @@ default=DC3:RAC1
 “The recommendation for speeding up .... is to add cache and more cache. And after that add a little more cache just in case.”
 “When something becomes slow it's a candidate for caching.”
 “LRU policy is perhaps the most popular due to its simplicity, good runtime performance, and a decent hit rate in common workloads.”
+“Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
+* 
+
+## Resources
+
+* https://community.datastax.com/
+* user@cassandra.apache.org - provides a general discussion list for users and is frequently used by new users or those needing assistance.
+* dev@cassandra.apache.org - is used by developers to discuss changes, prioritize work, and approve releases.
+* client-dev@cassandra.apache.org - is used for discussion specific to development of Cassandra clients for various programming languages.
+* commits@cassandra.apache.org - tracks Cassandra code commits. This is a fairly high-volume list and is primarily of interest to committers.
+* cassandra and cassandra-dev slack channels
+* Cassandra blogs
+  * [https://thelastpickle.com/blog/](https://thelastpickle.com/blog/)
+  * [https://cassandra.apache.org/blog/](https://cassandra.apache.org/blog/)
+  * [https://www.instaclustr.com/category/technical/cassandra/](https://www.instaclustr.com/category/technical/cassandra/)
+  * [https://www.datastax.com/blog](https://www.datastax.com/blog)
 
 
 ## Reference
 
 * [E.F Codd paper](https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf)
 * [The Case for Shared Nothing - Michael Stonebraker](https://dsf.berkeley.edu/papers/hpts85-nothing.pdf)
+* [CAP Theorem](http://www.julianbrowne.com/article/brewers-cap-theorem)
+* [CAP Twelve Years Later: How the "Rules" Have Changed](https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/)
+* [Cassandra - A Decentralized Structured Storage System](https://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
+* [Cassandra - A Decentralized Structured Storage System-Updated-Commentry by Johnathan Ellis](https://docs.datastax.com/en/articles/cassandra/cassandrathenandnow.html)
+* [Awesome Cassandra](https://github.com/Anant/awesome-cassandra)
+
 
 ## rough (throw-away)
 
