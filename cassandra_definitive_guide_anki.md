@@ -69,7 +69,7 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 
 * It uses gossip protcol (feature of peer-to-peer architecture) to maintain details of other nodes.
 * It allows tunable cosistency and client can decide for each write/read (how many RF?)
-* 
+* You can remove one column value alone in Cassandra
 
 ## Cap Theorem (Brewer's theorem)
 
@@ -117,6 +117,74 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * Ability to handle application workloads that require high performance at significant write volumes with many concurrent client threads is one of the primary features of Cassandra.
 
 
+
+## Cassandra directories
+
+* /opt/cassadra/bin
+* /opt/cassadra/bin/cassandra -f --run the process in foreground for debug print and learning..
+* /opt/cassadra/conf/cassandra.yaml
+* /var/lib/cassandra/hints/
+* /var/lib/cassandra/saved_caches/
+* /var/lib/cassandra/data/
+* /var/lib/cassandra/commitlog/
+* /var/log/cassandra/system.log
+* /var/log/cassandra/debug.log
+
+
+## Cassandra run-time properties
+
+* -Dcassandra-foreground=yes
+* -Dcassandra.jmx.local.port=7199
+* -Dcassandra.libjemalloc=/usr/local/lib/libjemalloc.so
+* -Dcassandra.logdir=/opt/cassandra/logs
+* -Dcassandra.storagedir=/opt/cassandra/data
+* -Dcom.sun.management.jmxremote.authenticate=false
+* -Dcom.sun.management.jmxremote.password.file=/etc/cassandra/jmxremote.password
+* -Djava.library.path=/opt/cassandra/lib/sigar-bin
+* -Djava.net.preferIPv4Stack=true
+* -Dlogback.configurationFile=logback.xml
+* -XX:GCLogFileSize=10M
+* -XX:OnOutOfMemoryError=kill
+* -XX:StringTableSize=1000003
+* /opt/java/openjdk/bin/java
+
+
+## Cassandra cqlsh
+
+* Object names are in snake_case. Cassandra converts into lower_case by default, double quote to override
+* bin/cqlsh localhost 9042
+* ```sql
+  show version;
+  describe cluster; 
+  create keyspace sample_ks with replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+  use sample_ks;
+  DESCRIBE KEYSPACES;
+  describe keyspace sample_ks;
+  describe keyspace system;
+  create table user ( first_name text, last_name text, title text, PRIMARY KEY(last_name, first_name) );
+  describe table user;
+  insert into user(first_name, last_name, title) values  ('Mohan', 'Narayanaswamy', 'Developer');
+  select * from user where first_name='Mohan' and last_name = 'Narayanaswamy';
+  select * from user where first_name='Mohan';
+  --* InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and hus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
+  select count(*) from user; --Aggregation query used without partition key
+  delete title from user where last_name='Narayanaswamy' and first_name='Mohan';  --one column alone
+  delete from user where last_name='Narayanaswamy' and first_name='Mohan';  --entire row deletion
+```
+
+
+## Via docker
+
+```bash
+docker pull cassandra
+docker network create cass-network
+docker run -d --name my-cassandra --network cass-network cassandra
+docker run -d --name my-cassandra-2 --network cass-network cassandra
+#docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
+docker exec -it my-cassandra cqlsh
+docker stop my-cassandra
+```  
+
 ## What is anti-entropy repair?
 
 * List of chained security filtered beans
@@ -144,6 +212,7 @@ PRIMARY KEY (("k1", "k2"), "c1", "c2"), ) WITH CLUSTERING ORDER BY ("c1" DESC, "
 * Minimum token is -9223372036854775808 (and maximum token is 9223372036854775808).
 * ```sql
      cassandra@cqlsh:system_schema>
+     DESCRIBE CLUSTER;
      SELECT * FROM system_schema.keyspaces;
      desc KEYSPACE Keyspace_Name;
      select token(key), key, my_column from mytable where token(key) >= %s limit 10000;```
@@ -219,6 +288,16 @@ default=DC3:RAC1
 “LRU policy is perhaps the most popular due to its simplicity, good runtime performance, and a decent hit rate in common workloads.”
 “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
 * 
+
+## Building Cassandra
+
+* Cassandra is built using Ant & Maven (Ant in-turn uses Maven)
+* [Apache Builds](https://builds.apache.org/)
+* [Apache Cassandra Build](https://ci-cassandra.apache.org/view/Cassandra%204.0/job/Cassandra-trunk/lastBuild/)
+* [Cassandra source](https://gitbox.apache.org/repos/asf/cassandra.git)
+* 'jdk8; ant -f build.xml clean generate-idea-files'
+* Ant default target would produce apache-cassandra-x.x.x.jar
+
 
 ## Resources
 
