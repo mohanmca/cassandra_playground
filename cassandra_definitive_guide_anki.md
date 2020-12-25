@@ -326,6 +326,7 @@ default=DC3:RAC1
 * [Cassandra pay-2015](http://marketing.dice.com/pdf/Dice_TechSalarySurvey_2015.pdf)
 * [Cassandra pay-2019](http://marketing.dice.com/pdf/Dice_TechSalarySurvey_2019.pdf)
 * [Dice pay 2020](https://computing.nova.edu/documents/dice_techsalarysurvey_2020.pdf)
+* [CQLSH Introduction](https://gist.github.com/jeffreyscarpenter/761ddcd1c125dfb194dc02d753d31733)
 ## rough (throw-away)
 
 
