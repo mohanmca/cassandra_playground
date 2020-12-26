@@ -76,6 +76,11 @@ UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE first_name = 'Mary' 
 
 SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
 
+
+## Find the token
+
+SELECT last_name, first_name, token(last_name) FROM user;
+
 ## Clear the screen of output from previous commands
 
 CLEAR

@@ -79,6 +79,12 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * CP -  Neo4j, MongoDB, HBase, BigTable
 * AP -  DNS, Cassandra, Amazon Dynamo
 
+## Cassandra Lightweight transaction (LWT) - Linearizable consistency
+
+* Ensure there are not operation between read and write
+* Example: Check if user exist, if not create user (don't overwrite in between)
+* Example: Update the value if and only if the value is X (Check-and-set)
+* LWT is based on Paxos algorithm (and it is better than two-phase commit)
 
 
 ## Consistencey levels
@@ -87,6 +93,12 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
   * “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.”
 * Casual consistency (Happens before)
 * Eventual consisteny (matter of milli-seconds)
+
+## Strong consistency in Cassandra
+
+* R + W > RF = strong consistency
+* In this equation, R, W, and RF are the read replica count, the write replica count, and the replication factor, respectively;
+
 
 ## Row-Oriented (Wide column store)
 
@@ -183,13 +195,95 @@ docker run -d --name my-cassandra-2 --network cass-network cassandra
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
 docker exec -it my-cassandra cqlsh
 docker stop my-cassandra
-```  
+```
+
+## Datamodel quick checklist
+
+* All the possible impory query that needs to satisfied should be considered before design
+* Minimize the number of partitions that must be searched to satisfy a given query
+* Growing number of tombstones begins to degrade read performance. Data-model should account to minmize it
+* Partition-size = Nv=Nr(Nc−Npk−Ns)+Ns (hard-limit 2 billion, in-general 100K)
+* in Cassandra - everything is distributed hashmap despite they look like relational-model
+* Joins are not supported and should be discouraged in Cassandra
+* NO REFERENTIAL INTEGRITY - supported in Cassandra (or any nosql)
+
+
+## THE WIDE PARTITION PATTERN
+
+* group multiple related rows in a partition in order to support fast access to multiple rows within the partition in a single query.
+* Cassandra can put tremendous pressure on the java heap and garbage collector, impact read latencies, and can cause issues ranging from load shedding and dropped messages to crashed and downed nodes.
+
+## Cassandra Architecture - logical components (2+4+3+4+1)
+
+* Network topology, Peer-to-peer
+* Gossip, repair, hinted handoff, and lightweight transactions
+* Reading, writing, and deleting data
+* Data-structures of memtable, commit-logs, caches and SSTables
+* LWW-Element-Set (Last-Write-Wins-Element-Set) and no-reconciliation
+
+
+## Cassandra token ring
+
+* Tokens range from -2^63 to 2^63 - 1
+* Every node owns multiple token (and it's token ranges)
+* TR - Token range of token t is -   x > TR < t
+  * x and t are two successive tokens
+  * Range of values less than or equal to each token and greater than the last token of the previous node
+* The node with the lowest token owns the range less than or equal to its token and the range greater than the highest token, which is also known as the wrapping range
+* Early version of Cassandra node has only one token (one TR), nowadays it has 256 token for each node (256 virutal nodes)
+* Larger machine can have more than 256 by modifying num_tokens@cassandra.yaml
+* Partitioner :: partition_key -> token (clustering key is not used by partitioner)
+* Partitioner can’t be changed after initializing a cluster. Cassandra uses MurMurPartitioner since 1.2
+
+## Hinted Handoff
+
+* Acts like JMS MQ, till message is delivered
+
+
+## Replication Factor vs Consistency Level
+
+9/
+
+## Conflict-free replicated data type
+
 
 ## What is anti-entropy repair?
 
-* List of chained security filtered beans
+* Replica synchronization mechanism for ensuring that data on different nodes is updated to the newest version.
+* Replica synchronization as well as hinted handoff.
+* Project Voldemort also uses read-repair similar to Cassandra (not anti-entropy repair)
+* 
 
-## What are operational mechanics taht affects how you application configuration for data consistency?
+## MERKLE TREE usage in Cassandra?
+
+* The advantage MERKLE TREE usage is that it reduces network I/O.
+* Used to ensure that the peer-to-peer network of nodes receives data blocks unaltered and unharmed.
+* Each table has its own Merkle tree; the tree is created as a snapshot during a validation compaction, 
+* MerkleTree is kept only as long as is required to send it to the neighboring nodes on the ring.
+
+## Commit Log
+
+* Only one commit log for entire server
+* Commit log shares across multiple table
+* All writes to all tables will go into the same commit log
+* Ther is a bit for flush_bit for each table in commit log (1 - flush_required, 0 - flush-not-required)
+* Throw more memory to reduce false-positives
+
+## Comapaction stragies in Cassandra
+
+* SizeTieredCompactionStrategy (STCS) is the default compaction strategy and is recommended for write-intensive tables.
+* LeveledCompactionStrategy (LCS) is recommended for read-intensive tables.
+* TimeWindowCompactionStrategy (TWCS) is intended for time series or otherwise date-based data.
+
+## Bloom Filter
+
+* Used to reduce disk access
+* Used in Hadoop, Bigtable, Squid Proxy Cache (and many big-data systems)
+* False-negative is not possible, but falst-positive is possible
+* if bloom-filter conveys data is not available, it is not avialble. If available, it may not be available.
+
+
+## What are operational mechanics that affects how you application configuration for data consistency?
 
 
 ## Failure boundaries of Cassandra
@@ -314,6 +408,13 @@ default=DC3:RAC1
   * [https://www.datastax.com/blog](https://www.datastax.com/blog)
 
 
+## Follow-up questions
+
+* Does mongo-db/kafka supports Cassandra-toplogy/cross-dc kind of configurations?
+* How to find node using token in Cassandra?
+* Where else "PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS" being used?
+* MerkleTree (surprise usage in Cassandra)
+* PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS (Surprise)
 ## Reference
 
 * [E.F Codd paper](https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf)
@@ -327,6 +428,8 @@ default=DC3:RAC1
 * [Cassandra pay-2019](http://marketing.dice.com/pdf/Dice_TechSalarySurvey_2019.pdf)
 * [Dice pay 2020](https://computing.nova.edu/documents/dice_techsalarysurvey_2020.pdf)
 * [CQLSH Introduction](https://gist.github.com/jeffreyscarpenter/761ddcd1c125dfb194dc02d753d31733)
+* [Wide Partitions in Apache Cassandra 3.11](https://thelastpickle.com/blog/2019/01/11/wide-partitions-cassandra-3-11.html)
+* [Paxos made simple](https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/past/03F/notes/paxos-simple.pdf)
 ## rough (throw-away)
 
 
