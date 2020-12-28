@@ -274,6 +274,20 @@ docker stop my-cassandra
 * SizeTieredCompactionStrategy (STCS) is the default compaction strategy and is recommended for write-intensive tables.
 * LeveledCompactionStrategy (LCS) is recommended for read-intensive tables.
 * TimeWindowCompactionStrategy (TWCS) is intended for time series or otherwise date-based data.
+* Anticompaction  - Split SSTable with one containing repaied data and other containing unrepaired data
+
+
+## Cassandra under the hood
+
+* [Refactor and modernize the storage engine](https://issues.apache.org/jira/browse/CASSANDRA-8099)
+* [Materialized Views (was: Global Indexes)](https://issues.apache.org/jira/browse/CASSANDRA-6477)
+* [Cassandra pluggable storage engine](https://issues.apache.org/jira/browse/CASSANDRA-13474)
+
+## Deletion and Tombstones
+
+* Nodes that was down when records deleted should have mechnism, hence tombstones
+* Tombstones can be configured using gc_grace_seconds (garbage collection grace seconds)
+* gc_grace_seconds = 864000 seconds ( 10 days)
 
 ## Bloom Filter
 
@@ -363,6 +377,142 @@ cat /proc/cass_proc_id/limits | grep files
 default=DC3:RAC1
 ```
 
+
+## Cassandra Client - features (Datastax Driver 4.9.0)
+
+*   <groupId>com.datastax.oss</groupId>{<artifactId>java-driver-query-builder</artifactId>| <artifactId>java-driver-core</artifactId>| <artifactId>java-driver-mapper-processor</artifactId>|<artifactId>java-driver-mapper-runtime</artifactId>
+* CqlSession maintains TCP connections to multiple nodes, it is a heavyweight object. Reuse it
+* Prefer file based client side driver configuration
+* PreparedStatements also improve security by separating the query logic of CQL from the data.
+* Prepared statements were stored in a cache, but beginning with the 3.10 release, each Cassandra node stores prepared statements in a local table so that they are present if the node goes down and comes back up.
+* Client side loadbalancing can be configured
+  * RoundRobin/Token awareness/Data center awareness
+* Driver should deal with node failures, hence we can also configure retry mechnism  
+* CQL native protocol is asynchronous
+* Compression can be enabled between client and server
+* Security can be configured between client and server
+* Deifferent profiles can be configured between invocation by the same client
+
+## Client 
+
+## Cassandra Client - Retry Failied Queries (if node failed)
+
+* ExponentialReconnectionPolicy  vs ConstantReconnectionPolicy
+* onReadTimeout(), onWriteTimeout(), and onUnavailable()
+* The RetryPolicy operations return a RetryDecision
+* 
+
+## Cassandra Client side - SPECULATIVE EXECUTION
+
+* The driver can preemptively start an additional execution of the query against a different coordinator node.
+* When one of the queries returns, the driver provides that response and cancels any other outstanding queries.
+* ConstantSpeculativeExecutionPolicy
+
+## Cassandra Client side - CONNECTION POOLING
+
+* 128 simultaneous requests in protocol - v2
+* 32768 simultaneous requests in protocol - v3 
+* Default single connection per node
+* 1024 -  The maximum number of simultaneous requests per connection (defaults to 1,024).
+
+
+## Cassandra Client side driver configuration 
+
+```json
+datastax-java-driver {
+  basic {
+    contact-points = [ "127.0.0.1:9042", "127.0.0.2:9042" ]
+    session-keyspace = reservation
+  }
+}
+```
+
+## Cassandra Client (Datastax Driver 4.9.0) - Java API
+
+```java
+CqlSession cqlSession = CqlSession.builder()
+    .addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
+    .withKeyspace("reservation")
+    .withLocalDatacenter("<data center name>")
+    .build()
+```
+## Cassandra Client Mapper/Entity Annotations
+
+* @Mapper
+* @Select
+* @Insert
+* @Delete
+* @Query
+
+
+## Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
+
+```java
+Select reservationSelect =
+  selectFrom("reservation", "reservations_by_confirmation")
+  .all()
+  .whereColumn("confirm_number").isEqualTo("RS2G0Z");
+
+SimpleStatement reseravationSelectStatement = reservationSelect.build()
+```
+
+## Cassandra Client (Datastax Driver 5.0) - Async API
+* CQL native protocol is asynchronous
+* ```java
+      CompletionStage<AsyncResultSet> resultStage =  cqlSession.executeAsync(statement);
+
+      // Load the reservation by confirmation number
+      CompletionStage<AsyncResultSet> selectStage = session.executeAsync(
+        "SELECT * FROM reservations_by_confirmation WHERE
+          confirm_number=RS2G0Z");
+
+      // Use fields of the reservation to delete from other table
+      CompletionStage<AsyncResultSet> deleteStage =
+        selectStage.thenCompose(
+          resultSet -> {
+            Row reservationRow = resultSet.one();
+            return session.executeAsync(SimpleStatement.newInstance(
+              "DELETE FROM reservations_by_hotel_date WHERE hotel_id = ? AND
+                start_date = ? AND room_number = ?",
+              reservationRow.getString("confirm_number"),
+              reservationRow.getLocalDate("start_date"),
+              reservationRow.getInt("room_number"));
+          });
+
+      // Check results for success
+      deleteStage.whenComplete(
+          (resultSet, error) -> {
+            if (error != null) {
+              System.out.printf("Failed to delete: %s\n", error.getMessage());
+            } else {
+              System.out.println("Delete successful");
+            }      
+```
+
+
+## JDK 9 - Reactive style API
+
+* The CqlSession interface extends a new ReactiveSession interface
+  * which adds methods such as executeReactive() to process queries expressed as reactive streams.
+* ```java
+    try (CqlSession session = ...) {
+          Flux.from(session.executeReactive("SELECT ..."))
+              .doOnNext(System.out::println)
+              .blockLast();
+    } catch (DriverException e) {
+      e.printStackTrace();
+    }
+
+try (CqlSession session = ...) {
+  Flux.just("INSERT ...", "INSERT ...", "INSERT ...", ...)
+      .doOnNext(System.out::println)
+      .flatMap(session::executeReactive)
+      .blockLast();
+} catch (DriverException e) {
+  e.printStackTrace();
+}    
+````
+
 ## Cassandra failures and solutions
 
 * java.lang.OutOfMemoryError: Map failed` - Almost always incorrect user limits - check ulimit -a 
@@ -430,6 +580,8 @@ default=DC3:RAC1
 * [CQLSH Introduction](https://gist.github.com/jeffreyscarpenter/761ddcd1c125dfb194dc02d753d31733)
 * [Wide Partitions in Apache Cassandra 3.11](https://thelastpickle.com/blog/2019/01/11/wide-partitions-cassandra-3-11.html)
 * [Paxos made simple](https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/past/03F/notes/paxos-simple.pdf)
+* [Datastax driver reference](https://github.com/datastax/java-driver/)
+
 ## rough (throw-away)
 
 
