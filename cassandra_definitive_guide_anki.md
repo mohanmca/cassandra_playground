@@ -393,7 +393,12 @@ default=DC3:RAC1
 * Security can be configured between client and server
 * Deifferent profiles can be configured between invocation by the same client
 
-## Client 
+## Cassandra Client - Metadata
+
+* Client can access metadata - CqlSession.getMetadata() 
+* Client can react for schema changes using - withSchemaChangeListener()
+* Client can deduce dropped nodes and new nodes that were added - com.datastax.oss.driver.api.core.metadata.NodeStateListener
+* 
 
 ## Cassandra Client - Retry Failied Queries (if node failed)
 
