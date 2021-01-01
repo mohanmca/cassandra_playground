@@ -34,6 +34,7 @@ docker exec -it cass2 nodetool stopdaemon
 ```bash
 docker inspect cass2 | grep IPAddress
 cqlsh 172.18.0.3 9042
+use cycling;
 ```
 
 docker cp cass1:/etc/cassandra/cassandra.yaml /tmp
