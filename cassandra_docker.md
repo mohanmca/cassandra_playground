@@ -29,6 +29,13 @@ docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cass
 docker exec -it cass2 nodetool stopdaemon
 ```
 
+## Connect to cassandra docker cluster
+
+```bash
+docker inspect cass2 | grep IPAddress
+cqlsh 172.18.0.3 9042
+```
+
 docker cp cass1:/etc/cassandra/cassandra.yaml /tmp
 docker cp cass1:/var/log/cassandra/* D:/git/cassandra_playground/log
 docker cp cass1:/var/log/cassandra/system.log D:/git/cassandra_playground/log
