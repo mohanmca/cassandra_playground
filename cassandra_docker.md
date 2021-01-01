@@ -24,6 +24,8 @@ docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassan
 ```bash
 docker run --name cass1 --network cassnet -d cassandra
 docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra
+docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra
+ 
 docker exec -it cass2 nodetool stopdaemon
 ```
 
