@@ -14,7 +14,8 @@ cassandra learning
 * [partition](https://github.com/mohanmca/cassandra_playground/blob/master/partition.md)
 * [setup](https://github.com/mohanmca/cassandra_playground/blob/master/setup.md)
 * [todo](https://github.com/mohanmca/cassandra_playground/blob/master/todo.md)
-
+* [Debug log](https://github.com/mohanmca/cassandra_playground/blob/master/log/debug.log)
+* [System Log](https://github.com/mohanmca/cassandra_playground/blob/master/log/system.log)
 
 ## How to generate conf/cassandra_simple.yaml
 
