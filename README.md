@@ -1,6 +1,11 @@
 # cassandra_playground
 cassandra learning
 
+## Important Cassandra links
+
+* [JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8844)
+* [GIT Cassandra](https://gitbox.apache.org/repos/asf/cassandra.git)
+* [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 
 ## Cassandra index
 
