@@ -33,9 +33,18 @@ docker exec -it cass2 nodetool stopdaemon
 
 ```bash
 docker inspect cass2 | grep IPAddress
+docker exec -it cass2 bash
 cqlsh 172.18.0.3 9042
 use cycling;
 ```
+## Run commands into cassandra docker node
+
+```bash
+docker exec -it cass2 bash
+docker exec -it cass2 nodetool tpstats
+docker exec -it cass2 nodetool repair
+```
+
 
 docker cp cass1:/etc/cassandra/cassandra.yaml /tmp
 docker cp cass1:/var/log/cassandra/* D:/git/cassandra_playground/log

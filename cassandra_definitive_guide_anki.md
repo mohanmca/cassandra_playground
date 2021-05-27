@@ -142,6 +142,14 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * /var/log/cassandra/system.log
 * /var/log/cassandra/debug.log
 
+## Cassandra directories and files
+
+* $CASSANDRA_HOME/data/commitlog
+  * CommitLog-<version><timestamp>.log
+  * CommitLog-7-1566780133999.log
+* 1-SSTable has multiple files
+  * SSTable stored under - $CASSANDRA_HOME/data/data
+  * 
 
 ## Cassandra run-time properties
 
@@ -513,6 +521,47 @@ try (CqlSession session = ...) {
 }    
 ````
 
+## Cassandra write path
+
+* Performance optimzied for write using append only
+* Database commit log and hinted handoff design, the database is always writable, and within a row, writes are always atomic.
+* Consistency Level - ANY/ONE/TWO/THREE/LOCAL_ONE/QUORUM/LOCAL_QUORUM/EACH_QUORUM/ALL
+  * ANY - Hinted hand-off is counted 
+  * ONE (Atleast one commit-log + sstable) is counted as one
+* Write-Path
+  * Client > Cassandra Cordinator Node > Nodes (replicas)
+  * If client uses token-aware cordinator itself replica, if not key is used by partitioner to find node
+  * Co-ordinator selects remote co-ordinator fro X-DC replications
+* Node that was down will have data using one of the following
+  * Anti-entropy mechanisms: 
+  * hinted handoff
+  * read repair
+  * Anti-entropy repair.
+* Existing Row-Cache is invalidated during write
+* Flush and Compaction might be peformed if necessary
+* Memtables are stored as SS-Table to disk
+
+## Cassandra write path - Materialized view
+
+* Partition must be locked while consensus negotiated between replicas
+* Logged batches are used to maintain materialized views
+* The Cassandra database performs an additional read-before-write operation to update each materialized view
+* If a delete on the source table affects two or more contiguous rows, this delete is tagged with one tombstone.
+* But one delete in a source table might create multiple tombstones in the materialized view
+
+
+
+
+## Cassandra write/read - consistency CQLS
+
+* ```bash
+      cqlsh> CONSISTENCY;
+      ## Current consistency level is ONE.
+      cqlsh> CONSISTENCY LOCAL_ONE;
+      ## Consistency level set to LOCAL_ONE.
+      ## statement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+  ```
+
 ## Cassandra failures and solutions
 
 * java.lang.OutOfMemoryError: Map failed` - Almost always incorrect user limits - check ulimit -a 
@@ -531,7 +580,14 @@ try (CqlSession session = ...) {
 “When something becomes slow it's a candidate for caching.”
 “LRU policy is perhaps the most popular due to its simplicity, good runtime performance, and a decent hit rate in common workloads.”
 “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
-* 
+
+
+## Nodetool
+
+* Adminstration tool uses JMX to interact with Cassandra
+* TPstats and Tablestats  are subcommands in nodetool
+* nodetool help tpstats
+* nodetool tpstats --
 
 ## Building Cassandra
 
@@ -581,6 +637,12 @@ try (CqlSession session = ...) {
 * [Wide Partitions in Apache Cassandra 3.11](https://thelastpickle.com/blog/2019/01/11/wide-partitions-cassandra-3-11.html)
 * [Paxos made simple](https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/past/03F/notes/paxos-simple.pdf)
 * [Datastax driver reference](https://github.com/datastax/java-driver/)
+* [Incremental Repair Improvements in Cassandra 4](https://thelastpickle.com/blog/2018/09/10/incremental-repair-improvements-in-cassandra-4.html)
+## Code 
+
+* [jeffreyscarpenter/reservation-service](https://github.com/jeffreyscarpenter/reservation-service)
+* [Datastax KillrVideo sample java application](https://killrvideo.github.io/docs/languages/java/)
+* [Datastax spring pet-clinic](https://github.com/DataStax-Examples/spring-petclinic-reactive#prerequisites)
 
 ## rough (throw-away)
 
