@@ -596,6 +596,7 @@ try (CqlSession session = ...) {
 * [Apache Cassandra Build](https://ci-cassandra.apache.org/view/Cassandra%204.0/job/Cassandra-trunk/lastBuild/)
 * [Cassandra source](https://gitbox.apache.org/repos/asf/cassandra.git)
 * 'jdk8; ant -f build.xml clean generate-idea-files'
+* 'jdk8; ant -f build.xml test cqltest'
 * Ant default target would produce apache-cassandra-x.x.x.jar
 
 
