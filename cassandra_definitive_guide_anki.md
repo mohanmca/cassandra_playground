@@ -597,6 +597,8 @@ try (CqlSession session = ...) {
 * [Cassandra source](https://gitbox.apache.org/repos/asf/cassandra.git)
 * 'jdk8; ant -f build.xml clean generate-idea-files'
 * 'jdk8; ant -f build.xml test cqltest'
+* To test one class in intelli-idea
+  * java -Dcassandra.config=file:\\\D:\git\cassandra4\test\conf\cassandra.yaml -Dlogback.configurationFile=file:\\\D:\git\cassandra4\test\conf\logback-test.xml -Dcassandra.logdir=D:/git/cassandra4/build/test/logs -Djava.library.path=D:/git/cassandra4/lib/sigar-bin -ea org.apache.cassandra.db.compaction.LeveledCompactionStrategyTest
 * Ant default target would produce apache-cassandra-x.x.x.jar
 
 
