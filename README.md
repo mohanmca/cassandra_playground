@@ -6,6 +6,7 @@ cassandra learning
 * [JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8844)
 * [GIT Cassandra](https://gitbox.apache.org/repos/asf/cassandra.git)
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
+* [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
 
 ## Cassandra index
 
