@@ -396,5 +396,6 @@ rack=RAC
 
 
 
-## Referece
+## Reference
+
 * [Vnodes](https://www.datastax.com/blog/2012/12/virtual-nodes-cassandra-12)

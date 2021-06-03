@@ -193,16 +193,16 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 ```
 
 
-## Via docker
+## How to run apache Cassandra using docker
 
 ```bash
 docker pull cassandra
 docker network create cass-network
-docker run -d --name my-cassandra --network cass-network cassandra
-docker run -d --name my-cassandra-2 --network cass-network cassandra
+docker run -d --name apc1 --network cass-network cassandra
+docker run -d --name apc2 --network cass-network cassandra
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
-docker exec -it my-cassandra cqlsh
-docker stop my-cassandra
+docker exec -it apc2 cqlsh
+docker stop apc2
 ```
 
 ## Datamodel quick checklist

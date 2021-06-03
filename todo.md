@@ -1,1 +1,0 @@
-* Setup python client application

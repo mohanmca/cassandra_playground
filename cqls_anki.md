@@ -37,6 +37,16 @@ system.token(tag)    | tag
 
 172.19.0.2
 
+## What are all the System Schema
+
+```
+system
+system_auth
+system_distributed
+system_schema
+system_traces
+```
+
 
 ## See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
 

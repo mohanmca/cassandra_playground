@@ -112,13 +112,7 @@ CREATE TABLE videos_by_tag (
 
 COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.csv' WITH HEADER = TRUE; 
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
-```  
-
 ```
-
-
-
-
 
 ## Reference
 *[Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)

@@ -1,9 +1,18 @@
+## Find Cassandra tag to practice
+* Choose ops-center and later dse server
+* docker run -e DS_LICENSE=accept -d -p 8888:8888 -p 61620:61620 --name my-opscenter --network cassnet datastax/dse-opscenter:6.1.10
+* datastax/dse-server:6.0.16-1
+
+
 ## Cassandra cluster using dse
 
 ```bash
 docker network create --driver=bridge cassnet
-docker run -e DS_LICENSE=accept --name some-cassandra --network cassnet -d datastax/dse-server
-docker run -e DS_LICENSE=accept --name some-cassandra2 --network cassnet  -e CASSANDRA_SEEDS=some-cassandra -d datastax/dse-server
+## docker run -e DS_LICENSE=accept --link my-opscenter:opscenter --name some-cassandra --network cassnet -d datastax/dse-server:6.0.16-1 (with OpsCenter)
+## docker run -e DS_LICENSE=accept --link my-opscenter:opscenter --name some-cassandra2 --network cassnet  -e CASSANDRA_SEEDS=some-cassandra -d datastax/dse-server:6.0.16-1  (with OpsCenter)
+
+docker run -e DS_LICENSE=accept --name some-cassandra --network cassnet -d datastax/dse-server:6.0.16-1
+docker run -e DS_LICENSE=accept --name some-cassandra2 --network cassnet  -e CASSANDRA_SEEDS=some-cassandra -d datastax/dse-server:6.0.16-1
 docker inspect --format '{{ .NetworkSettings.IPAddress }}' some-cassandra
 docker inspect --format '{{ .NetworkSettings.IPAddress }}' some-cassandra2
 

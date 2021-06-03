@@ -26,3 +26,9 @@ cassandra learning
 ## How to generate conf/cassandra_simple.yaml
 
 * grep -v "^#" conf/cassandra.yaml |   sed  '/^$/d' > conf/cassandra_simple.yaml 
+
+## Analyze Cassandra code
+
+```
+cat test/unit/org/apache/cassandra/db/compaction/LeveledCompactionStrategyTest.java | tr ' ' '\r\n' | tr A-Z a-z | sort| tr -d '[\\}\\{}]' | sort  
+```

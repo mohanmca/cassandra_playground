@@ -20,6 +20,20 @@ docker run -d --name my-cassandra-2 --network cass-network cassandra
 docker exec -it my-cassandra cqlsh
 ```  
 
+## [Via docker for DSE server](https://docs.datastax.com/en/landing_page/doc/landing_page/compatibility.html)
+
+```bash
+docker pull datastax/dse-server:6.0.16-1
+docker network create cass-network
+docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra --network cass-network datastax/dse-server:6.0.16-1
+docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra-2 --network cass-network datastax/dse-server:6.0.16-1
+#docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest
+docker exec -it my-cassandra cqlsh
+``` 
+
+https://hub.docker.com/r/datastax/dse-server/tags?page=1&ordering=last_updated
+
+
 ### Find status Cassandra  
 
 ```bash
@@ -69,9 +83,10 @@ set PATH=D:\Apps\Python\Python27;%PATH%;
 docker exec -it some-cassandra cqlsh
 ```
 
-
-
-
-
 ## Reference
+* [Docker Setup](https://docs.datastax.com/en/docker/doc/docker/docker68/dockerReadme.html)
+* [DSE Docker setup on windows](https://www.datastax.com/blog/running-dse-microsoft-windows-using-docker)
 *[Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+* [Datastax VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
+* [Assets for course](https://academy.datastax.com/resources/ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+* [C:\Users\nikia\Dropbox\Certifications\Cassandra](https://academy.datastax.com/#/online-courses/6167eee3-0575-4d88-9f80-f2270587ce23)
