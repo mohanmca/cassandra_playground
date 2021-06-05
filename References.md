@@ -1,7 +1,8 @@
-# cassandra_playground
-cassandra learning
+## Important Spring Java project
 
-## Important Cassandra links
+* [Cassandra Datastax PetClinic](https://github.com/spring-petclinic/spring-petclinic-reactive)
+* [Cassandra Datastax Reactive PetClinic](https://github.com/DataStax-Examples/spring-petclinic-reactive)
+# Important Cassandra links
 
 * [JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8844)
 * [GIT Cassandra](https://gitbox.apache.org/repos/asf/cassandra.git)
