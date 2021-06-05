@@ -1,0 +1,9 @@
+{
+  "name": "mohans-massandra-motes",
+  "dependencies": {
+    "markdown-include": "0.4.3"
+  },
+  "scripts": {
+    "docs": "markdown-include markdown.json"
+  }
+}

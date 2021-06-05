@@ -50,7 +50,7 @@ system_traces
 
 ## See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
 
-SELECT COUNT (*) FROM user;
+* SELECT COUNT (*) FROM user;
 
 ## Write a couple of rows, populate different columns for each, and view the results
 
@@ -60,41 +60,46 @@ SELECT * FROM user;
 
 ## View the timestamps generated for previous writes
 
-SELECT first_name, last_name, writetime(last_name) FROM user;
+* SELECT first_name, last_name, writetime(last_name) FROM user;
 
 ## Note that we’re not allowed to ask for the timestamp on primary key columns
 
-SELECT WRITETIME(first_name) FROM user;
+* SELECT WRITETIME(first_name) FROM user;
 
 ## Set the timestamp on a write
 
-UPDATE user USING TIMESTAMP 1434373756626000 SET last_name = 'Boateng' WHERE first_name = 'Mary' ;
+* UPDATE user USING TIMESTAMP 1434373756626000 SET last_name = 'Boateng' WHERE first_name = 'Mary' ;
 
 ## Verify the timestamp used
 
-SELECT first_name, last_name, WRITETIME(last_name) FROM user WHERE first_name = 'Mary';
+* SELECT first_name, last_name, WRITETIME(last_name) FROM user WHERE first_name = 'Mary';
 
 ## View the time to live value for a column
 
-SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
+* SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
 
 ## Set the TTL on the  last name column to one hour
 
-UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE first_name = 'Mary' ;
+* UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE first_name = 'Mary' ;
 
 ## View the TTL of the last_name - (counting down)
 
-SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
+* SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
 
 
 ## Find the token
 
-SELECT last_name, first_name, token(last_name) FROM user;
+* SELECT last_name, first_name, token(last_name) FROM user;
 
 ## Clear the screen of output from previous commands
 
-CLEAR
+* CLEAR
 
 ## Exit cqlsh
 
-EXIT
+* EXIT
+
+
+## Reference
+
+* [A deep look at the CQL WHERE clause](https://www.datastax.com/blog/deep-look-cql-where-clause)
