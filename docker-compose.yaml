@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  
+  db:
+    image: cassandra
+
+  microservice:
+    image: datastaxdevs/petclinic-backend
+    restart: on-failure
+    ports:
+      - 9966:9966
+    depends_on:
+      - db
+    environment:
+      CASSANDRA_USE_ASTRA: "false" 
+      CASSANDRA_USER: "cassandra" 
+      CASSANDRA_PASSWORD: "cassandra" 
+      CASSANDRA_LOCAL_DC: "datacenter1" 
+      CASSANDRA_CONTACT_POINTS: "db:9042"
+      CASSANDRA_KEYSPACE_CQL: "CREATE KEYSPACE spring_petclinic WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};" 
+      MONITORING_PROMETHEUS: "false"
+      DISTRIBUTED_TRACING_ENABLED: "false"
+
+  webapp:
+    image: datastaxdevs/petclinic-frontend-nodejs
+    ports:
+      - 8080:8080
+    depends_on: 
+      - microservice
+    environment: 
+      URL: KATACODA-URL
