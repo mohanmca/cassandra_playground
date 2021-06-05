@@ -26,14 +26,14 @@ Status=Up/Down
 UN   127.0.0.1        180.95 KiB       100.00%              0                                            rack1        0.70         
 ```
 
-## Cassandra cluster using apache cassandra
+## Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
 
 ```bash
-docker pull cassandra
+docker pull cassandra:3.11.10
 docker network create cassnet
-docker run --name cass1 --network cassnet -d cassandra
-docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra
-docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra
+docker run --name cass1 --network cassnet -d cassandra:3.11.10
+docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra:3.11.10
+docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra:3.11.10
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest 
 docker exec -it cass2 cqlsh
 docker exec -it cass2 nodetool stopdaemon
@@ -141,12 +141,12 @@ create table KillrVideo.videos(
     Title Text
 );
 
-insert into video (video_id, added_date, Title) values (1645ea59-14bd-11e5-a993-8138354b7e31, '2014-01-29', 'Cassandra History');
-select * from video where video_id=1645ea59-14bd-11e5-a993-8138354b7e31;
-insert into video (video_id, added_date, Title) values (245e8024-14bd-11e5-9743-8238356b7e32, '2012-04-03', 'Cassandra & SSDs');
-select * from video;
-TRUNCATE video;
-COPY video(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
+insert into videos (video_id, added_date, Title) values (1645ea59-14bd-11e5-a993-8138354b7e31, '2014-01-29', 'Cassandra History');
+select * from videos where video_id=1645ea59-14bd-11e5-a993-8138354b7e31;
+insert into videos (video_id, added_date, Title) values (245e8024-14bd-11e5-9743-8238356b7e32, '2012-04-03', 'Cassandra & SSDs');
+select * from videos;
+TRUNCATE videos;
+COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
 ```
 
 ## References
