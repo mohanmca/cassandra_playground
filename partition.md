@@ -1,8 +1,3 @@
-* Base installation location - /home/osboxes/node
-* Base location for lab - /home/osboxes/Downloads/labwork/data-files
-* /home/osboxes/Downloads/labwork/data-files/videos-by-tag.csv
-
-
 ## Partition
 
 * The most important concept in Cassandra is patition.
