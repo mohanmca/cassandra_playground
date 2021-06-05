@@ -1,3 +1,7 @@
+## Pre-requisite for this tutorial is docker
+
+* [Docker cheatsheet](https://github.com/mohanmca/MohanLearningGround/blob/master/src/main/md/Tools/docker.md)
+
 ## Use Os-boxes as virtual machine to install cassandra
 
 * Base installation location - /home/osboxes/node
