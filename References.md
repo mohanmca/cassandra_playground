@@ -9,6 +9,11 @@
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
 
+
+## Cassandra Course Videos
+
+* [DS-201 vidoes](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
+
 ## Cassandra index
 
 * [Architecture](https://github.com/mohanmca/cassandra_playground/blob/master/Architecture.md)
@@ -24,6 +29,9 @@
 * [Debug log](https://github.com/mohanmca/cassandra_playground/blob/master/log/debug.log)
 * [System Log](https://github.com/mohanmca/cassandra_playground/blob/master/log/system.log)
 
+## Famous Cassandra articles
+
+* [The things I hate about Apache Cassandra - John Schulz](https://blog.pythian.com/the-things-i-hate-about-apache-cassandra/)
 ## How to generate conf/cassandra_simple.yaml
 
 * grep -v "^#" conf/cassandra.yaml |   sed  '/^$/d' > conf/cassandra_simple.yaml 

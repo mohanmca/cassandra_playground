@@ -18,6 +18,8 @@
 * Rows are sorted within the partition based on clustering column
 * PRIMARY KEY ((state), city, name)
   * By default they are sorted in Ascending order
+* A table always has a partition key, and that if the table has no clustering columns
+  * Every partition of that table is only comprised of a single row
 * Example
   * (PRIMARY KEY((state), city, name, id) WITH CLUSTERING ORDER BY (city DESC, name ASC))  
   * "CREATE TABLE videos_by_tag (
@@ -32,12 +34,16 @@
 
 * Primary Key = Partition Key + Clustering Column
 * Decides uniqueness and date order (sorted and stored)
+* Some example of primary key definition are:
+    * PRIMARY KEY (a): a is the partition key and there is no clustering columns.
+    * PRIMARY KEY (a, b, c) : a is the partition key and b and c are the clustering columns.
+    * PRIMARY KEY ((a, b), c) : a and b compose the partition key (this is often called a composite partition key) and c is the clustering column.
 
 
 ## Impact of partition key on query (CQL)
 
 * All equality comparision comes before inequality (<, >)
-* Inequality comparision or range queries on clustering columns are allowed
+* Inequality comparision or range queries on clustering columns are allowed (provided partition-key precedes)
 * Since data is already sorted on disk
   * Range queries are binary search and followed by a linear read
 * If we use datetime or timeuuid and stored them in descending order, later record always contains most recent one.
@@ -47,6 +53,15 @@
   * allows query on just clustering columns without knowing partition key 
   * Don't use it
 
+## Querying
+
+* Always provide partition key
+* Follow the equality similar to the way it is defined
+  * Remember that the storage order is based on Clustering key within partition
+  * If CQL has more than one equality within clustering column, follow the order of table definition
+*   
+
+## CQL
 
 ```bash
 cqlsh:killrvideo> desc table video;
@@ -109,5 +124,9 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.c
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```
 
+## Datastax slides
+
+* (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)[DataStax: A deep look at the CQL WHERE clause ]
 ## Reference
-*[Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+* [Primary Key, Partition Key and Data Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
+* [Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)

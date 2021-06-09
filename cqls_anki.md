@@ -5,7 +5,9 @@ CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'repli
 
 USE killrvideo;
 
-CREATE TABLE videos (id uuid,added_date timestamp,title text,PRIMARY KEY ((id)));
+CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((id)));
+insert into vidoes (video_id, added_date, title) values (5645f8bd-14bd-11e5-af1a-8638355b8e3a, '2014-02-28','Cassndra History')
+
 -- docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/vidoes.csv
 COPY videos(id, added_date, title) FROM '/videos.csv' WITH HEADER=TRUE;
 
@@ -24,9 +26,20 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
    356242581507269238 | cassandra
    356242581507269238 | cassandra
- 
+
+--Export data
+COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
 
+## How to list partition_key (or the actual token) along with other columns
+
+* USe token fucntion and pass all the parameter of the partition_key
+* select tag, title, video_added_date, token(tag) from videos_by_tag;
+* "InvalidRequest: code=2200 [Invalid query] message="Invalid number of arguments in call to function token: 1 required but 2 provided"
+  * When you pass clustering column that are not part of partition_key, CQL throws this error
+
+
+## 
 ## Gosspinfo
 
 ```sql
@@ -98,6 +111,7 @@ SELECT * FROM user;
 ## Exit cqlsh
 
 * EXIT
+* Quit
 
 
 ## Reference
