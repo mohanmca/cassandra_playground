@@ -144,6 +144,53 @@ EndPointState {
 * https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
 
+# Sample Gossipinfo
+
+```json
+ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
+/127.0.0.1
+  generation:1623251077
+  heartbeat:732
+  STATUS:32:NORMAL,-117951217631614635
+  LOAD:717:6930897.0
+  SCHEMA:322:08e0aca4-d15e-3357-8876-0e7cc6cc60ba
+  DC:50:Cassandra
+  RACK:18:rack1
+  RELEASE_VERSION:4:4.0.0.2284
+  NATIVE_TRANSPORT_ADDRESS:3:127.0.0.1
+  X_11_PADDING:677:{"dse_version":"6.0.0","workloads":"Cassandra","workload":"Cassandra","active":"true","server_id":"08-00-27-32-1E-DD","graph":false,"health":0.1}
+  NET_VERSION:1:256
+  HOST_ID:2:d8e387df-71c3-4584-b911-bb8867f66b8b
+  NATIVE_TRANSPORT_READY:86:true
+  NATIVE_TRANSPORT_PORT:6:9041
+  NATIVE_TRANSPORT_PORT_SSL:7:9041
+  STORAGE_PORT:8:7000
+  STORAGE_PORT_SSL:9:7001
+  JMX_PORT:10:7199
+  TOKENS:31:<hidden>
+/127.0.0.2
+  generation:1623251055
+  heartbeat:736
+  STATUS:61:NORMAL,-1182052107726675062
+  LOAD:699:7303102.0
+  SCHEMA:328:08e0aca4-d15e-3357-8876-0e7cc6cc60ba
+  DC:65:Cassandra
+  RACK:18:rack1
+  RELEASE_VERSION:4:4.0.0.2284
+  NATIVE_TRANSPORT_ADDRESS:3:127.0.0.1
+  X_11_PADDING:680:{"dse_version":"6.0.0","workloads":"Cassandra","workload":"Cassandra","active":"true","server_id":"08-00-27-32-1E-DD","graph":false,"health":0.1}
+  NET_VERSION:1:256
+  HOST_ID:2:55c76577-e187-4948-807f-a95026a7c4dd
+  NATIVE_TRANSPORT_READY:95:true
+  NATIVE_TRANSPORT_PORT:6:9042
+  NATIVE_TRANSPORT_PORT_SSL:7:9042
+  STORAGE_PORT:8:7000
+  STORAGE_PORT_SSL:9:7001
+  JMX_PORT:10:7299
+  TOKENS:60:<hidden>
+```
+
+
 ## Node failure detector
 
 * Every node declares their own status.
@@ -204,6 +251,25 @@ EndPointState {
 * Let us say if we try to store token()==59 and RF=2
   * Node that owns 50-63 would get a copy
   * Node that owns 63-75 would also get a copy
+
+
+## Replication with RF>=2 and Cross DataCenter
+
+* Cross DC replication is hard
+* We can have different RF for each DC
+* Country specific replication can be controlled at the keyspace level
+* Remote Co-ordinator would act as a local-cordinator to replicate data within remote DC
+
+## Consistency in CQL
+
+```CQL
+cqlsh:killrvideo> consistency ANY;
+Consistency level set to ANY.
+cqlsh:killrvideo> select * from videos_by_tag;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+cqlsh:killrvideo> INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
+cqlsh:killrvideo> select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+```
 
 ## Reference
 

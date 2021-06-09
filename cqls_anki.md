@@ -1,21 +1,25 @@
 ## Create Keyspace
 
 ```sql
-CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
+## Only when cluster replication exercise
+CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy','east-side': 1,'west-side': 1};
 
+CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 
-CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((id)));
-insert into vidoes (video_id, added_date, title) values (5645f8bd-14bd-11e5-af1a-8638355b8e3a, '2014-02-28','Cassndra History')
+CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
+insert into videos (video_id, added_date, title) values (5645f8bd-14bd-11e5-af1a-8638355b8e3a, '2014-02-28','Cassndra History')
 
 -- docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/vidoes.csv
-COPY videos(id, added_date, title) FROM '/videos.csv' WITH HEADER=TRUE;
+-- COPY videos(video_id, added_date, title) FROM '~/labwork/data-files/videos.csv' WITH HEADER=TRUE;
+COPY videos(video_id, added_date, title) FROM '/videos.csv' WITH HEADER=TRUE;
 
 CREATE TABLE videos_by_tag (tag text,video_id uuid,added_date timestamp,title text,PRIMARY KEY ((tag), added_date, video_id)) WITH CLUSTERING ORDER BY(added_date DESC);
-
 -- docker cp  D:/git/cassandra_playground/labwork/data-files/videos-by-tag.csv some-cassandra:/videos-by-tag.csv
-
+-- COPY videos_by_tag(tag, video_id, added_date, title) FROM '~/labwork/data-files/videos-by-tag.csv' WITH HEADER=TRUE;
 COPY videos_by_tag(tag, video_id, added_date, title) FROM '/videos-by-tag.csv' WITH HEADER=TRUE;
+INSERT INTO killrvideo.videos_by_tag (tag, added_date, video_id, title) VALUES ('cassandra', '2016-2-8', uuid(), 'Me Lava Cassandra');
+UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag = 'cassandra' AND added_date = '2016-02-08' AND video_id = paste_your_video_id;
 
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
 --output of gossip-info
@@ -38,8 +42,6 @@ COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 * "InvalidRequest: code=2200 [Invalid query] message="Invalid number of arguments in call to function token: 1 required but 2 provided"
   * When you pass clustering column that are not part of partition_key, CQL throws this error
 
-
-## 
 ## Gosspinfo
 
 ```sql
@@ -52,7 +54,7 @@ COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 
 ## What are all the System Schema
 
-```
+```bash
 system
 system_auth
 system_distributed
@@ -67,9 +69,9 @@ system_traces
 
 ## Write a couple of rows, populate different columns for each, and view the results
 
-INSERT INTO user (first_name, last_name, title) VALUES ('Bill', 'Nguyen', 'Mr.');
-INSERT INTO user (first_name, last_name) VALUES ('Mary', 'Rodriguez');
-SELECT * FROM user;
+1. INSERT INTO user (first_name, last_name, title) VALUES ('Bill', 'Nguyen', 'Mr.');
+1. INSERT INTO user (first_name, last_name) VALUES ('Mary', 'Rodriguez');
+1. SELECT * FROM user;
 
 ## View the timestamps generated for previous writes
 
