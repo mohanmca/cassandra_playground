@@ -187,6 +187,24 @@ EndPointState {
 * Changing network topology requires restarting all the nodes with latest snitch
 * Run sequential repair and cleanup on each node
 
+## Replication with RF=1
+
+* Every node is responsible for certain token range
+* Partitioner finds the token from the data (MurMurPartitioner)
+* RF=1 - Only one copy of the data (source alone)
+* Let us say we have token range or 0, 13, 25, 38, 50, 63, 75, 88, 100
+* If we try to insert data with token value of 59. 
+  * Node that owns token higher than 59 is (here 63 is choosen)
+  * Node that owns 50 and above.. but below 63 would store the data
+
+## Replication with RF>=2
+
+* Data would be stored in node that supposed to own token range
+* For every RF>1, Node who is neighbour (token range higher) also gets copy of the data
+* Let us say if we try to store token()==59 and RF=2
+  * Node that owns 50-63 would get a copy
+  * Node that owns 63-75 would also get a copy
+
 ## Reference
 
 * [Datastax videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
