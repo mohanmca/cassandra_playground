@@ -1,3 +1,25 @@
+## DSE Cassandra Course topics
+
+1. Install and Start Apache Cassandra™
+1. CQL
+1. Partitions
+1. Clustering Columns
+1. Application Connectivity and Drivers
+1. Node
+1. Ring
+1. VNodes
+1. Gossip
+1. Snitches
+1. Replication
+1. Consistency Levels
+1. Hinted Handoff
+1. Read Repair
+1. Node Sync
+1. Write Path
+1. Read Path
+1. Compaction
+1. Advanced Performance
+
 ## Course DSE installation
 
 ```bash
@@ -259,6 +281,10 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 * We can have different RF for each DC
 * Country specific replication can be controlled at the keyspace level
 * Remote Co-ordinator would act as a local-cordinator to replicate data within remote DC
+
+## Consistency
+
+* Cassandra is AP System and Consistency is tunable 
 
 ## Consistency in CQL
 
