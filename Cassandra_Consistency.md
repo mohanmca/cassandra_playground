@@ -1,4 +1,4 @@
-## Cap Theorem (Consistency)
+## CAP Theorem (Consistency)
 
 * CAP Theory and Consistency
 * Cassandra fits into AP system, doesn't promise Consistency
@@ -18,11 +18,18 @@
   * TimeSeries data
   * IOT
 * CL=ALL
-  * Most useless (Entire cluster might stop... should be quite careful)
+  * Most useless (Entire cluster might stop... should use only after quite thoughtful conversation)
 * Cross DC Consistency
   * Strong replication with consistency
   * Remote Coordinator
-  * Quorum is heavy (for Cross-DC)
+  * Quorum is heavy (for Cross-DC), It has to consider all the nodes across all the DC's  
   * Local-Quorum (Remote coordinator would not consider for remote Quorum)
+    * Not considered remote DC Quorum in Local Quorum
 * Any < One/Two/Three < Quorum < Local_One < Local_Quorum < Each_Quorum  < ALL (from weak to strong consistency)
 * Each_Quorum - Quorum of nodes in each data-center, applies to write only
+
+
+## What is Each_Quorum
+
+* Quorum of nodes in each data-center, applies to write only
+* Not many application uses it
