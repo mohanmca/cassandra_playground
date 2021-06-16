@@ -184,9 +184,209 @@
 * DSE - uses only one thread per core
 * DSE - Uses asynchronous a lot and non-blocking
 
+## Before and after flush
+```
+Total number of tables: 47					Total number of tables: 47
+----------------						----------------
+Keyspace : keyspace1						Keyspace : keyspace1
+	Read Count: 0							Read Count: 0
+	Read Latency: NaN ms						Read Latency: NaN ms
+	Write Count: 574408						Write Count: 574408
+	Write Latency: 0.009942241403323074 ms				Write Latency: 0.009942241403323074 ms
+	Pending Flushes: 0						Pending Flushes: 0
+		Table: standard1						Table: standard1
+		SSTable count: 3			      |			SSTable count: 4
+		Space used (live): 92.67 MiB		      |			Space used (live): 97.73 MiB
+		Space used (total): 92.67 MiB		      |			Space used (total): 97.73 MiB
+		Space used by snapshots (total): 0 bytes			Space used by snapshots (total): 0 bytes
+		Off heap memory used (total): 497.8 KiB	      |			Off heap memory used (total): 525.04 KiB
+		SSTable Compression Ratio: -1.0					SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 426808	      |			Number of partitions (estimate): 427070
+		Memtable cell count: 22313		      |			Memtable cell count: 0
+		Memtable data size: 5.94 MiB		      |			Memtable data size: 0 bytes
+		Memtable off heap memory used: 0 bytes				Memtable off heap memory used: 0 bytes
+		Memtable switch count: 18		      |			Memtable switch count: 19
+		Local read count: 0						Local read count: 0
+		Local read latency: NaN ms					Local read latency: NaN ms
+		Local write count: 574408					Local write count: 574408
+		Local write latency: 0.009 ms					Local write latency: 0.009 ms
+		Pending flushes: 0						Pending flushes: 0
+		Percent repaired: 0.0						Percent repaired: 0.0
+		Bytes repaired: 0.000KiB					Bytes repaired: 0.000KiB
+		Bytes unrepaired: 88.575MiB		      |			Bytes unrepaired: 93.424MiB
+		Bytes pending repair: 0.000KiB					Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0					Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000				Bloom filter false ratio: 0.00000
+		Bloom filter space used: 497.82 KiB	      |			Bloom filter space used: 525.07 KiB
+		Bloom filter off heap memory used: 497.8 KiB  |			Bloom filter off heap memory used: 525.04 KiB
+		Index summary off heap memory used: 0 bytes			Index summary off heap memory used: 0 bytes
+		Compression metadata off heap memory used: 0 			Compression metadata off heap memory used: 0 
+		Compacted partition minimum bytes: 180				Compacted partition minimum bytes: 180
+		Compacted partition maximum bytes: 258				Compacted partition maximum bytes: 258
+		Compacted partition mean bytes: 258				Compacted partition mean bytes: 258
+		Average live cells per slice (last five minut			Average live cells per slice (last five minut
+		Maximum live cells per slice (last five minut			Maximum live cells per slice (last five minut
+		Average tombstones per slice (last five minut			Average tombstones per slice (last five minut
+		Maximum tombstones per slice (last five minut			Maximum tombstones per slice (last five minut
+		Dropped Mutations: 0 bytes					Dropped Mutations: 0 bytes
+		Failed Replication Count: null					Failed Replication Count: null
+```
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36296
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:41 aa-9-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:41 aa-9-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:41 aa-9-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu   194656 Jun 12 04:41 aa-9-bti-Filter.db
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:41 aa-9-bti-Statistics.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:41 aa-9-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:41 aa-9-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu       82 Jun 12 04:41 aa-9-bti-TOC.txt
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:41 .
+```
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36488
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:47 aa-10-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:47 aa-10-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:47 aa-10-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu   389304 Jun 12 04:47 aa-10-bti-Filter.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:47 aa-10-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:47 aa-10-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu       82 Jun 12 04:47 aa-10-bti-TOC.txt
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:47 aa-10-bti-Statistics.db
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:47 .
+```
+
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36104
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:53 aa-12-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:53 aa-12-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:53 aa-12-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:53 aa-12-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:53 aa-12-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:53 aa-12-bti-Statistics.db
+-rw-rw-r-- 1 ubuntu ubuntu       72 Jun 12 04:53 aa-12-bti-TOC.txt
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:53 .
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-0
+```
+
+
+## Nodetool CFStats 
+
+```
+ubuntu@ds201-node1:~/node/bin$ ./nodetool cfstats keyspace1
+Total number of tables: 47
+----------------
+Keyspace : keyspace1
+	Read Count: 0
+	Read Latency: NaN ms
+	Write Count: 154846
+	Write Latency: 0.011354216447308938 ms
+	Pending Flushes: 0
+		Table: counter1
+		SSTable count: 0
+		Space used (live): 0
+		Space used (total): 0
+		Space used by snapshots (total): 0
+		Off heap memory used (total): 0
+		SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 0
+		Memtable cell count: 0
+		Memtable data size: 0
+		Memtable off heap memory used: 0
+		Memtable switch count: 0
+		Local read count: 0
+		Local read latency: NaN ms
+		Local write count: 0
+		Local write latency: NaN ms
+		Pending flushes: 0
+		Percent repaired: 100.0
+		Bytes repaired: 0.000KiB
+		Bytes unrepaired: 0.000KiB
+		Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000
+		Bloom filter space used: 0
+		Bloom filter off heap memory used: 0
+		Index summary off heap memory used: 0
+		Compression metadata off heap memory used: 0
+		Compacted partition minimum bytes: 0
+		Compacted partition maximum bytes: 0
+		Compacted partition mean bytes: 0
+		Average live cells per slice (last five minutes): NaN
+		Maximum live cells per slice (last five minutes): 0
+		Average tombstones per slice (last five minutes): NaN
+		Maximum tombstones per slice (last five minutes): 0
+		Dropped Mutations: 0
+		Failed Replication Count: null
+
+		Table: standard1
+		SSTable count: 1
+		Space used (live): 36943323
+		Space used (total): 36943323
+		Space used by snapshots (total): 0
+		Off heap memory used (total): 0
+		SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 155716
+		Memtable cell count: 0
+		Memtable data size: 0
+		Memtable off heap memory used: 0
+		Memtable switch count: 9
+		Local read count: 0
+		Local read latency: NaN ms
+		Local write count: 154846
+		Local write latency: 0.010 ms
+		Pending flushes: 0
+		Percent repaired: 0.0
+		Bytes repaired: 0.000KiB
+		Bytes unrepaired: 33.815MiB
+		Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000
+		Bloom filter space used: 0
+		Bloom filter off heap memory used: 0
+		Index summary off heap memory used: 0
+		Compression metadata off heap memory used: 0
+		Compacted partition minimum bytes: 180
+		Compacted partition maximum bytes: 258
+		Compacted partition mean bytes: 258
+		Average live cells per slice (last five minutes): NaN
+		Maximum live cells per slice (last five minutes): 0
+		Average tombstones per slice (last five minutes): NaN
+		Maximum tombstones per slice (last five minutes): 0
+		Dropped Mutations: 0
+		Failed Replication Count: null
+
+----------------
+ubuntu@ds201-node1:~/node/bin$ 
+```
+
+```
+./cassandra-stress read CL=ONE no-warmup n=1000000 -rate threads=1
+./nodetool cfstats
+```
 
 ## Followup questions
 
+* we could not find /var/log/system.log
+  * During single-node check console output or nohup.out or terminal output
 * What is the difference between partition-summary and partition-index?
 
 

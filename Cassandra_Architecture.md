@@ -6,11 +6,11 @@
   * 6K to 12K transaction
   * 2-4TB of data on ssd
 * Cassandra can lineraly scale with new nodes
-* 
+*
 
 ### nodetool
 
-* help - help 
+* help - help
 * info - jvm statistics
 * status  - all the nodes status (how this node see other nodes in cluster)
 
@@ -26,7 +26,7 @@
   * co-ordinator-node !12== data-node
 * Range
   * (2^63)-1 to -(2^63)
-* Partitioner - Decides how to distribute data within nodes  
+* Partitioner - Decides how to distribute data within nodes
 * Right partitioner would place the data widely
   * Murmur3 as a partitioner
   * MD5 partitioner (random and even)
@@ -36,7 +36,7 @@
 * Gossips out to seed-node (seed-nodes are configured in cassandra.yaml)
 * Other node finds where could new node could fit (could be manual or automatic)
 * Seed nodes communicate cluster topology to the joining new-node
-* State of the nodes 
+* State of the nodes
   * Joining, Leaving, UP and Down
 
 
@@ -47,7 +47,7 @@
   * TokenAwarePolicy
   * RoundRobinPolicy
   * DCAwareRoundRobinPolicy
-* Driver knowing token range would make it intelligent, It would directly talk to data node when data is required  
+* Driver knowing token range would make it intelligent, It would directly talk to data node when data is required
 * Driver can use the  TokenAwarePolicy and directly deal with the node that is responsbile for the data, internally it would avoid one more hop (co-ordinator-node === data-node)
 
 ## Peer-to-Peer
@@ -86,7 +86,7 @@
 * If all nodes have equal hardware capability, each node should have the same num_tokens value.
 
 ### Why Vnode?
-  
+
 * If we have 30 node (with RF=3), effectively we have 10 nodes of original data, 20 nodes of replicated. If every node holds data for 3 ranges of token, and when a node goes down, logically we have RF=2 for set of data, and we can stream from 6 nodes of data
 * If you started your older machines with 64 vnodes per node and the new machines are twice as powerful, simply give them 128 vnodes each and the cluster remains balanced even during transition.
 * When using vnodes, Cassandra automatically assigns the token ranges for you. Without vnode, manual assignment is required.
@@ -145,7 +145,7 @@
   * Cassandra.yaml
     * endpoint_snitch : {"SmpleSnitch" | "PropertyFileSnitch" | "GossipingPropertyFileSnitch" | "DynamicSnitch" }
     * Ec2Snitch, GoogleCloudSnitch, CloudStackSnitch
-  * DynamicSnitch - can work on top of snitch that was configured, and in addition knows the high performing node. When node needs to replicate, it can find high-peforming node using DynamicSnitch  
+  * DynamicSnitch - can work on top of snitch that was configured, and in addition knows the high performing node. When node needs to replicate, it can find high-peforming node using DynamicSnitch
 * If we need to change the snitch
   * After changing, need to restart all the nodes and run the sequential repair and clean-up on each node.
 * All node must use same snitch
@@ -191,7 +191,7 @@ rack=RAC
   * Replication factor could be different for each datacenter
   * When Co-ordinator needs to write data to target-node + 2 other node, where one-of-them belongs to other data-center
   * Data recieved in that target-node of the different data-center takes responsibility to replicate in its data-center
-* A replication factor greater than one...    
+* A replication factor greater than one...
   * Widens the range of token values a single node is responsible for.
   * Causes overlap in the token ranges amongst nodes.
   * Requires more storage in your cluster.
@@ -211,7 +211,7 @@ rack=RAC
   * CL = ALL (Write CF = Quorum)
 * Read (CF=ONE) and Write (CF=ONE), When is it useful
   * IOT
-  * Log-data  
+  * Log-data
   * IOT Timeseries data (where consistency is not that important)
 * Consistency across data-center
   * Replica to remote DC could be part of quorum, but it makes write/read slower
@@ -271,7 +271,7 @@ rack=RAC
 * Generally you are safe, but no guarantees
 * Response sent immediately when consistency level is met
 * Read repair done asynchronously in the background
-* 10% by default  
+* 10% by default
 
 
 ## Node-repai
@@ -316,7 +316,7 @@ rack=RAC
 1. Read-path would take care to read data between mem-table and SS-Table
 1. **Always ensure commit-log and ss-table are stored in different drive for performance reason**
    * If they are stored in same disk, append only log and read (seek operation), both would slow-down
-* When does a client acknowledge a write? 
+* When does a client acknowledge a write?
   * Ans: After the commit log and MemTable are written
 * SSTable and MemTable are stored sorted by clustering columns
 
@@ -392,7 +392,7 @@ rack=RAC
   * Writes and Reads, both are asynchronous
   * Each thread has its own mem-table
   * Separate management thread for Mem-table-flush, Compaction, Hints, Streaming
-* OSS - Executor thread-pool 
+* OSS - Executor thread-pool
 
 
 

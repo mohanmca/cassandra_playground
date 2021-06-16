@@ -1,4 +1,5 @@
-## New model
+## RDBMS Hitstory
+
 * IBM DB1 - IMS (Hierarchical dbms) - Released in 1968 
 * IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
 * Pros : It works for most of the cases
@@ -29,6 +30,11 @@
 * For other kinds of applications, such as billing or ticketing applications, this can be acceptable.
 * Starbucks Does Not Use Two-Phase Commit
   * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
+
+## Queue anti-pattern
+
+* Cassandra is not suited for Queue
+* 
 
 ## Sharding (Share nothing)
 
@@ -80,11 +86,10 @@
 * Weak (or) Eventual Consistency
   * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
 
-
 ## Row-Oriented
 
-* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables. 
-* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model). 
+* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
+* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
 * “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
 
 ## Always writeable
@@ -104,6 +109,7 @@
 
 
 ## Notable tools
+
 * Sstableloader - Bulk loader
 * Leveled compaction strategy - for faster reads
 * Atomic batches
@@ -117,14 +123,16 @@
 
 ## Updated CAP - Brewer's Theorem
 
-* Brewer now describes the “2 out of 3” axiom as somewhat misleading. He notes that designers only need sacrifice consistency or availability in the presence of partitions, and that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
-
+* Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
+* He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
 
 ## Quotes
+
 * If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
 * [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
 
 ## References
+
 * [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
 * [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
 * (AWS re:Invent 2018: Amazon DynamoDB Deep Dive: Advanced Design Patterns for DynamoDB (DAT401))[https://www.youtube.com/watch?time_continue=33&v=HaEPXoXVf2k]

@@ -5,14 +5,25 @@
 
 ## How to connect to Cassandra from API
 
-* Create Cluster object
-* Create Session object
-* Execute Query using session and retrieve the result
+1. Create Cluster object
+1. Create Session object
+1. Execute Query using session and retrieve the result
 
 ```java
 Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
-Session sesssion = cluster.connect("KillrVideo")
-ResultSet rset = seesion.execute("select * from videos_by_tag where tag='cassandra'");
+Session session = cluster.connect("KillrVideo")
+ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
+
+boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
+
+List<Book> books = new ArrayList<Book>();
+result.forEach(r -> {
+   books.add(new Book(
+      r.getUUID("id"), 
+      r.getString("title"),  
+      r.getString("subject")));
+});
+return books;
 ```
 
 ## TO setup python

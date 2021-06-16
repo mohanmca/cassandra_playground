@@ -1,0 +1,2 @@
+* [WORKSHOP: Opensource Tools for Apache Cassandra 24 Nov 20. Adam Zegelin SVP Engineering, Instaclustr](https://www.youtube.com/watch?v=v1zkqHfSSUE)
+* [Best Practices of Cassandra in Production](https://www.youtube.com/watch?v=P6UkQJrEQyU)

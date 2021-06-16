@@ -5,6 +5,7 @@
 # Important Cassandra links
 
 * [JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8844)
+* [Cassandra Cwiki](https://cwiki.apache.org/confluence/display/CASSANDRA/Home)
 * [GIT Cassandra](https://gitbox.apache.org/repos/asf/cassandra.git)
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
@@ -41,3 +42,9 @@
 ```
 cat test/unit/org/apache/cassandra/db/compaction/LeveledCompactionStrategyTest.java | tr ' ' '\r\n' | tr A-Z a-z | sort| tr -d '[\\}\\{}]' | sort  
 ```
+
+## K8ssandra
+
+* [Workshop](https://github.com/datastaxdevs/workshop-k8ssandra)
+* [Workshop slides](https://github.com/datastaxdevs/k8ssandra-workshop/raw/main/K8ssandra%20Workshop%20Feb%202021.pdf)
+* [Workshop Steps](https://github.com/datastaxdevs/workshop-k8ssandra/wiki)

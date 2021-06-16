@@ -82,6 +82,46 @@ docker exec -it my-cassandra sh -c "/opt/dse/bin/cqlsh.sh"
 docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/videos.csv
 ```
 
+## [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
+
+* ```bash
+docker pull cassandra
+docker run -d --name nodeA --network cassnet cassandra
+docker logs -f nodeA
+docker pull datastaxdevs/petclinic-backend
+docker run -d \
+    --name backend \
+    --network cass-cluster-network \
+    -p 9966:9966 \
+    -e CASSANDRA_USE_ASTRA=false \
+    -e CASSANDRA_USER=cassandra \
+    -e CASSANDRA_PASSWORD=cassandra \
+    -e CASSANDRA_LOCAL_DC=datacenter1 \
+    -e CASSANDRA_CONTACT_POINTS=nodeA:9042 \
+    -e CASSANDRA_KEYSPACE_CQL="CREATE KEYSPACE spring_petclinic WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};" \
+    datastaxdevs/petclinic-backend
+curl -X GET "http://localhost:9966/petclinic/api/pettypes" -H "accept: application/json" | jq
+curl -X POST \
+   "http://localhost:9966/petclinic/api/pettypes" \
+   -H "accept: application/json" \
+   -H "Content-Type: application/json" \
+   -d "{ \"id\": \"unicorn\", \"name\": \"unicorn\"}" | jq
+docker exec -it nodeA cqlsh;
+USE spring_petclinic;
+SELECT * FROM petclinic_reference_lists WHERE list_name='pet_type';
+QUIT;
+docker pull datastaxdevs/petclinic-frontend-nodejs
+docker run -d --name frontend -p 8080:8080 -e URL=https://2886795274-9966-jago04.environments.katacoda.com datastaxdevs/petclinic-frontend-nodejs
+clear
+docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
+## Via docker compose
+docker-compose up --scale db=3
+```
+* [Swagger-API](http://localhost:9966/swagger-ui/)
+
 
 ## Copy files into and out-of containers
 
@@ -165,11 +205,11 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
   * 6K to 12K transaction
   * 2-4TB of data on ssd
 * Cassandra can lineraly scale with new nodes
-* 
+*
 
 ### nodetool
 
-* help - help 
+* help - help
 * info - jvm statistics
 * status  - all the nodes status (how this node see other nodes in cluster)
 
@@ -185,7 +225,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
   * co-ordinator-node !12== data-node
 * Range
   * (2^63)-1 to -(2^63)
-* Partitioner - Decides how to distribute data within nodes  
+* Partitioner - Decides how to distribute data within nodes
 * Right partitioner would place the data widely
   * Murmur3 as a partitioner
   * MD5 partitioner (random and even)
@@ -195,7 +235,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 * Gossips out to seed-node (seed-nodes are configured in cassandra.yaml)
 * Other node finds where could new node could fit (could be manual or automatic)
 * Seed nodes communicate cluster topology to the joining new-node
-* State of the nodes 
+* State of the nodes
   * Joining, Leaving, UP and Down
 
 
@@ -206,7 +246,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
   * TokenAwarePolicy
   * RoundRobinPolicy
   * DCAwareRoundRobinPolicy
-* Driver knowing token range would make it intelligent, It would directly talk to data node when data is required  
+* Driver knowing token range would make it intelligent, It would directly talk to data node when data is required
 * Driver can use the  TokenAwarePolicy and directly deal with the node that is responsbile for the data, internally it would avoid one more hop (co-ordinator-node === data-node)
 
 ## Peer-to-Peer
@@ -245,7 +285,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 * If all nodes have equal hardware capability, each node should have the same num_tokens value.
 
 ### Why Vnode?
-  
+
 * If we have 30 node (with RF=3), effectively we have 10 nodes of original data, 20 nodes of replicated. If every node holds data for 3 ranges of token, and when a node goes down, logically we have RF=2 for set of data, and we can stream from 6 nodes of data
 * If you started your older machines with 64 vnodes per node and the new machines are twice as powerful, simply give them 128 vnodes each and the cluster remains balanced even during transition.
 * When using vnodes, Cassandra automatically assigns the token ranges for you. Without vnode, manual assignment is required.
@@ -304,7 +344,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
   * Cassandra.yaml
     * endpoint_snitch : {"SmpleSnitch" | "PropertyFileSnitch" | "GossipingPropertyFileSnitch" | "DynamicSnitch" }
     * Ec2Snitch, GoogleCloudSnitch, CloudStackSnitch
-  * DynamicSnitch - can work on top of snitch that was configured, and in addition knows the high performing node. When node needs to replicate, it can find high-peforming node using DynamicSnitch  
+  * DynamicSnitch - can work on top of snitch that was configured, and in addition knows the high performing node. When node needs to replicate, it can find high-peforming node using DynamicSnitch
 * If we need to change the snitch
   * After changing, need to restart all the nodes and run the sequential repair and clean-up on each node.
 * All node must use same snitch
@@ -350,7 +390,7 @@ rack=RAC
   * Replication factor could be different for each datacenter
   * When Co-ordinator needs to write data to target-node + 2 other node, where one-of-them belongs to other data-center
   * Data recieved in that target-node of the different data-center takes responsibility to replicate in its data-center
-* A replication factor greater than one...    
+* A replication factor greater than one...
   * Widens the range of token values a single node is responsible for.
   * Causes overlap in the token ranges amongst nodes.
   * Requires more storage in your cluster.
@@ -370,7 +410,7 @@ rack=RAC
   * CL = ALL (Write CF = Quorum)
 * Read (CF=ONE) and Write (CF=ONE), When is it useful
   * IOT
-  * Log-data  
+  * Log-data
   * IOT Timeseries data (where consistency is not that important)
 * Consistency across data-center
   * Replica to remote DC could be part of quorum, but it makes write/read slower
@@ -430,7 +470,7 @@ rack=RAC
 * Generally you are safe, but no guarantees
 * Response sent immediately when consistency level is met
 * Read repair done asynchronously in the background
-* 10% by default  
+* 10% by default
 
 
 ## Node-repai
@@ -475,7 +515,7 @@ rack=RAC
 1. Read-path would take care to read data between mem-table and SS-Table
 1. **Always ensure commit-log and ss-table are stored in different drive for performance reason**
    * If they are stored in same disk, append only log and read (seek operation), both would slow-down
-* When does a client acknowledge a write? 
+* When does a client acknowledge a write?
   * Ans: After the commit log and MemTable are written
 * SSTable and MemTable are stored sorted by clustering columns
 
@@ -551,7 +591,7 @@ rack=RAC
   * Writes and Reads, both are asynchronous
   * Each thread has its own mem-table
   * Separate management thread for Mem-table-flush, Compaction, Hints, Streaming
-* OSS - Executor thread-pool 
+* OSS - Executor thread-pool
 
 
 
@@ -578,6 +618,8 @@ rack=RAC
 * Rows are sorted within the partition based on clustering column
 * PRIMARY KEY ((state), city, name)
   * By default they are sorted in Ascending order
+* A table always has a partition key, and that if the table has no clustering columns
+  * Every partition of that table is only comprised of a single row
 * Example
   * (PRIMARY KEY((state), city, name, id) WITH CLUSTERING ORDER BY (city DESC, name ASC))  
   * "CREATE TABLE videos_by_tag (
@@ -592,12 +634,16 @@ rack=RAC
 
 * Primary Key = Partition Key + Clustering Column
 * Decides uniqueness and date order (sorted and stored)
+* Some example of primary key definition are:
+    * PRIMARY KEY (a): a is the partition key and there is no clustering columns.
+    * PRIMARY KEY (a, b, c) : a is the partition key and b and c are the clustering columns.
+    * PRIMARY KEY ((a, b), c) : a and b compose the partition key (this is often called a composite partition key) and c is the clustering column.
 
 
 ## Impact of partition key on query (CQL)
 
 * All equality comparision comes before inequality (<, >)
-* Inequality comparision or range queries on clustering columns are allowed
+* Inequality comparision or range queries on clustering columns are allowed (provided partition-key precedes)
 * Since data is already sorted on disk
   * Range queries are binary search and followed by a linear read
 * If we use datetime or timeuuid and stored them in descending order, later record always contains most recent one.
@@ -607,6 +653,15 @@ rack=RAC
   * allows query on just clustering columns without knowing partition key 
   * Don't use it
 
+## Querying
+
+* Always provide partition key
+* Follow the equality similar to the way it is defined
+  * Remember that the storage order is based on Clustering key within partition
+  * If CQL has more than one equality within clustering column, follow the order of table definition
+*   
+
+## CQL
 
 ```bash
 cqlsh:killrvideo> desc table video;
@@ -669,8 +724,47 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.c
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```
 
+## Datastax slides
+
+* (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)[DataStax: A deep look at the CQL WHERE clause ]
 ## Reference
-*[Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+* [Primary Key, Partition Key and Data Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
+* [Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+## CAP Theorem (Consistency)
+
+* CAP Theory and Consistency
+* Cassandra fits into AP system, doesn't promise Consistency
+  * Cassandra supports partition tolerance and availability
+  * Cassandra promises tunable Consistency
+  * Consistency can be controlled for each and every read/request independently
+* Consistency is harder in distributed systems
+* CL = Consistency-Number (Number of replication count for current transaction)
+  * CL=1 = A node that stored data in commit-log and memtable
+  * CL=ANY = Data is note is not stored in any node, but just handed over to co-ordinator node.
+  * CL=Quorum = 51% of the nodes acknowledged that it wrote
+  * CL=ALL, Highest consistency and reduce the availability
+* CL=Quorum (both read and write) - is considered strongly consistent
+* CL=ANY, used only for write (not for read)
+* CL=ONE (Quite useful)
+  * Log-data
+  * TimeSeries data
+  * IOT
+* CL=ALL
+  * Most useless (Entire cluster might stop... should use only after quite thoughtful conversation)
+* Cross DC Consistency
+  * Strong replication with consistency
+  * Remote Coordinator
+  * Quorum is heavy (for Cross-DC), It has to consider all the nodes across all the DC's  
+  * Local-Quorum (Remote coordinator would not consider for remote Quorum)
+    * Not considered remote DC Quorum in Local Quorum
+* Any < One/Two/Three < Quorum < Local_One < Local_Quorum < Each_Quorum  < ALL (from weak to strong consistency)
+* Each_Quorum - Quorum of nodes in each data-center, applies to write only
+
+
+## What is Each_Quorum
+
+* Quorum of nodes in each data-center, applies to write only
+* Not many application uses it
 ```bash
 # nodetool status
 Datacenter: datacenter1
@@ -862,7 +956,8 @@ REQUEST_RESPONSE             0
 PAGED_RANGE                  0
 READ_REPAIR                  0
 ```
-## New model
+## RDBMS Hitstory
+
 * IBM DB1 - IMS (Hierarchical dbms) - Released in 1968 
 * IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
 * Pros : It works for most of the cases
@@ -893,6 +988,11 @@ READ_REPAIR                  0
 * For other kinds of applications, such as billing or ticketing applications, this can be acceptable.
 * Starbucks Does Not Use Two-Phase Commit
   * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
+
+## Queue anti-pattern
+
+* Cassandra is not suited for Queue
+* 
 
 ## Sharding (Share nothing)
 
@@ -944,11 +1044,10 @@ READ_REPAIR                  0
 * Weak (or) Eventual Consistency
   * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
 
-
 ## Row-Oriented
 
-* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables. 
-* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model). 
+* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
+* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
 * “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
 
 ## Always writeable
@@ -968,6 +1067,7 @@ READ_REPAIR                  0
 
 
 ## Notable tools
+
 * Sstableloader - Bulk loader
 * Leveled compaction strategy - for faster reads
 * Atomic batches
@@ -981,14 +1081,16 @@ READ_REPAIR                  0
 
 ## Updated CAP - Brewer's Theorem
 
-* Brewer now describes the “2 out of 3” axiom as somewhat misleading. He notes that designers only need sacrifice consistency or availability in the presence of partitions, and that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
-
+* Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
+* He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
 
 ## Quotes
+
 * If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
 * [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
 
 ## References
+
 * [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
 * [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
 * (AWS re:Invent 2018: Amazon DynamoDB Deep Dive: Advanced Design Patterns for DynamoDB (DAT401))[https://www.youtube.com/watch?time_continue=33&v=HaEPXoXVf2k]
@@ -1012,14 +1114,25 @@ READ_REPAIR                  0
 
 ## How to connect to Cassandra from API
 
-* Create Cluster object
-* Create Session object
-* Execute Query using session and retrieve the result
+1. Create Cluster object
+1. Create Session object
+1. Execute Query using session and retrieve the result
 
 ```java
 Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
-Session sesssion = cluster.connect("KillrVideo")
-ResultSet rset = seesion.execute("select * from videos_by_tag where tag='cassandra'");
+Session session = cluster.connect("KillrVideo")
+ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
+
+boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
+
+List<Book> books = new ArrayList<Book>();
+result.forEach(r -> {
+   books.add(new Book(
+      r.getUUID("id"), 
+      r.getString("title"),  
+      r.getString("subject")));
+});
+return books;
 ```
 
 ## TO setup python
@@ -1156,11 +1269,20 @@ for val in session.execute("select * from videos_by_tag"):
 mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
 ```
 
+## Developer who maintains/presented about Reaper
+
+* [Alexander Dejanovski](Alexandar Dejanvoski)
+* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
+
+## Repair documentation
+
+* [Cassandra documentation](https://cassandra.apache.org/doc/latest/operating/repair.html)
+* [Datastax documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
 ## What is repair?
 
-* Data won't be in sync due to eventual consistency pattern, Merkle-Tree based reconciliation would help to fix the data. It is also called anti-entropy repair. [Cassandra reper](http://cassandra-reaper.io/) is famous tool for scheduling repair
-* reper and nodetool repair works slightly different
-* Repair mode
+* Data won't be in sync due to eventual consistency pattern, Merkle-Tree based reconciliation would help to fix the data. It is also called anti-entropy repair. [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
+* reaper and nodetool repair works slightly different
+* Reaper Repair mode
   * sequential
   * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
   * datacenter_aware
@@ -1187,8 +1309,6 @@ mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassan
 * As per Reaper, you need to use a segment for every 50mb, 20K Segment for every 1 TB
 * Smaller the segement, let reaper to repair it faster
 
-
-
 ## Repair and some number related to time
 
 * With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to repair it.
@@ -1196,14 +1316,16 @@ mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassan
 
 ## Repair related commands
 
-* nodetool -dc DC ## is the command to repair using nodetool
+* nodetool repair -dc DC ## is the command to repair using nodetool
 * nodetool -h 1.1.1.1 status
 * 
 
 ## Reference
 
+* [Repair Improvements in Apache Cassandra 4.0 | DataStax](https://www.youtube.com/watch?v=kl2ea0Cxmi0)
 * [Apache Cassandra Maintenance and Repair](http://datastax.com/dev/blog/repair-in-cassandra)
 * [DSE 6.8  Architecture Guide, About Repair](https://docs.datastax.com/en/dse/6.8/dse-arch/datastax_enterprise/dbArch/archAboutRepair.html)
+* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 * [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
 ## How to create anki from this markdown file
 
@@ -1861,19 +1983,25 @@ try (CqlSession session = ...) {
 ## Create Keyspace
 
 ```sql
-CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
+## Only when cluster replication exercise
+CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy','east-side': 1,'west-side': 1};
 
+CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 
-CREATE TABLE videos (id uuid,added_date timestamp,title text,PRIMARY KEY ((id)));
+CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
+insert into videos (video_id, added_date, title) values (5645f8bd-14bd-11e5-af1a-8638355b8e3a, '2014-02-28','Cassndra History')
+
 -- docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/vidoes.csv
-COPY videos(id, added_date, title) FROM '/videos.csv' WITH HEADER=TRUE;
+-- COPY videos(video_id, added_date, title) FROM '~/labwork/data-files/videos.csv' WITH HEADER=TRUE;
+COPY videos(video_id, added_date, title) FROM '/videos.csv' WITH HEADER=TRUE;
 
 CREATE TABLE videos_by_tag (tag text,video_id uuid,added_date timestamp,title text,PRIMARY KEY ((tag), added_date, video_id)) WITH CLUSTERING ORDER BY(added_date DESC);
-
 -- docker cp  D:/git/cassandra_playground/labwork/data-files/videos-by-tag.csv some-cassandra:/videos-by-tag.csv
-
+-- COPY videos_by_tag(tag, video_id, added_date, title) FROM '~/labwork/data-files/videos-by-tag.csv' WITH HEADER=TRUE;
 COPY videos_by_tag(tag, video_id, added_date, title) FROM '/videos-by-tag.csv' WITH HEADER=TRUE;
+INSERT INTO killrvideo.videos_by_tag (tag, added_date, video_id, title) VALUES ('cassandra', '2016-2-8', uuid(), 'Me Lava Cassandra');
+UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag = 'cassandra' AND added_date = '2016-02-08' AND video_id = paste_your_video_id;
 
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
 --output of gossip-info
@@ -1884,8 +2012,17 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
    356242581507269238 | cassandra
    356242581507269238 | cassandra
- 
+
+--Export data
+COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
+
+## How to list partition_key (or the actual token) along with other columns
+
+* USe token fucntion and pass all the parameter of the partition_key
+* select tag, title, video_added_date, token(tag) from videos_by_tag;
+* "InvalidRequest: code=2200 [Invalid query] message="Invalid number of arguments in call to function token: 1 required but 2 provided"
+  * When you pass clustering column that are not part of partition_key, CQL throws this error
 
 ## Gosspinfo
 
@@ -1899,7 +2036,7 @@ system.token(tag)    | tag
 
 ## What are all the System Schema
 
-```
+```bash
 system
 system_auth
 system_distributed
@@ -1914,9 +2051,9 @@ system_traces
 
 ## Write a couple of rows, populate different columns for each, and view the results
 
-INSERT INTO user (first_name, last_name, title) VALUES ('Bill', 'Nguyen', 'Mr.');
-INSERT INTO user (first_name, last_name) VALUES ('Mary', 'Rodriguez');
-SELECT * FROM user;
+1. INSERT INTO user (first_name, last_name, title) VALUES ('Bill', 'Nguyen', 'Mr.');
+1. INSERT INTO user (first_name, last_name) VALUES ('Mary', 'Rodriguez');
+1. SELECT * FROM user;
 
 ## View the timestamps generated for previous writes
 
@@ -1958,21 +2095,471 @@ SELECT * FROM user;
 ## Exit cqlsh
 
 * EXIT
+* Quit
 
 
 ## Reference
 
 * [A deep look at the CQL WHERE clause](https://www.datastax.com/blog/deep-look-cql-where-clause)
 
-# cassandra_playground
-cassandra learning
+## [What is in All of Those SSTable Files Not Just the Data One but All the Rest Too! (John Schulz, The Pythian Group) | Cassandra Summit 2016 ](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
+## [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
+## Time-series presentations
 
-## Important Cassandra links
+1. (https://www.youtube.com/watch?v=nHes8XW1VHw)
+1. (https://www.youtube.com/watch?v=YewOx6En7WM)
+1. (https://www.youtube.com/watch?v=3yhd073ad5w)
+1. (https://www.youtube.com/watch?v=jSRBCoOaz6I)
+1. (https://www.youtube.com/watch?v=QwYH2EyKwNk)
+1. (https://www.youtube.com/watch?v=4VBh6UQd6z8)
+1. (https://www.youtube.com/watch?v=xVwo9lsrxfg)
+1. (https://www.youtube.com/watch?v=AZB5DX9m7Hc)
+1. (https://www.youtube.com/watch?v=3pPser3MYEE)
+1. (https://www.youtube.com/watch?v=ovMo5pIMj8M)
+1. (https://www.youtube.com/watch?v=iQBtkhvaOBM)
+## Hinted Handoff
+
+* Simple sticky note on co-ordinator
+* Once actual node is available, Co-ordinator would deliver the message
+* Previous version used to store hinted-handoff in the table (not nowadays)
+* Cassandra is not good fit to design *Queue*, Hence hinted handoff is not stored in table
+* There after timeout exceeds hinted-handoff itself dropped
+  * By default 2 hours
+* How co-ordinator knows node came online?
+  * Gossip protocol helps to trigger
+* COnsistency level of ANY - Hinted handoff is considered as valid transaction
+
+## How read works?
+
+* Co-ordinator reads data from fastest machine
+* Co-ordinator reads checksum form other two machine
+* if 1 and 2, matches, then we co-ordinator responds to client queries
+
+## Read Repair (Happens only when CL=All)
+
+* Over-time nodes goes out-of-sync
+* Every write chooses between availablity and consistency
+* When we choose availablity over consistency
+  * We also agree that some inconsistency between server, data becomes out-of-sync
+* When Co-ordinator observes data between 3 cluster is not valid, it does the following sequence
+    1. Request all nodes to return latest copies of data
+    1. Every cell (column) has latest timestamp, Finds the latest timestamp data and latest copy is chosen as valid
+    1. It sends latest copies to two other nodes for them to udpate (their obsolete data is repaired)
+    1. Responds to client with latest result
+
+## Read Repair Chance (when CL < ALL) (less than ALL consistency read)
+
+* Cassandra does read-repair even for request less than ALL, But not 100% but probablistically
+  * Probability is configurable
+  * dclocal_read_repair_chance  - (0.1 -- 10%)
+  * read_repair_chance
+* Client can't be sure if data is latest or replicas are in sync
+* Read repair done asynchronously in the background
+
+## Nodetool repair
+
+* It is the last line of defence for us to improve consistency within stored data
+* Syncs all data in the cluster
+* Expensive
+  * Grows with amount of data in cluster
+* Use with clusters servicing high writes/deletes
+* Must run to synchronize a failed node coming back online
+* Run on nodes not read from very often
+
+## Nodetool Sync (only datastax)
+
+* Peforming full-repair is costly
+* Full-repair should be run before gc_grace_seconds
+* It is default and automatically enabled in datastax
+* Repairs in small chunks as we go rather than full repair
+  * Create table myTable (...) WITH nodesync = {'enabled': 'true'};
+
+## Nodetool Sync Save points (only datastax)
+
+* Each node splits its local range into segments
+  * Small token range of a table
+* Each segment makes a save point
+  * NodeSync repairs a segment
+  * Then NodeSync saves its progress
+  * Repeat
+  * Save-point is the place where progress is stored
+* NodeSync priorities segments to meet deadline target
+
+## Nodetool Sync - Segments Sizes
+
+* Eache segment is less than 200MB
+* If a partition is great than 200MB win over segments less than 200MB
+* Each segment cannot be less than its partition size, hence if segments are larger .. it means partition was larger
+
+## Nodetool Sync - Segments failures
+
+* Node fails during segment validation, node drops all work for that segment and starts over
+* A segment repair is automic operation
+* system_distributed.nodesync_status table - has the information and progress
+* segment_outcomes
+  * full_in_sync : All replicas were in sync
+  * full_repaired : Some repair necessary
+  * partial_in_sync : all respondent were in sync, but not all replicas responded
+  * partial_repaired
+  * uncompleted : one node availabled/responded; no validation occurred
+  * failed: unexpected error happened; check logs.
+
+## Nodetool Sync - Segments Validation
+
+* NodeSync - simply performs a read repair on the segment
+* read-data from all replicas
+* Check for inconsistencies
+* Repair stale nodes
+
+
+## Cassandra Write Path (inside the node, and for *a* partition)
+
+* Two atomic operation makes a write successfull (Both commit-log + mem-table)
+  * HDD - Commit Log
+  * Memory - MemTable
+* Commit log
+  * It is append only commit log
+  * Only retrieved during server restart (for replay)
+   * Mem-Table: ![alt text][mem_table]
+* Ensure Commit-log and ss-tables are stored in different drive
+  * Commit log is append only for peformance
+  * When we share same disk, disk seek operation for MM-Table would cause performance degradation
+* Once Mem-Table is full, it is written as SS-Table (SSTable is immutable)
+* No inplace update performed on SS-Table
+
+
+## Cassandra Read Path (inside the node, and for particular a partition)
+
+* Read is easy if records are in mem-table
+  * Based on token, just to binary-search on mem-table and return the data to client
+* Read is bit more complex than write
+  * Write path created plenty of SS-Table in disk for a partition
+* SSTable has token:byte_off_set index
+  * 7:0,13:1120,18:3528,21:4392
+  * 7 partition token starts at 0th byte-offset
+  * 13 partition token starts at 1120th byte-offset
+* Read_Token_58_From_SS_Table: ![alt text][read_token_58]
+* There is a file named "partition_index" that has details about token vs  file-byte-offset index. It is used before reading ss-table
+* Partition-summary is an another index used by Cassandra
+  * Partition-summary resides in memory
+  
+## Cassandra Read Path workflow
+
+* ReadRequest --> Bloomfilter --> Key Cache --> Partition Summary --> Partition Index --> SS-Table
+* Checks in key-cache (if succseeds, data returned directly reading ss-table)
+* Checks in partition-index (partition-summary-table)
+  * Finds the byte-offset of ss-table from partition-index
+  * Reads byte-offset from ss-table for actual data of the primary-key
+  * Updates key-cache
+    * key-cache contains byte-offsets of the most recently accessed records
+    * key-cache is cache for partition-index (it avoids searcing in partition-index about ss-table byte-offset)
+* Finally... bloom filter can optimize all the above
+  
+## Bloom filter
+
+* It might stop the entire process if the data is not present
+* It might produce false positives, but never ends in false negative
+* If Bloom-filter says "no-data", there is no such partition data in that node
+* If Bloom-filter says "possible-data", there may or may not present data in that node
+
+## Datastax
+
+* Trie based partition-summary is being used
+* SSTable lookups are extreemly fast
+* When migrating from OSS to Datastax
+  * Datastax can work with both kinds of ss_table-partition-index
+  * It will gradually compact oss version into Trie-based partition-index
+  * Tried based partition index is extreemly faster
+
+## Compaction (merging ss-tables)
+
+* Compaction
+  * Removes old un-necessary immutable data
+  * Deleted data (columns) are removed after gc_grace_seconds
+  * Lesser number of ss-table, but during compaction it requires both old and new ss-table
+* It merges two set-of partitions into one
+  * Common partition data values are merged
+  * Last write wins selected
+  * Tombstone is marker for deleted record, that won't move into new ss-table (if record passed gc_grace_seconds=10-days)
+  * nodetool compact <keyspace> <table>, There is no real offline compaction
+* Not all tombstones are discarded
+*   
+* We never modify ss-table
+  * Merge creates new ss-table
+  * Stale data removed and compacted (reduced and combined into fewer ss-tables)
+
+## Compaction Strategies (based on use-case)
+
+* Choose proper strategy based on use-case
+  * SizeTieredCompaction - For write heavy
+  * LeveledCompaction - For read heavy
+  * TimeWindowCompaction - For timeseries
+* We can change compaction strategy
+
+
+## Advanced Peformance Gains in (DSE)
+
+* OSS uses thread-pools, might cause thread contention
+* DSE - uses only one thread per core
+* DSE - Uses asynchronous a lot and non-blocking
+
+## Before and after flush
+```
+Total number of tables: 47					Total number of tables: 47
+----------------						----------------
+Keyspace : keyspace1						Keyspace : keyspace1
+	Read Count: 0							Read Count: 0
+	Read Latency: NaN ms						Read Latency: NaN ms
+	Write Count: 574408						Write Count: 574408
+	Write Latency: 0.009942241403323074 ms				Write Latency: 0.009942241403323074 ms
+	Pending Flushes: 0						Pending Flushes: 0
+		Table: standard1						Table: standard1
+		SSTable count: 3			      |			SSTable count: 4
+		Space used (live): 92.67 MiB		      |			Space used (live): 97.73 MiB
+		Space used (total): 92.67 MiB		      |			Space used (total): 97.73 MiB
+		Space used by snapshots (total): 0 bytes			Space used by snapshots (total): 0 bytes
+		Off heap memory used (total): 497.8 KiB	      |			Off heap memory used (total): 525.04 KiB
+		SSTable Compression Ratio: -1.0					SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 426808	      |			Number of partitions (estimate): 427070
+		Memtable cell count: 22313		      |			Memtable cell count: 0
+		Memtable data size: 5.94 MiB		      |			Memtable data size: 0 bytes
+		Memtable off heap memory used: 0 bytes				Memtable off heap memory used: 0 bytes
+		Memtable switch count: 18		      |			Memtable switch count: 19
+		Local read count: 0						Local read count: 0
+		Local read latency: NaN ms					Local read latency: NaN ms
+		Local write count: 574408					Local write count: 574408
+		Local write latency: 0.009 ms					Local write latency: 0.009 ms
+		Pending flushes: 0						Pending flushes: 0
+		Percent repaired: 0.0						Percent repaired: 0.0
+		Bytes repaired: 0.000KiB					Bytes repaired: 0.000KiB
+		Bytes unrepaired: 88.575MiB		      |			Bytes unrepaired: 93.424MiB
+		Bytes pending repair: 0.000KiB					Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0					Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000				Bloom filter false ratio: 0.00000
+		Bloom filter space used: 497.82 KiB	      |			Bloom filter space used: 525.07 KiB
+		Bloom filter off heap memory used: 497.8 KiB  |			Bloom filter off heap memory used: 525.04 KiB
+		Index summary off heap memory used: 0 bytes			Index summary off heap memory used: 0 bytes
+		Compression metadata off heap memory used: 0 			Compression metadata off heap memory used: 0 
+		Compacted partition minimum bytes: 180				Compacted partition minimum bytes: 180
+		Compacted partition maximum bytes: 258				Compacted partition maximum bytes: 258
+		Compacted partition mean bytes: 258				Compacted partition mean bytes: 258
+		Average live cells per slice (last five minut			Average live cells per slice (last five minut
+		Maximum live cells per slice (last five minut			Maximum live cells per slice (last five minut
+		Average tombstones per slice (last five minut			Average tombstones per slice (last five minut
+		Maximum tombstones per slice (last five minut			Maximum tombstones per slice (last five minut
+		Dropped Mutations: 0 bytes					Dropped Mutations: 0 bytes
+		Failed Replication Count: null					Failed Replication Count: null
+```
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36296
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:41 aa-9-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:41 aa-9-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:41 aa-9-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu   194656 Jun 12 04:41 aa-9-bti-Filter.db
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:41 aa-9-bti-Statistics.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:41 aa-9-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:41 aa-9-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu       82 Jun 12 04:41 aa-9-bti-TOC.txt
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:41 .
+```
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36488
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:47 aa-10-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:47 aa-10-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:47 aa-10-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu   389304 Jun 12 04:47 aa-10-bti-Filter.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:47 aa-10-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:47 aa-10-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu       82 Jun 12 04:47 aa-10-bti-TOC.txt
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:47 aa-10-bti-Statistics.db
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:47 .
+```
+
+
+## Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
+
+```
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
+total 36104
+drwxrwxr-x 2 ubuntu ubuntu     4096 Jun 12 04:38 backups
+drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
+-rw-rw-r-- 1 ubuntu ubuntu        0 Jun 12 04:53 aa-12-bti-Rows.db
+-rw-rw-r-- 1 ubuntu ubuntu 35457984 Jun 12 04:53 aa-12-bti-Data.db
+-rw-rw-r-- 1 ubuntu ubuntu  1472810 Jun 12 04:53 aa-12-bti-Partitions.db
+-rw-rw-r-- 1 ubuntu ubuntu       10 Jun 12 04:53 aa-12-bti-Digest.crc32
+-rw-rw-r-- 1 ubuntu ubuntu     2176 Jun 12 04:53 aa-12-bti-CRC.db
+-rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:53 aa-12-bti-Statistics.db
+-rw-rw-r-- 1 ubuntu ubuntu       72 Jun 12 04:53 aa-12-bti-TOC.txt
+drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:53 .
+ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-0
+```
+
+
+## Nodetool CFStats 
+
+```
+ubuntu@ds201-node1:~/node/bin$ ./nodetool cfstats keyspace1
+Total number of tables: 47
+----------------
+Keyspace : keyspace1
+	Read Count: 0
+	Read Latency: NaN ms
+	Write Count: 154846
+	Write Latency: 0.011354216447308938 ms
+	Pending Flushes: 0
+		Table: counter1
+		SSTable count: 0
+		Space used (live): 0
+		Space used (total): 0
+		Space used by snapshots (total): 0
+		Off heap memory used (total): 0
+		SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 0
+		Memtable cell count: 0
+		Memtable data size: 0
+		Memtable off heap memory used: 0
+		Memtable switch count: 0
+		Local read count: 0
+		Local read latency: NaN ms
+		Local write count: 0
+		Local write latency: NaN ms
+		Pending flushes: 0
+		Percent repaired: 100.0
+		Bytes repaired: 0.000KiB
+		Bytes unrepaired: 0.000KiB
+		Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000
+		Bloom filter space used: 0
+		Bloom filter off heap memory used: 0
+		Index summary off heap memory used: 0
+		Compression metadata off heap memory used: 0
+		Compacted partition minimum bytes: 0
+		Compacted partition maximum bytes: 0
+		Compacted partition mean bytes: 0
+		Average live cells per slice (last five minutes): NaN
+		Maximum live cells per slice (last five minutes): 0
+		Average tombstones per slice (last five minutes): NaN
+		Maximum tombstones per slice (last five minutes): 0
+		Dropped Mutations: 0
+		Failed Replication Count: null
+
+		Table: standard1
+		SSTable count: 1
+		Space used (live): 36943323
+		Space used (total): 36943323
+		Space used by snapshots (total): 0
+		Off heap memory used (total): 0
+		SSTable Compression Ratio: -1.0
+		Number of partitions (estimate): 155716
+		Memtable cell count: 0
+		Memtable data size: 0
+		Memtable off heap memory used: 0
+		Memtable switch count: 9
+		Local read count: 0
+		Local read latency: NaN ms
+		Local write count: 154846
+		Local write latency: 0.010 ms
+		Pending flushes: 0
+		Percent repaired: 0.0
+		Bytes repaired: 0.000KiB
+		Bytes unrepaired: 33.815MiB
+		Bytes pending repair: 0.000KiB
+		Bloom filter false positives: 0
+		Bloom filter false ratio: 0.00000
+		Bloom filter space used: 0
+		Bloom filter off heap memory used: 0
+		Index summary off heap memory used: 0
+		Compression metadata off heap memory used: 0
+		Compacted partition minimum bytes: 180
+		Compacted partition maximum bytes: 258
+		Compacted partition mean bytes: 258
+		Average live cells per slice (last five minutes): NaN
+		Maximum live cells per slice (last five minutes): 0
+		Average tombstones per slice (last five minutes): NaN
+		Maximum tombstones per slice (last five minutes): 0
+		Dropped Mutations: 0
+		Failed Replication Count: null
+
+----------------
+ubuntu@ds201-node1:~/node/bin$ 
+```
+
+```
+./cassandra-stress read CL=ONE no-warmup n=1000000 -rate threads=1
+./nodetool cfstats
+```
+
+## Followup questions
+
+* we could not find /var/log/system.log
+  * During single-node check console output or nohup.out or terminal output
+* What is the difference between partition-summary and partition-index?
+
+
+[mem_table]: img/mem_table_commitlog.JPG "Commit-Log"
+[read_token_58]: img/read_58_token.JPG Read-token"
+
+
+
+## What is compaction in Cassandra?
+
+* It is similar to comapaction of file-system
+* Multiple SS-Tables are merged (like merge-sort), and deleted removed, tombstones removed, updated records retained.
+  * It leads to lean SS-Table
+
+
+## Pre-requisite for Compaction
+
+* Find table statistics
+  * nodetool cfstats
+  * nodetool tpstats
+
+## We have problem with two nodes with large number of compaction pending, how to speed up?
+
+* Disable the node act as a co-ordinator? (it can spend its io/cpu in compaction)
+  * nodetool disablebinary
+* Disable the node accepting write (should be lesser than hinted-handoff period) ?
+  * nodetool disablegossip (marking node as down)
+  * nodetool disablehandoff (marking node as down)
+* Disable the node accepting write (should be lesser than hinted-handoff period) ?
+  * nodetool disablegossip
+* Increase the compaction througput (there would be consequences for read)
+  * nodetool setconcurrentcompactors 2
+
+
+
+## Reference
+*[Understanding the Nuance of Compaction in Apache Cassandra](https://thelastpickle.com/blog/2017/03/16/compaction-nuance.html)
+* [TWCS part 1 - how does it work and when should you use it ?](https://thelastpickle.com/blog/2016/12/08/TWCS-part1.html)
+## Important Spring Java project
+
+* [Cassandra Datastax PetClinic](https://github.com/spring-petclinic/spring-petclinic-reactive)
+* [Cassandra Datastax Reactive PetClinic](https://github.com/DataStax-Examples/spring-petclinic-reactive)
+# Important Cassandra links
 
 * [JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8844)
+* [Cassandra Cwiki](https://cwiki.apache.org/confluence/display/CASSANDRA/Home)
 * [GIT Cassandra](https://gitbox.apache.org/repos/asf/cassandra.git)
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
+
+
+## Cassandra Course Videos
+
+* [DS-201 vidoes](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
 
 ## Cassandra index
 
@@ -1989,6 +2576,9 @@ cassandra learning
 * [Debug log](https://github.com/mohanmca/cassandra_playground/blob/master/log/debug.log)
 * [System Log](https://github.com/mohanmca/cassandra_playground/blob/master/log/system.log)
 
+## Famous Cassandra articles
+
+* [The things I hate about Apache Cassandra - John Schulz](https://blog.pythian.com/the-things-i-hate-about-apache-cassandra/)
 ## How to generate conf/cassandra_simple.yaml
 
 * grep -v "^#" conf/cassandra.yaml |   sed  '/^$/d' > conf/cassandra_simple.yaml 
@@ -1998,3 +2588,9 @@ cassandra learning
 ```
 cat test/unit/org/apache/cassandra/db/compaction/LeveledCompactionStrategyTest.java | tr ' ' '\r\n' | tr A-Z a-z | sort| tr -d '[\\}\\{}]' | sort  
 ```
+
+## K8ssandra
+
+* [Workshop](https://github.com/datastaxdevs/workshop-k8ssandra)
+* [Workshop slides](https://github.com/datastaxdevs/k8ssandra-workshop/raw/main/K8ssandra%20Workshop%20Feb%202021.pdf)
+* [Workshop Steps](https://github.com/datastaxdevs/workshop-k8ssandra/wiki)
