@@ -101,7 +101,7 @@
 *  Distribution can be any among fom, EXTREME, EXP, GAUSS, UNIFORM, FIXED
 * cassandra-stress user profile=/home/cassandra/TestProfile.yaml ops\(insert=10000, user_by_email=100000\) -node node-ds210-node1
 
-ubuntu@ds210-node1:~/labwork$ cassandra-stress user profile=TestProfile.yaml ops\(insert=100000 user_by_email=100000\) -node ds210-node1
+ubuntu@ds210-node1:~/labwork$ cassandra-stress user profile=TestProfile.yaml ops\(insert=100000,user_by_email=100000\) -node ds210-node1
 There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' expecting ')'
 
 ## Linux top command
@@ -158,6 +158,168 @@ There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' ex
 * Paging should be usually be near zero (lots of paging is bad to performance)
 * System stats can be an indication of process contention (CSW - context switch)
 
+## Nodetool (Performance Analysis inside cluster node)
+
+* dstat, top - can investigate inside linux
+* nodetool - can investigate inside Cassandra JVM
+* Every Cache size hit ratio should be higher (should be above 80%)
+* Load - How much data is stored inside node
+
+```
+cqlsh:killr_video> exit
+root@c1bf4c2d5378:/# nodetool info
+ID                     : 020b9ef3-ae33-4c9f-902a-33eb7f9a753d
+Gossip active          : true
+Thrift active          : false
+Native Transport active: true
+Load                   : 571.88 KiB
+Generation No          : 1625291106
+Uptime (seconds)       : 35986
+Heap Memory (MB)       : 209.83 / 998.44
+Off Heap Memory (MB)   : 0.01
+Data Center            : datacenter1
+Rack                   : rack1
+Exceptions             : 0
+Key Cache              : entries 3721, size 323.3 KiB, capacity 49 MiB, 6138479 hits, 6142208 requests, 0.999 recent hit rate, 14400 save period in seconds
+Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
+Counter Cache          : entries 0, size 0 bytes, capacity 24 MiB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
+Chunk Cache            : entries 27, size 1.69 MiB, capacity 217 MiB, 120 misses, 6150101 requests, 1.000 recent hit rate, NaN microseconds miss latency
+Percent Repaired       : 100.0%
+Token                  : (invoke with -T/--tokens to see all 256 tokens)
+```
+
+## Nodetool compaction-history - what are all the fields and output?
+
+```
+root@c1bf4c2d5378:/# nodetool compactionhistory
+Compaction History:
+id                                   keyspace_name columnfamily_name compacted_at            bytes_in bytes_out rows_merged
+e01933a0-dc04-11eb-bef5-537733e6a124 system        size_estimates    2021-07-03T13:45:06.266 169066   41854     {4:4}
+e0175ee0-dc04-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T13:45:06.254 1102     224       {1:12, 4:4}
+bacb1140-dbeb-11eb-bef5-537733e6a124 system        size_estimates    2021-07-03T10:45:06.260 169604   41922     {4:4}
+bac8ee60-dbeb-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T10:45:06.246 968      224       {1:8, 3:1, 4:3}
+```
+
+
+## To figure out the name of a node’s datacenter and rack, which nodetool sub-command should you use? 
+
+* Nodetool info
+
+## Nodetool gcstats
+
+* Higher the GC Elapsed time is worst performance of the cluster
+* Higher StdDev, cluster performance would be erratic
+
+```bash
+root@c1bf4c2d5378:/# nodetool gcstats
+       Interval (ms) Max GC Elapsed (ms)Total GC Elapsed (ms)Stdev GC Elapsed (ms)   GC Reclaimed (MB)         Collections      Direct Memory Bytes
+                 334                   0                   0                 NaN                   0                   0                       -1
+root@c1bf4c2d5378:/# nodetool gcstats
+       Interval (ms) Max GC Elapsed (ms)Total GC Elapsed (ms)Stdev GC Elapsed (ms)   GC Reclaimed (MB)         Collections      Direct Memory Bytes
+                2057                   0                   0                 NaN                   0                   0                       -1
+root@c1bf4c2d5378:/# nodetool gcstats
+       Interval (ms) Max GC Elapsed (ms)Total GC Elapsed (ms)Stdev GC Elapsed (ms)   GC Reclaimed (MB)         Collections      Direct Memory Bytes
+                1307                   0                   0                 NaN                   0                   0                       -1
+```
+
+## Nodetool Gossipinfo
+
+* What is the status of the node according its peer node
+* Peer node knows the detaila about another node using 'gossipe-info'
+* Schema-Version mismatch can be noted from this output. Rare but crucial information.
+
+## Nodetool Ring command
+
+* "nodetool ring" is used to output all the tokens of a node.
+* nodetool ring -- ks_killr_vide -- for specific keyspace
+* ```bash
+  root@c1bf4c2d5378:/# nodetool ring -- killr_video | head
+
+  Datacenter: datacenter1
+  ==========
+  Address     Rack        Status State   Load            Owns                Token
+                                                                            9187745666723249887
+  172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9143401694522716388
+  172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9002139349711660790
+  172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8851720287326751527
+  172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8617136159627124213
+  172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8578864381590385349
+  ```
+* 
+
+## Nodetool Tableinfo (tablestats) - Quite useful for data-modelling information
+
+* nodetool tablestats -- ks_killr_video
+* nodetool tablestats -- ks_killr_video user_by_email
+*    ```bash
+    root@c1bf4c2d5378:/# nodetool tablestats -- killr_video
+    Total number of tables: 37
+    ----------------
+    Keyspace : killr_video
+            Read Count: 3952653
+            Read Latency: 2.332187202873614 ms
+            Write Count: 12577242
+            Write Latency: 0.026214161419490855 ms
+            Pending Flushes: 0
+                    Table: user_by_email
+                    SSTable count: 3
+                    Space used (live): 321599
+                    Space used (total): 321599
+                    Space used by snapshots (total): 0
+                    Off heap memory used (total): 5745
+                    SSTable Compression Ratio: 0.6803828095486517
+                    Number of partitions (estimate): 2468
+                    Memtable cell count: 1809586
+                    Memtable data size: 103656
+                    Memtable off heap memory used: 0
+                    Memtable switch count: 3
+                    Local read count: 3952653
+                    Local read latency: 0.030 ms
+                    Local write count: 12577242
+                    Local write latency: 0.003 ms
+                    Pending flushes: 0
+                    Percent repaired: 0.0
+                    Bloom filter false positives: 0
+                    Bloom filter false ratio: 0.00000
+                    Bloom filter space used: 4680
+                    Bloom filter off heap memory used: 4656
+                    Index summary off heap memory used: 1041
+                    Compression metadata off heap memory used: 48
+                    Compacted partition minimum bytes: 61
+                    Compacted partition maximum bytes: 86
+                    Compacted partition mean bytes: 84
+                    Average live cells per slice (last five minutes): 1.0
+                    Maximum live cells per slice (last five minutes): 1
+                    Average tombstones per slice (last five minutes): 1.0
+                    Maximum tombstones per slice (last five minutes): 1
+                    Dropped Mutations: 6
+    ```
+*  Table histogram helps to find how much time taken for read/vs/write
+```bash    
+killr_video/user_by_email histograms
+Percentile  SSTables     Write Latency      Read Latency    Partition Size        Cell Count
+                              (micros)          (micros)           (bytes)
+50%             0.00              0.00              0.00                86                 2
+75%             0.00              0.00              0.00                86                 2
+95%             0.00              0.00              0.00                86                 2
+98%             0.00              0.00              0.00                86                 2
+99%             0.00              0.00              0.00                86                 2
+Min             0.00              0.00              0.00                61                 2
+Max             0.00              0.00              0.00                86                 2
+```
+## How to find large partition?
+
+* nodetool tablehistograms ks_killr_video  table -- would give multi-millions cell-count
+* nodetool tablehistograms ks_killr_video  table -- would give large partition-size
+
+
+## Nodetool Threadpoolinfo (tpstats)
+
+* Early versions of Cassandra were designed using SEDA architectures (now it actually moved away from it)
+* If queue is blocked, the request is blocked
+* if MemtableFlushWriter is blocked, Cassandra unable to write to disk
+  * If blocked, lots of data is sitting in memory, sooner Long-GC might kick-in
+*   
 
 
 ## Lab notes
