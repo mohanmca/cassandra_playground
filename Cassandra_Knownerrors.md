@@ -1,3 +1,10 @@
+## Cassandra production error
+
+* RANGE SLICE Messages were dropped
+* StorageProxy.readRegular(group, consistencyLevel, queryStartNanoTime);
+* SinglePartitionCommand.java[1176]/StorageProxy.read(this, consistency, clientState, queryStartNanoTime);
+
+
 ## (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
 * Client side should enable ssl ; true (in spring-boot application.yaml)
   * spring.data.cassandra.ssl: true

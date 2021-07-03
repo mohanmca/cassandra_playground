@@ -956,6 +956,180 @@ REQUEST_RESPONSE             0
 PAGED_RANGE                  0
 READ_REPAIR                  0
 ```
+## What is D210 Course about
+
+* Operations for Apache Cassandra™ and DataStax Enterprise
+
+## What are basic parameter required for Cassandra quickstart
+
+* Four parameters
+    * cluster-name
+    * listen-address (for peer Cassandra nodes to connect to)
+    * native-transport-address (for clients)
+    * seeds
+      * Seeds should be comma seperated inside double quote - "ip1,ip2,ip3"
+
+## What is the location of default Cassandra.yaml?
+
+* /etc/dse/cassandra.yaml (package installer)
+* /cassandra-home/resources/cassandra/conf/cassandra.yaml
+
+## What are directories related settings, and level-2 settings (right after quickstart)<default>
+
+* initial_token: <128>
+* commitlog_directory
+    * /var/lib/cassandra/commitlog
+* data_file_directories
+    * /var/lib/cassandra/data
+* hints_directory
+    * /var/lib/cassandra/hints
+* saved_caches_directory
+* endpoint_snitch
+
+## What are two file-systedm that should be separated
+
+*  /var/lib/cassandra/data and /var/lib/cassandra/commitlog
+
+## Cluster Sizing
+
+* Figure out cluster size parameters
+    1. (Write)-Throughput  - How much data per second?
+    1. Growth Rate  -   How fast does capacity increase?
+    1. Latency (Read) -   How quickly must the cluster respond?
+
+## Cluster Sizing - Writethrough put example
+
+* 2m user commenting 5 comments a day, where a comment is 1000 byte
+* # comments per second = (2m * 5)/(24*60*60)  = 10m/86400 = 100 comments per second
+* 100 * 1000 bytes = 100KB per-second (multiply into number of replication-factor)
+
+## Cluster Sizing - Read throughput example
+
+* 2m user viewing 10 video summaries a day, where a video has 4 comments
+* # comments per second = (2m * 10 * 4)/(24*60*60)  = 80m/86400 = 925 comments per second
+* 925 * 1000 bytes = 1MB per-second (should multiply into number of replication-factor?)
+
+## Cluster-sizing - Monthly calculate
+
+* Data should cover only 50% of disk space at any-time to allow repair and compaction to work
+* Few they estimate just by doubling the need for 60-seconds and extra-polate to 30 days
+* per-second-data-volume * 30*86400 
+* 1MB per second into monthly need
+    * 1MB * 86400 * 30 = 2.531 TB (here 1MB inclusive of anti-entropy)
+
+
+## Cluster-sizing - Latency calculate
+
+* Relevant Factors
+    * IO Rate
+    * Workload shape
+    * Access Patterns
+    * Table width
+    * Node profile (memory/cpu/network)
+* What is required SLA
+* Do the benchmarking initially before launching
+
+
+## Cluster Sizing - Probing Questions
+
+1. What is the new/update ratio?
+1. What is the replication factor?
+1. Additional headroom for operations - Anti-entropy repair?
+
+
+## [Cassandra stress tool](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
+
+* Define your shcema, and schema performance
+* Understand how your database scales
+* It could generate graphical output
+* Specify any compaction strategy
+* Optmize your datamodel and setttings
+* Determine production capacity
+* Yaml for Schema, Column, Batch and Query descriptions
+* columnspec:
+```yaml
+  - name: name
+    size: uniform(5..10) # The names of the staff members are between 5-10 characters
+    population: uniform(1..10) # 10 possible staff members to pick from
+  - name: when
+    cluster: uniform(20..500) # Staff members do between 20 and 500 events
+  - name: what
+    size: normal(10..100,50)
+```
+*  Distribution can be any among fom, EXTREME, EXP, GAUSS, UNIFORM, FIXED
+* cassandra-stress user profile=/home/cassandra/TestProfile.yaml ops\(insert=10000, user_by_email=100000\) -node node-ds210-node1
+
+ubuntu@ds210-node1:~/labwork$ cassandra-stress user profile=TestProfile.yaml ops\(insert=100000 user_by_email=100000\) -node ds210-node1
+There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' expecting ')'
+
+## Linux top command
+
+* Comes with every linux distribution - (How much Cassandra is using)
+* Brief summary of Linux system resources + Per process details
+* Summary
+  * CPU Average
+    * 1,5,15 (minute) average
+    * Spike - will show up in 5 or 15
+    * CPU - Wait
+      * Too much of wait is problem for Cassandra (should be zero)
+      * si/hi (sofwatre/hardware - interrupt) might give clue about waiting
+* Memory
+  * Res - Physical Memory
+  * SHR - Shared Memory
+  * VIRT - Virtual memory
+  * Buffers are important
+    * High read might cause SSTable in buffer
+* Process State
+  * Zombie, Sleeping, Running  
+
+## Linux top command - Cassandra
+
+* Swap should be zero (Cassandra discourages swap)
+  * Disable the swap, zero should be allocated
+* Zombie should be zero
+
+
+## Linux dstat command (alternative to top)
+
+* dstat = cpustat + iostat + vmstat + ifstat (cpy/io/network)
+* cpu-core specific information can be listed
+* dstate - by defult won't include memory (dstate -am to add memory details output)
+* print stat for every 2 seconds, and measure 7 iteration
+  ```
+  ubuntu@ds210-node1:~$ dstat -am 2 7
+  --total-cpu-usage-- -dsk/total- -net/total- ---paging-- ---system-- ------memory-usage-----
+  usr sys idl wai stl| read  writ| recv  send|  in   out | int   csw | used  free  buff  cach
+    3   6  89   2   0|3412k  112k|   0     0 |   0     0 | 505  1443 | 587M 6286M  100M  935M
+    1   1  98   0   0|   0     0 |  66B  722B|   0     0 | 506  1261 | 587M 6286M  100M  935M
+    0   0 100   0   0|   0     0 |  66B  418B|   0     0 | 147   403 | 587M 6286M  100M  935M
+    0   0 100   0   0|   0     0 |  66B  418B|   0     0 | 161   376 | 587M 6286M  100M  935M
+    0   1  99   0   0|   0     0 |  66B  418B|   0     0 | 596  1900 | 587M 6286M  100M  935M
+    0   1  98   0   0|   0     0 |  66B  418B|   0     0 | 760  2137 | 587M 6286M  100M  935M
+    0   0 100   0   0|   0  8192B|  66B  418B|   0     0 | 111   366 | 587M 6286M  100M  935M
+  ubuntu@ds210-node1:~$ 
+  ```
+* sys is higher - something costly happenning in system space (above 0 is not good)
+* disk is weakest link in most system. if wait numbers are higher in user/system space, check disk
+* hiq/siq = h/w and s/w interrupt
+* HDD can transfer 10s of MBS, while SSDs can transfer hundreds of MBS
+* Gigabit is 100MBS usually
+* Paging should be usually be near zero (lots of paging is bad to performance)
+* System stats can be an indication of process contention (CSW - context switch)
+
+
+
+## Lab notes
+
+* 172.18.0.2
+* 
+
+## How to create anki from this markdown file
+
+```
+mdanki Cassandra_Datastax_210_Anki.md Cassandra_Datastax_210_Anki.apkg --deck "Mohan::Cassandra::DS210::Operations"
+```
+
+
 ## RDBMS Hitstory
 
 * IBM DB1 - IMS (Hierarchical dbms) - Released in 1968 
@@ -1098,6 +1272,13 @@ READ_REPAIR                  0
 * [Best Practices NOSql](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
 * CassandraSummit
 
+## Cassandra production error
+
+* RANGE SLICE Messages were dropped
+* StorageProxy.readRegular(group, consistencyLevel, queryStartNanoTime);
+* SinglePartitionCommand.java[1176]/StorageProxy.read(this, consistency, clientState, queryStartNanoTime);
+
+
 ## (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
 * Client side should enable ssl ; true (in spring-boot application.yaml)
   * spring.data.cassandra.ssl: true
@@ -1151,6 +1332,50 @@ print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
 for val in session.execute("select * from videos_by_tag"):
    print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
 ```
+## Cluster level monitoring
+
+* Current cluster availability
+* Current Storage Load
+* Average Cluster Availablity for Period
+* For Each datacenter
+  * # of client requests
+
+## Top worst performing
+
+* Top 5 worst performing nodes by client latency
+  
+
+## List monitoring elements
+
+1. Node status
+1. Disk Usage
+1. Read Requests
+1. Write Requests
+1. Read Latency
+1. Write Latency
+1. Clients
+1. Native Transport Requests
+1. Compactions Pending
+1. Dropped Mutations
+1. Full GC Duration
+1. Full GC Count
+1. Heap memory usage
+1. Off-Heap Memory Usage
+
+## List table level
+
+1. Read Latency
+1. Write Latency
+1. SSTable Count
+1. SSTable Per Read
+1. Table Disk Used
+1. Table Row Size
+
+
+
+
+
+## Node Status
 ## Nodetool usage
 
 * 
@@ -1263,11 +1488,24 @@ for val in session.execute("select * from videos_by_tag"):
 
      See "nodetool help <command>" for more information on a specific command.
 ```
-## How to create anki from this markdown file
+* [WORKSHOP: Opensource Tools for Apache Cassandra 24 Nov 20. Adam Zegelin SVP Engineering, Instaclustr](https://www.youtube.com/watch?v=v1zkqHfSSUE)
+* [Best Practices of Cassandra in Production](https://www.youtube.com/watch?v=P6UkQJrEQyU)
+## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on 3', How many node will be involved in repair
 
-```
-mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
-```
+* 5 nodes.
+* Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4 (copy-1)  + N5 (copy-2) )
+* Node-1 would use N3 for copy-2
+* Node-2 would use N3 for copy-1
+
+## How to specifically use only one node to repair itself
+
+* nodetool -pr node-3 --But we have to run in all the nodes immediately
+* runing nodetool -pr on only one node is **not-recommended**
+
+## If we run full repair on a 'n' node cluster with RF=3, How many times we repairing the data 
+
+* We repair thrice.
+
 
 ## Developer who maintains/presented about Reaper
 
@@ -1276,22 +1514,28 @@ mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassan
 
 ## Repair documentation
 
+* [All the options of nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
 * [Cassandra documentation](https://cassandra.apache.org/doc/latest/operating/repair.html)
 * [Datastax documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
+
 ## What is repair?
 
-* Data won't be in sync due to eventual consistency pattern, Merkle-Tree based reconciliation would help to fix the data. It is also called anti-entropy repair. [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
-* reaper and nodetool repair works slightly different
-* Reaper Repair mode
+* Data won't be in sync due to eventual consistency pattern, Merkle-Tree based reconciliation would help to fix the data. 
+* It is also called anti-entropy repair. 
+* [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
+* Reaper and nodetool repair works slightly different
+* Reaper repair mode
   * sequential
   * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
   * datacenter_aware
     * It is like sequential but one node per each DC
 
-## Some weird facts about repair
+## Repair and some number related to time
 
-* Few reported such that it took 308+ hours to complete repair on 2.1.12 version
-* 
+* First scheduled repair would always take more time
+* Repair scheduled often generally completes faster, since there are less data to repair
+* Few reported - it took 308+ hours to complete repair on 2.1.12 version
+* With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to repair it.
 
 ## What are Reaper settings
 
@@ -1309,16 +1553,12 @@ mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassan
 * As per Reaper, you need to use a segment for every 50mb, 20K Segment for every 1 TB
 * Smaller the segement, let reaper to repair it faster
 
-## Repair and some number related to time
-
-* With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to repair it.
-* 
-
 ## Repair related commands
 
-* nodetool repair -dc DC ## is the command to repair using nodetool
-* nodetool -h 1.1.1.1 status
-* 
+```bash
+nodetool repair -dc DC ## is the command to repair using nodetool
+nodetool -h 1.1.1.1 status
+```
 
 ## Reference
 
@@ -1327,6 +1567,13 @@ mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassan
 * [DSE 6.8  Architecture Guide, About Repair](https://docs.datastax.com/en/dse/6.8/dse-arch/datastax_enterprise/dbArch/archAboutRepair.html)
 * [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 * [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
+
+## How to create anki from this markdown file
+
+```
+mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
+```
+
 ## How to create anki from this markdown file
 
 ```
@@ -2556,7 +2803,9 @@ ubuntu@ds201-node1:~/node/bin$
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
 
+## Cassandra usages in famous producs
 
+* [Pega - decision management data](https://community.pega.com/knowledgebase/articles/decision-management/84/managing-cassandra-source-decision-management-data)
 ## Cassandra Course Videos
 
 * [DS-201 vidoes](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)

@@ -10,7 +10,9 @@
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
 
+## Cassandra usages in famous producs
 
+* [Pega - decision management data](https://community.pega.com/knowledgebase/articles/decision-management/84/managing-cassandra-source-decision-management-data)
 ## Cassandra Course Videos
 
 * [DS-201 vidoes](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
