@@ -84,42 +84,44 @@ docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassan
 
 ## [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
 
-* ```bash
-docker pull cassandra
-docker run -d --name nodeA --network cassnet cassandra
-docker logs -f nodeA
-docker pull datastaxdevs/petclinic-backend
-docker run -d \
-    --name backend \
-    --network cass-cluster-network \
-    -p 9966:9966 \
-    -e CASSANDRA_USE_ASTRA=false \
-    -e CASSANDRA_USER=cassandra \
-    -e CASSANDRA_PASSWORD=cassandra \
-    -e CASSANDRA_LOCAL_DC=datacenter1 \
-    -e CASSANDRA_CONTACT_POINTS=nodeA:9042 \
-    -e CASSANDRA_KEYSPACE_CQL="CREATE KEYSPACE spring_petclinic WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};" \
-    datastaxdevs/petclinic-backend
-curl -X GET "http://localhost:9966/petclinic/api/pettypes" -H "accept: application/json" | jq
-curl -X POST \
-   "http://localhost:9966/petclinic/api/pettypes" \
-   -H "accept: application/json" \
-   -H "Content-Type: application/json" \
-   -d "{ \"id\": \"unicorn\", \"name\": \"unicorn\"}" | jq
-docker exec -it nodeA cqlsh;
-USE spring_petclinic;
-SELECT * FROM petclinic_reference_lists WHERE list_name='pet_type';
-QUIT;
-docker pull datastaxdevs/petclinic-frontend-nodejs
-docker run -d --name frontend -p 8080:8080 -e URL=https://2886795274-9966-jago04.environments.katacoda.com datastaxdevs/petclinic-frontend-nodejs
-clear
-docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
-docker stop $(docker ps -aq)
-docker rm $(docker ps -aq)
-docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
-## Via docker compose
-docker-compose up --scale db=3
-```
+* 
+    ```bash
+    docker pull cassandra
+    docker run -d --name nodeA --network cassnet cassandra
+    docker logs -f nodeA
+    docker pull datastaxdevs/petclinic-backend
+    docker run -d \
+        --name backend \
+        --network cass-cluster-network \
+        -p 9966:9966 \
+        -e CASSANDRA_USE_ASTRA=false \
+        -e CASSANDRA_USER=cassandra \
+        -e CASSANDRA_PASSWORD=cassandra \
+        -e CASSANDRA_LOCAL_DC=datacenter1 \
+        -e CASSANDRA_CONTACT_POINTS=nodeA:9042 \
+        -e CASSANDRA_KEYSPACE_CQL="CREATE KEYSPACE spring_petclinic WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};" \
+        datastaxdevs/petclinic-backend
+    curl -X GET "http://localhost:9966/petclinic/api/pettypes" -H "accept: application/json" | jq
+    curl -X POST \
+    "http://localhost:9966/petclinic/api/pettypes" \
+    -H "accept: application/json" \
+    -H "Content-Type: application/json" \
+    -d "{ \"id\": \"unicorn\", \"name\": \"unicorn\"}" | jq
+    docker exec -it nodeA cqlsh;
+    USE spring_petclinic;
+    SELECT * FROM petclinic_reference_lists WHERE list_name='pet_type';
+    QUIT;
+    docker pull datastaxdevs/petclinic-frontend-nodejs
+    docker run -d --name frontend -p 8080:8080 -e URL=https://2886795274-9966-jago04.environments.katacoda.com datastaxdevs/petclinic-frontend-nodejs
+    clear
+    docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
+    docker stop $(docker ps -aq)
+    docker rm $(docker ps -aq)
+    docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'
+    ## Via docker compose
+    docker-compose up --scale db=3
+    ```
+
 * [Swagger-API](http://localhost:9966/swagger-ui/)
 
 
