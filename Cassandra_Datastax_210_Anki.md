@@ -1,6 +1,11 @@
 ## What is D210 Course about
 
 * Operations for Apache Cassandra™ and DataStax Enterprise
+* Installation
+  * echo "deb https://debian.datastax.com/enterprise stable main" | sudo tee -a /etc/apt/sources.list.d/datastax.sources.list
+  * curl -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
+  * sudo apt-get update
+  * sudo apt-get install dse-full
 
 ## What are basic parameter required for Cassandra quickstart
 
@@ -466,10 +471,15 @@ Max             0.00              0.00              0.00                86      
 1. Backup would work for th replaced node (if the token range is same)
 1. It is faster and lesser impact on the cluster
 
+
+## LeveledCompactionStrategy
+
+* [LCS Cassandra](https://issues.apache.org/jira/browse/CASSANDRA-14605?jql=labels%20%3D%20lcs%20AND%20project%20in%20(Cassandra))
 ## Lab notes
 
 * 172.18.0.2
-* 
+* /usr/share/dse/data
+* /var/lib/cassandra/data
 
 ## How to create anki from this markdown file
 

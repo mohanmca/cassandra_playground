@@ -10,6 +10,22 @@
 * [CI-Cassandra-Build](https://ci-cassandra.apache.org/job/Cassandra-trunk/531/)
 * [CI Console log](https://ci-cassandra.apache.org/job/Cassandra-4.0-artifacts/jdk=jdk_1.8_latest,label=cassandra/59/consoleFull)
 
+## JIRA based on labels
+
+* [Consistency/Coordination](https://issues.apache.org/jira/browse/CASSANDRA-16773?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Consistency%2FCoordination%22)
+* [Materialized View](https://issues.apache.org/jira/browse/CASSANDRA-16479?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Feature%2FMaterialized%20Views%22)
+* [Sasi](https://issues.apache.org/jira/browse/CASSANDRA-16390?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Feature%2FSASI%22)
+
+## JIRA Features in Cassandra
+
+* [All the Components](https://issues.apache.org/jira/projects/CASSANDRA?selectedItem=com.atlassian.jira.jira-projects-plugin:components-page)
+* [Local/SSTable](https://issues.apache.org/jira/browse/CASSANDRA-16772?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Local%2FSSTable%22)
+* Local/Compaction/LCS
+* Feature/Lightweight Transactions
+* Consistency/Repair, Observability/Logging
+* Test/unit
+* Cluster/Schema
+* Tool/sstable
 ## Cassandra usages in famous producs
 
 * [Pega - decision management data](https://community.pega.com/knowledgebase/articles/decision-management/84/managing-cassandra-source-decision-management-data)
