@@ -1,6 +1,7 @@
 ## Pre-requisite for this tutorial is docker
 
 * [Docker cheatsheet](https://github.com/mohanmca/MohanLearningGround/blob/master/src/main/md/Tools/docker.md)
+* [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 
 ## Use Os-boxes as virtual machine to install cassandra
 
@@ -53,6 +54,7 @@ use cycling;
 
 ```bash
 docker exec -it cass2 bash
+docker exec -it cass2 cqlsh
 docker exec -it cass2 nodetool tpstats
 docker exec -it cass2 nodetool repair
 ```
@@ -192,10 +194,11 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 ```
 
 ## References
+* [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 * [Docker DSE](https://docs.datastax.com/en/docker/doc/docker/docker67/dockerDSE.html)
 * [Docker Setup](https://docs.datastax.com/en/docker/doc/docker/docker68/dockerReadme.html)
 * [DSE Docker setup on windows](https://www.datastax.com/blog/running-dse-microsoft-windows-using-docker)
-*[Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
+* [Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
 * [Datastax VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
 * [Assets for course](https://academy.datastax.com/resources/ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
 * [C:\Users\nikia\Dropbox\Certifications\Cassandra](https://academy.datastax.com/#/online-courses/6167eee3-0575-4d88-9f80-f2270587ce23)

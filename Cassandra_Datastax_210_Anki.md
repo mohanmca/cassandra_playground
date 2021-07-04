@@ -319,8 +319,41 @@ Max             0.00              0.00              0.00                86      
 * If queue is blocked, the request is blocked
 * if MemtableFlushWriter is blocked, Cassandra unable to write to disk
   * If blocked, lots of data is sitting in memory, sooner Long-GC might kick-in
-*   
 
+
+## Cassandra logging
+
+* It is ususally known as system.log (and debug.log only if enabled in logback.xml or using nodetool setlogginglevel )
+* java gc.log is also available to investigate gc (garbage collection)
+* /var/log/cassandra/system.log
+* syste.log (INFO and above)
+* logging location can be changed in /etc/dse/cassandra/jvm.options or -DCassandra.logdir=<LOG_DIR>
+* default configurations are in /etc/cassandra/logback.xml
+* Change logging level for live systems
+  * nodetool setlogginglevel org.apache.cassandra.service.StorageProxy DEBUG
+  * nodetool getlogginglevel
+
+## Cassandra JVM GC logging
+
+* GC logging answeres 3 questions
+  * When GC occured
+  * How much memory reclaimed
+  * What is the heap memory before an after reclaim (on the heap)
+* GC logging details are configured /etc/cassandra/jvm.options
+* Cassandra doesn't use G1 garbage collection
+
+## How Cassandra JVM GC logging can be configured
+
+* How it was turn it on
+  * -Xloggc:/var/log/cassandra/gc.log  (in the cassandra start script)
+* -XX:+PrintGC   (refer jvm.options for mroe documentation and options)
+* Dynamically alter JVM process GC.log
+  * info -flag +PrintGC <process-id>
+
+## How to read GC.log?
+
+* GC pause in a second or two is big trouble, it should have been in sub-milli-seconds
+* Ensure after GC, heap consumption is reduced (number should reduce)
 
 ## Lab notes
 
