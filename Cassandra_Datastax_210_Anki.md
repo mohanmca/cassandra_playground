@@ -100,6 +100,8 @@
 ```
 *  Distribution can be any among fom, EXTREME, EXP, GAUSS, UNIFORM, FIXED
 * cassandra-stress user profile=/home/cassandra/TestProfile.yaml ops\(insert=10000, user_by_email=100000\) -node node-ds210-node1
+* cassandra-stress user profile=TestProfile.yml ops\(insert=2,user_by_email=2\) no-warmup -rate threads<=54
+* cassandra-stress user profile=TestProfile.yml ops\(insert=2000,user_by_email=2\) no-warmup -rate threads'<=32'
 
 ubuntu@ds210-node1:~/labwork$ cassandra-stress user profile=TestProfile.yaml ops\(insert=100000,user_by_email=100000\) -node ds210-node1
 There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' expecting ')'
@@ -354,6 +356,115 @@ Max             0.00              0.00              0.00                86      
 
 * GC pause in a second or two is big trouble, it should have been in sub-milli-seconds
 * Ensure after GC, heap consumption is reduced (number should reduce)
+
+## Adding a node
+
+* Why to add node? 
+  * To increase capacity for operational head-room
+  * Reached maxmum h/w capcity
+  * Reached maxmum traffic capcity
+    * To decrease latency of the application
+* How to add nodes for single-token nodes?
+  * Always double to capcity of your cluster
+  * Token ranges has to bisect each of the existing clutser ranges
+* How to add nodes for Vnodes cluster?
+  * Add single node in incremental fashion
+* Can we add multiple node at the same time?
+  * Not recommended, but possible
+* What is the impact of adding single node?
+  * Lots of data movement into the new-node
+  * We may need to remove excess copy for old nodes
+  * Will have gradual impact on performance of the cluster
+  * Will take longer to grow the cluster
+* VNodes make it simple to add node
+* Seed - nodes, Any node that is running while adding other nodes. They are not special in any way
+
+
+## Bootstrapping (Adding a note)
+
+* We need any existing running nodes as seed-nodes (they are not special nodes)
+* (Adding cluster) Topology changes (adding/removing nodes) are not recommended when there is a repair process alive in your cluster
+* Cluster-name has to match to join existing cluster
+
+
+## What are the steps followed by a boostrapping node when joining?
+
+1. Contact the seed nodes to learn about gossip state.
+1. Transition to Up and Joining state (to indicate it is joining the cluster; represented by UJ in the nodetool status).
+1. Contact the seed nodes to ensure schema agreement.
+1. Calculate the tokens that it will become responsible for.
+1. Stream replica data associated with the tokens it is responsible for from the former owners.
+1. Transition to Up and Normal state once streaming is complete (to indicate it is now part of the cluster; represented by UN in the nodetool status).
+
+## What are the help rendered by a existing node to a joining?
+
+* Cluster nodes has to prepare to stream necessary SSTables
+* Existing Cluster nodes continue to satisfy read and write, but also forward write to joining node
+* Monitor the bootstrap process using 'nodetool netstas'
+
+## Issues during bootstrap
+
+* New node will certainly have a lot of compactions to deal with(especially  if it is LCS).
+* New node should compact as much as before accepting read requests
+  * nodetool disablebinary && nodetool disablethrift && nodetooldisablegossip*
+    * Above will disconnect Cassandra from the cluster, but not stop Cassandra itself. At this point you can unthrottle compactions and let it compact away.
+* We should unthrottle during bootstrap as the node won't receive read queries until it finishes streaming and joins the cluster.
+
+## If Bootstrap fails
+
+* Read the log and find the reason
+* If it Up and failed with 50% data, try to restart.. mostly it would fix itself
+* if it further doesn't work, investigate further
+
+
+## After Boostrap (Cleanup)
+
+* Nodetool cleanup should be peformed to the other cluster nodes (not to the node that joined)
+* Cleans up keyspaces and partition keys no longer belonging to a node. (bootstrapped node would have taken some keys and reduced burden on this node)
+* Cleanup just reads all ss-table and throws-away all the keys not belong to the node, worst-case it just copies the sstable as is
+* It is almost like Compaction
+* nodetool [options] cleanup -- keyspace <table>
+
+
+## Removing node
+
+* Why to remove a node?
+  * For some event, we ramped-up, need to scale down for legitimate reason
+  * Replacing h/w, or faulty node
+* We can't just shutdown and leave
+* 3 ways to remove the node
+  1. Inform the leaving node that, this node would be taken away, so it would redistribute its data to the rest of the cluster
+     * nodetool decommission
+        * It was properly redistributed
+        * Shutting down the port and shutting down process
+        * Data still on the disk, but should be deleted if we plan to bring the node back
+  1. Inform to the rest of the cluster nodes, that a node was removed/lost
+     * nodetool removenode
+  1. Inform the node to just leave immediately without replicating any of its data
+     * nodetool assasinate  (like kill -9) && nodetool repair (on the rest of the ndoes to fix)
+     * Try when it is not trying to go away
+
+## Where is the data coming from when a node is removed?
+
+* Decommision - Data comes from the node leaving
+* RemoveNode - Data comes from the rest of the cluster nodes
+
+## How to replace a down-node
+
+* Replace vs Remove-and-Add
+* Backup for a node will work a replaced node, because same tokens are used to bring replaced node into cluster
+* Best option is replce instead of remove-and-add
+* -Dcassandra.replace_address=<IP_ADDRESS_OF_DEAD_NODE> // has to change in JVM.options
+  * Above line informs cluster that node will have same range of tokens as existing dead node
+* Once replaced, we should remove  -Dcassandra.replace_address=<IP_ADDRESS_OF_DEAD_NODE>
+* We should update seed-node (remove old node, and update with latest IP), to fix GossipInfo
+
+
+## Why replace a node than removing-and-adding?
+
+1. Don't need to move data twice
+1. Backup would work for th replaced node (if the token range is same)
+1. It is faster and lesser impact on the cluster
 
 ## Lab notes
 
