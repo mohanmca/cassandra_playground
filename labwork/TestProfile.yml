@@ -1,0 +1,49 @@
+#
+# Keyspace Name
+#
+keyspace: killr_video
+keyspace_definition: |
+  CREATE KEYSPACE killr_video  WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+#
+# Table name and create CQL
+#
+table: user_by_email
+table_definition: |
+  CREATE TABLE user_by_email (
+        email text,
+        password TEXT,
+        user_id UUID,
+        PRIMARY KEY((email))
+  )
+
+#
+# Meta information for generating data
+#
+columnspec:
+  - name: email
+    size: gaussian(8..30)
+    population: exp(1..1234)
+  - name: password
+    cluster: exp(8..30)
+    population: uniform(1..1432)
+  - name: user_id
+    size: fixed(4)
+    population: uniform(1..1567)
+
+#
+# Specs for insert queries
+#
+insert:
+  partitions: fixed(1)
+  select:    fixed(1)/1
+  batchtype: UNLOGGED             # use unlogged batches
+
+
+#
+# Read queries to run against the schema
+#
+queries:
+   user_by_email:
+      cql: select * from user_by_email where email = ?
+      fields: samerow
