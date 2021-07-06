@@ -471,10 +471,153 @@ Max             0.00              0.00              0.00                86      
 1. Backup would work for th replaced node (if the token range is same)
 1. It is faster and lesser impact on the cluster
 
+## STCS - Size Tieres Compaction Strategy
+
+* STCS Organizes SSTables into Tiers based on sizes
+  * On an exponential scale
+* Multiple SSTables would become (larger or smaller)
+  * Smaller - when plenty of deltes
+  * Largers - Sum of size of smaller SSTables (when there is no delete in smaller sstable)
+* Lower-tier means smaller SStables
+* Higher-tier means larger SStables
+* min_threshold and max_thrshold (number of files within the tier)
+
+## STCS Pros and Disadvantage
+
+* STCS doesn't compact 1 GB and 1MB file together
+  * Avoids write amplification
+  * Handles write heavy system very well
+* STCS requires of at least twice the data size (Space amplification)
+* How do we combine 4 * 128MB file, we require 512MB additional space to combine them (at-least 50%)
+* Stale records in Larger SSTables take unnecessary space (old file would take time to catchup)
+* Concurrent_Compactors - Failed more often than helping.
+* STCS - Major compaction was not recommended for producton (one big large compacted file) - Never do 'nodetool compact'
+## STCS Hotness
+
+* STCS compaction chooses hottest tier first to compact
+* SSTable hotness determined by number of reads per second per partition key
+## Wht STCS is slower for read
+
+* If new write is in lower tier, and old values are in higher tier, they can't be compacted together (immediately)
+
+## What triggers a STCS Compaction
+
+* More write --> More Compaction
+* Compaction starts every time a memtable flushes to an SSTable
+* MemTable too large, commit log too large or manual flush (Triggering events)
+* When the cluster streams SSTable segments to the node
+  * Bootstrap, rebuild, repair
+* Compaction continues until there are no more tiers with at least min_threshold tables in it  
+
+## STCS - Tombstones
+
+* If no eligible buckets, STCS compacts a single SSTable
+* tombstone_compaction_interval - At-least one day old before considered for Tombstone compaction
+* Compaction ensures that tombstones donot overlap old records in other SSTables
+* The number of expired tombstones must be above 20%
+
+## LCS - Leveled Compaction Strategy
+
+* sstable_size_in_mb - Max size of SSTable
+  * 'Max SSTable Size' - would be considered like unit size for compaction to trigger
+* When there are more than 10 SSTables, they are combined and level is promoted
+* Every higher level would be 10times bigger than their lower levels
+* LCS - limits space amplification, but it ends in higher write amplification
+* L0 - is landing place
+
+## LCS Pros and Cons
+
+* LCS is best for reads
+  * 90% of the data resides in the lowest level
+  * Each partition resides in only one table
+* LCS is not suitable for more writes than reads, but suits occasional writes but high reads
+* Reads are handled only by few SSTable make it faster
+* LCS - doesn't require 50% space, it wastes less disk space  
+
+## LCS - Lagging behind
+
+* If lower levels are two big, LCS falls back to STCS for L0 compaction
+* Falling to STCS would helps to create larger SSTable, and compacting two larger SSTable is optimum
+
 
 ## LeveledCompactionStrategy
 
 * [LCS Cassandra](https://issues.apache.org/jira/browse/CASSANDRA-14605?jql=labels%20%3D%20lcs%20AND%20project%20in%20(Cassandra))
+
+## TWCS - Time-window compaction strategies
+
+* Best suited for Time-series data
+* Windowf of time can be chosen while creating Table
+* STCS is used within the timewindow
+* Any SSTable that spans two window will be considered for next window
+* Not suited for data that is being updated
+
+## Nodesync (Datastax Enterprise 6.0)
+
+* Continuous background repair
+  * only for DSE-6.0 and above
+  * Repair - doesn't mean something broken, rather preventing anti-entropy
+* Low overhead, Consistency performance, Doesn't use Merkel tree
+* Predicatable synchronization overhead, and easier than repair
+* 
+  ```sql 
+    create table mytable (k int primary key) with nodesync = {'enabled': 'true', 'deadline_target_sec: 'true'}; 
+    nodetool nodesyncservice setrate <value_in_kb_per_sec>
+    nodetool nodesyncservice getrate
+  ```
+* Parameters
+  * Rate -- how much bandwidth could be used (between rate and target --- rate always wins)
+  * Target -- (lesser than gc_grace_seconds)
+* nodetool nodesync vs dse/bin/nodesync (second binary is cluster-wide tool)
+
+## What are all the possible reason for large SSTable
+
+* nodetool compact (somebody run it)
+  * Major compaction using STCS would create large SSTable
+* LCS (over period of time created large SSTable)
+* We need to split the file sometime (anti-compaction)
+* Warning before using SSTablesplit (don't run on live system)
+* 
+  ```bash
+  sudo service cassandra stop
+  sstablesplit -s 40 /user/share/data/cssandra/killr_video/users/*
+  ```
+
+## Multi-Datacenter
+
+* We can add datacenter using `alter keyspace` even before datacenter is available
+* Cassandra allows to add datacenter to live system
+* conf/cassandra-rackdc.properties
+* Snitch is control where the data is.
+* NetworkTopologyStrategy - is the one that achieves the distribution (among DC, controlled by Snitch)
+* Replication values can be per-datacenter
+* DC level information are per keyspace level (not table level)
+* 
+  ```sql
+    alter keyspace killr_video with replication = {'class': 'NetworkTopologyStrategy', 'DC1': 2, 'DC2': 2}
+  ```
+* nodetool reubuild -- name-of-existing-datacenter
+* Run 'nodetool rebuild' specifying the existing datacenter on all the nodes in the new DC
+* Without above, request with LOCAL_ONE or ONE consistency level may fail if the existing DC are not completely in sync
+## Multi-Datacenter Consistency Level
+
+* Local_Quorum - TO reduce latency
+* Each - Very heavy operation
+* Snitch should be specified
+## What if one datacenter goes down?
+
+* Gossip will find that DC is down
+* Reocvery can be accomplished with a rolling repair to all nodes in failed datacenter
+* Hints would be piling up in other datacenters (that is receiving updates)
+* We should run-repair if we go beyond GC_Grace_seconds
+
+## Why we need additional DC?
+
+* Live Backup
+* Improved Performance
+* Analytics vs Transaction workload 
+
+
 ## Lab notes
 
 * 172.18.0.2
