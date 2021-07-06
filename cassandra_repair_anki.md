@@ -1,4 +1,64 @@
-## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on 3', How many node will be involved in repair
+## What is repair?
+
+* Repair ensures that all replicas have identical copies of a given partition
+* Data won't be in sync due to eventual consistency pattern, Merkel-Tree based reconciliation would help to fix the data.
+* It is also called anti-entropy repair.
+* [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
+* Reaper and nodetool repair works slightly different
+* Reaper repair mode
+  * sequential
+  * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
+  * datacenter_aware
+    * It is like sequential but one node per each DC
+
+## Repair command
+
+* 
+  ```bash
+  nodetool <options> repair
+  --dc <dc_name> identify data centers
+  --pr <partitioner-range> repair only primary range
+  --st <start_token> used when repairing a subrange
+  --et <end_token> used when repairing a subrange
+  ```
+
+## Why repairs are necessary?
+
+* Nodes may go down for a period of time and miss writes
+  * Especially if down for more than max_hint_window_in_ms
+* If nodes become overloaded and drop writes
+* if dropped mutation is high repair was missing in its place
+
+## Repair guideline
+
+* Make sure repair completes within gc_grace_seconds window
+* Repair should be scheduled once before every gc_grace_seconds
+
+## What is Primary Range Repair?
+
+* The primary range is the set of tokens the node is assigned
+* Repairing only the node's primary range will make sure that data is synchronized for that range
+* Repairing only the node's primary range will eliminate reduandant repairs
+
+## How does repair work?
+
+1. Nodes build merkel-trees from partitions to represent how current data values are
+1. Nodes exchange merkel trees
+1. Nodes compare the merkel trees to identify specific values that need synchronization
+1. Nodes exchange data values and update their data
+
+## Events that trigger Repair
+
+* 'CL=Quorum' - Read would trigger the repair
+* Random repair (even for non-quorum read)
+  * read_repair_chance
+  * dclocal_read-repair_chance
+* Nodetool repair - externally triggered
+
+## Dropped Mutation vs Repair
+
+
+## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
 
 * 5 nodes.
 * Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4 (copy-1)  + N5 (copy-2) )
@@ -10,7 +70,7 @@
 * nodetool -pr node-3 --But we have to run in all the nodes immediately
 * runing nodetool -pr on only one node is **not-recommended**
 
-## If we run full repair on a 'n' node cluster with RF=3, How many times we repairing the data 
+## If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
 
 * We repair thrice.
 
@@ -25,18 +85,6 @@
 * [All the options of nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
 * [Cassandra documentation](https://cassandra.apache.org/doc/latest/operating/repair.html)
 * [Datastax documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
-
-## What is repair?
-
-* Data won't be in sync due to eventual consistency pattern, Merkle-Tree based reconciliation would help to fix the data. 
-* It is also called anti-entropy repair. 
-* [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
-* Reaper and nodetool repair works slightly different
-* Reaper repair mode
-  * sequential
-  * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
-  * datacenter_aware
-    * It is like sequential but one node per each DC
 
 ## Repair and some number related to time
 

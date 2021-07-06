@@ -1,4 +1,4 @@
-## Create Keyspace
+## Create Keyspace (and use it)
 
 ```sql
 ## Only when cluster replication exercise
@@ -6,7 +6,11 @@ CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy
 
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
+```
 
+## Create TABLE and load/export data in and out-of-tables
+
+```sql
 CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
 insert into videos (video_id, added_date, title) values (5645f8bd-14bd-11e5-af1a-8638355b8e3a, '2014-02-28','Cassndra History')
 
@@ -21,6 +25,12 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/videos-by-tag.csv' W
 INSERT INTO killrvideo.videos_by_tag (tag, added_date, video_id, title) VALUES ('cassandra', '2016-2-8', uuid(), 'Me Lava Cassandra');
 UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag = 'cassandra' AND added_date = '2016-02-08' AND video_id = paste_your_video_id;
 
+--Export data
+COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
+```
+## How to select token values of primary-key
+
+```sql
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
 --output of gossip-info
 system.token(tag)    | tag
@@ -30,10 +40,25 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
    356242581507269238 | cassandra
    356242581507269238 | cassandra
-
---Export data
-COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
+
+## CQL Copy and rules
+
+* Cassandra expects same number of columns in every row (in delimited file)
+* Number of columns should match the table
+* Empty data in column is assumed by default as NULL value
+* COPY from should not be used to dump entire data (could be in TB or PB)
+* For importing larger datasets, use DSBulk
+* Can be piped with standar-input and standrd-outpu
+
+## CQL Copy options
+
+1. DELIMITER
+1. HEADER
+1. CHUNKSIZE - 1000 (default)
+1. SKIPROW - number of rows to skip (for testing)
+
+
 
 ## How to list partition_key (or the actual token) along with other columns
 
@@ -109,6 +134,12 @@ system_traces
 ## Clear the screen of output from previous commands
 
 * CLEAR
+
+## Cassandra Dual equivalent table and SQL
+
+```sql
+1. select now() from system.local;
+```
 
 ## Exit cqlsh
 

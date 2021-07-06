@@ -458,7 +458,7 @@ Max             0.00              0.00              0.00                86      
 
 * Replace vs Remove-and-Add
 * Backup for a node will work a replaced node, because same tokens are used to bring replaced node into cluster
-* Best option is replce instead of remove-and-add
+* Best option is replace instead of remove-and-add
 * -Dcassandra.replace_address=<IP_ADDRESS_OF_DEAD_NODE> // has to change in JVM.options
   * Above line informs cluster that node will have same range of tokens as existing dead node
 * Once replaced, we should remove  -Dcassandra.replace_address=<IP_ADDRESS_OF_DEAD_NODE>
@@ -617,6 +617,220 @@ Max             0.00              0.00              0.00                86      
 * Improved Performance
 * Analytics vs Transaction workload 
 
+## SSTableDump
+
+1. Old tool, quite useful
+1. Only way to dump SSTable into json (for investigation purpose)
+1. Useful to diagnose SSTable ttl and tombostone
+1. Usage
+   1. tools/bin/sstable data/ks/table/sstable-data.db
+   1. -d to view as key-value (withtout JSON)
+
+## SSTableloader
+
+1. sstableloader -d co-ordinator-ip /var/lib/cassandra/data/killrvideo/users/
+1. Load existing data in SSTable format into another cluster (production to test)
+1. Useful to upgrade data from one enviroment to another environment (migrating to new DC)
+1. It adheres to replication factor of target cluster
+1. Tables are repaired in target cluster after being loaded
+1. Fastest way to load the data
+1. Source should be a running node with proper Cassandra.yaml file
+1. Atleast one node in the cluster is configured as SEED
+1. sample dump
+    ```json
+    [
+      {
+        "partition" : {
+          "key" : [ "36111c91-4744-47ad-9874-79c2ecb36ea7" ],
+          "position" : 0
+        },
+        "rows" : [
+          {
+            "type" : "row",
+            "position" : 30,
+            "liveness_info" : { "tstamp" : "2021-07-06T03:38:20.642757Z" },
+            "cells" : [
+              { "name" : "v", "value" : 1 }
+            ]
+          }
+        ]
+      },
+      {
+        "partition" : {
+          "key" : [ "ec07b617-1348-42b8-afb1-913ff531a24c" ],
+          "position" : 43
+        },
+        "rows" : [
+          {
+            "type" : "row",
+            "position" : 73,
+            "cells" : [
+              { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:39:12.173004Z" }
+            ]
+          }
+        ]
+      },
+      {
+        "partition" : {
+          "key" : [ "91d7d620-de0b-11eb-ad2f-537733e6a124" ],
+          "position" : 86
+        },
+        "rows" : [
+          {
+            "type" : "row",
+            "position" : 116,
+            "liveness_info" : { "tstamp" : "2021-07-06T03:38:03.777666Z" },
+            "cells" : [
+              { "name" : "v", "deletion_info" : { "local_delete_time" : "2021-07-06T09:06:57Z" },
+                "tstamp" : "2021-07-06T09:06:57.504609Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "partition" : {
+          "key" : [ "7164f397-f1cb-4341-bc83-ac10088d5bfd" ],
+          "position" : 128
+        },
+        "rows" : [
+          {
+            "type" : "row",
+            "position" : 158,
+            "cells" : [
+              { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:38:56.888661Z" }
+            ]
+          }
+        ]
+      }
+    ]
+    ```
+
+## Loading different formats of data into Cassandra
+
+1. Apache Spark for Dataloading
+1. 
+    ```python
+    from pyspark import SparkConf
+    import pyspark_cassandra
+    from pyspark_cassandra import CassandraSparkContext
+
+    conf = SparkConf().set("spark.cassandra.connection.host", <IP1>).set("spark.cassandra.connection.native.port",<IP2>)
+
+    sparkContext = CassandraSparkContext(conf = conf)
+    rdd = sparkContext.parallelize([{"validated":False, "sampleId":"323112121", "id":"121224235-11e5-9023-23789786ess" }])
+    rdd.saveToCassandra("ks", "test", {"validated", "sample_id", "id"} )
+    ```
+1. Loading a CSV file into a Cassandra table with validation:
+```scala
+import com.datastax.spark.connector._
+import com.datastax.spark.connector.cql._
+import org.apache.spark.SparkContext
+
+//Preparing SparkContext to work with Cassandra
+val conf = new SparkConf(true).set("spark.cassandra.connection.host", "192.168.123.10")
+        .set("spark.cassandra.auth.username", "cassandra")            
+        .set("spark.cassandra.auth.password", "cassandra")
+val sc = new SparkContext("spark://192.168.123.10:7077", "test", conf)
+val beforeCount = sc.cassandraTable("killrvideo", "users").count
+val users = sc.textFile("file:///home/student/users.csv").repartition(2 * sc.defaultParallelism).cache // The RDD is used in two actions
+val loadCount = users.count
+users.map(line => line.split(",") match {
+      case Array(id, firstname, lastname, email, created_date)    => User(java.util.UUID.fromString(id), firstname, lastname, email, new java.text.SimpleDateFormat("yyyy-mm-dd").parse(created_date))
+  }
+).saveToCassandra("killrvideo", "users")
+val afterCount = sc.cassandraTable("killrvideo", "users").count
+if (loadCount - (afterCount - beforeCount) > 0)
+  println ("Errors or upserts - further validation required")
+```
+
+## Datstax - DSE Bulk (configuration should be in HOCON format)
+
+1. CLI import tool (from csv or json)
+1. Can move to and from files in the file-system
+1. Why DSE Bulk?
+  1. Casandra-loader is not formally supported, SSTableLoader data should be in SSTable format
+  1. CQLSH Copy is not performant
+  1. Can be used as format for backup
+  1. Unload and reformat as different data-model
+1. Usage: dsbulk -f dsbulk.conf -c csv/json -k keyspace -t tablename
+
+## Backup and Snapshots
+
+1. Why do we need your backup for distributed data?
+  1. Human error caused data wipe
+  1. Somebody thought they are dropping data in UAT, but it was production
+  1. Programmatic accidental deletion or overwriting data
+  1. Wrong procedure followed and lost data
+1. SSTables are immutable, we can just copy them for backup purpose
+1. usage - nodetool -h localhost -p 7199 snapshot mykeyspace
+
+
+## What is Cassandra snapshots?
+1. The DDL to create the table is stored as well.
+1. A snapshot is a copy of a table’s SSTable files at a given time, created via hard links.
+1. Hardlink snapshots are acting as Point-in-Time backup 
+## Why Snapshots are fast in Cassandra? How to snapshot at the same time?
+
+* It just creates hard-links to underlying SSTable (immutable files)
+* Actual files are not copied, hence less (zero) data-movement
+* A parallel SSH tool can be used to snapshot at the same time.
+
+## How do incrementa backup works
+
+* Every flush to disk should be added to snapshots
+  * incremental_backup: true --##cassandra.yaml
+* Snapshot is required (before incremental backups) in-order for incremental backup to work (pre-requisite)
+* Snapshot informations are stored under "snapshots/directory"
+* incremental backups  are stored under "backups/directory"
+* incremental backups - are not automatically removed (warning would pile-up)
+  * These should be manually removed before creating new snapshot
+
+## Where to store snapshots?
+
+* Snapshots and incremental backups are stored on each cassandra-node
+* Files should be copied to remote place (not on node)
+  * [tablesnap can store to AWS S3](https://github.com/JeremyGrosser/tablesnap)
+
+## How Truncate works?
+
+* auto_snapshot is critical, don't disable it
+* Helps to take Snapshots, just before table truncation.
+
+## How to snapshot?
+
+* bin/nodetool snapshot -cf table - t <tag> -- keyspace keyspace2
+* [How to snapshot and restore](https://docs.rackspace.com/blog/apache-casandra-backup-and-recovery/)
+
+## Restore (We get 1 point for backup, 99 point for restore)
+
+* Backup that doesn't help to restore is useless
+* Restore should be tested many times and documented properly
+
+## [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
+
+1. Delete the current data files 
+1. Copy the snapshot and incremental files to the appropriate data directories
+1. The table schema must already be present in order to use this method
+1. If using incremental backups
+   1. Copy the contents of the backups/ directory to each table directory
+1. Restart and repair the node after the file copying is done
+Honorable mention – tablesnap and tablerestore
+• Used when backing up Cassandra to AWS S3
+## How to remove snapshots?
+
+* nodetool clearsnapshot <snapshot_name>
+  * Not specifying a snapshot name removes all snapshots
+* Remember to remove old snapshots before taking new ones, not automatic
+
+## JVM settings
+
+1. jvm.options can be used to modify jvm settings
+1. cassandra-env.sh is a shell that launches cassandra server, that uses jvm.options
+1. MAX_HEAP_SIZE : -Xmx8G
+1. HEAP_NEW_SIZE : -XX:NewSize=100m
+1. Java 9 by default uses G1 Collector
+
 
 ## Lab notes
 
@@ -624,6 +838,13 @@ Max             0.00              0.00              0.00                86      
 * /usr/share/dse/data
 * /var/lib/cassandra/data
 
+
+## Cassandra people
+
+* [Jamie King](https://twitter.com/mrcompscience)
+* [Jonathan Ellis](https://twitter.com/spyced)
+* [Patrick McFadin](https://twitter.com/patrickmcfadin?lang=en)
+* 
 ## How to create anki from this markdown file
 
 ```
