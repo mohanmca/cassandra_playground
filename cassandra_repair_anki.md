@@ -11,6 +11,14 @@
   * datacenter_aware
     * It is like sequential but one node per each DC
 
+## Repair Service (on OpsCenter)
+
+1. Runs in the background
+1. Works on small chunks to limit performance impact
+1. Continuously cycles within a specified time period
+1. Can run in parallel
+1. Can work on sub-ranges or incremental
+
 ## Repair command
 
 * 

@@ -1795,6 +1795,219 @@ Honorable mention – tablesnap and tablerestore
 1. Java 9 by default uses G1 Collector
 
 
+## Garbage Collections (Apache Cassandra)
+
+* Cassandra on JDK-8 was using CMS
+* Decrease Pause-Time, But increase Through-Put
+* Eden, S-1, S-2 space
+* GC Process - Eden -> Survivor -> S2/S1 (Always one of the survivor space is empty)
+* GC Process - Step2 - Eden + Survivor -> S2/S1 (Always one of the survivor space is empty)
+* After many young gc, S1/S2 -> Old GC
+* CMS kicks in when OldGen is 75% full
+
+## Why does full GC runs?
+
+* If the old gen fills up before the CMS collector can finish
+* Full GC, stop the world collctor checks new-gen, old-gen and perm-gen
+
+## How to troubleshoot OutOfMemoryError issues in Casssandra?
+
+* -XX:+HeapDumpOnOutOfMemoryError - would dump the entire memory
+* Use Eclipse Memory Analyzer tool to analyze the content of memory
+* Cassandra puts the file in a subdirectory of the working, root directory when running as a service
+* Ensure Cassandra has access to the directory where dump directory was configured, disk should have space to hold this file
+
+## What is TSC?
+
+* It is a register inside CPU
+* Time Stamp Counter (counts the number of cycles), but won't match between processors
+
+## Tuning the Linux Kernel
+
+* NTP should be in place for Cassandra to agree time within the clusters
+  * NTP would adjust from hierarchy of time servers every 1-20 minutes
+* Cassandra service requires unfettered access to all resources
+* ulimit -a would display all the limits or limits.conf file
+* What are all the limits
+  1.  -t: cpu time (seconds)              unlimited
+  1.  -f: file size (blocks)              unlimited
+  1.  -d: data seg size (kbytes)          unlimited
+  1.  -s: stack size (kbytes)             8176
+  1.  -c: core file size (blocks)         0
+  1.  -v: address space (kbytes)          unlimited
+  1.  -l: locked-in-memory size (kbytes)  unlimited
+  1.  -u: processes                       2666
+  1.  -n: file descriptors                256
+  1.  -msgqueue  unlimited
+  1.  -sigpending unlimited
+
+## What should be removed/disabled from Linux for Cassandra to work? How to remove
+
+* swapping should be removed in linux from two places
+* swapoff -a (not permanently)
+* /etc/fstab should be edited to disable swapping
+* edit /etc/sysctl.conf and set vm.swappines=0
+  * sysctl -p should reload /etc/sysctl.conf
+* Refer datastax for other recommended linux settings  
+
+## Hardware resources to consider
+
+1. Parameters
+  * Peristent type
+  * Memory (16GB to 32GB)
+  * CPU (16 Core is best for value)
+  * Network (OS should use separate NIC, shouldn't share with Cassandra)
+    * Cassandra.yaml supports different NIC for CQL and inter-node
+  * Number of nodes
+1. Don't allow
+  * SAN/NAS/NFS
+1. SSDs are prefered
+  * 0.50 USD/GB vs 0.05 USD/GB
+  * TWCS - can use HDD
+  * HDD should be backed with more memory
+
+## Datastax on Cloud
+
+* Templates and scripts to install DSE on cloud
+* OPSCenter LCM 6.0+ (Lifecycle manager)
+  1. Provisioning (installation and config)
+  1. Configuration management
+  1. Chef, Ansible, Recipes playbook out there for DSE OPSCenter
+* Always prefer locally attached SSD
+* If Elastic storage is the only option (on cloud)
+  1. When ephemeral volume fails, terminate and get a fresh box
+* AWS
+  1. GP2 or IO2 EBS (if you can't affort ephemerals)
+  1. Get big ones, IO latencies are better for larger disk volumes
+* Google
+  1. Elastic volume always have the same tight latencies
+  1. pd-ssd seems faster than local-ssd  
+
+## Cassandra on Cloud Challenges
+
+* Hyeperthreads - you don't get a real CPU
+* Noisy neighbors - if you see CPU steal, terminate your box and get a new one
+* Networking
+  * AWS VPN - Setup cross region network
+    * Prefer Enhanced networking, supported only for few instance
+  * Azure - Do not use VPN gateways, use public IPs, Vnet2Vnet is slow but works for small workloads
+  * Google - Flat network - No config, it's great
+
+## Cassandra on cloud security
+
+* AWS - volume encryption for EBS
+* Google - largely secure by default. Should go through multifactor auth
+
+## Cassandra Security Considerations
+
+* Authentication and Authorization (Covered in DS410)
+* Authentication in disabled by default
+  * Enable the authentication in dse.yaml
+  * DSEAuthenticator (supports 3 schemes)
+    * Kerberos
+    * Ldap
+    * Internal
+  * Default superuser comes with datastax - user-id and password (cassandra/cassandra)
+  * ALTER change cassandra WITH PASSWORD 'newpassword'
+* Cassandra stores all the credentials in the sys_auth keyspace
+
+## What is the default security configuration
+
+```yaml
+authentication_options:
+  enabled: false
+  default_scheme: internal
+  allow_digest_with_krb: true
+  plain_text_without_ssl: warn
+```
+
+## Where is roles are stored in internal-scheme? (in default scheme)
+
+* ALTER keyspace system_auth with replication {'class' : 'NetworkTopologyStrategy', 'dc': 1 , 'dc': 3} 
+* All the roles are stored in system_auth.roles table
+
+## Cassandra Authentication table (system_auth.roles - in default scheme)
+
+* 
+  ```sql
+    CREATE table system_auth.roles (role text primary key, can_login boolean, is_superuser boolean, number_of set<text>, salted_hash text)
+    CREATE ROLE fred with PASSWORD = 'Yababdadfdfd' and LOGIN = true;
+    if LOGIN=TRUE --- user
+    if LOGIN=FALSE --- role
+    LIST roles;
+    DROP role fred;
+  ```
+* salted_hash is password
+
+## What are best practices for Cassandra security
+
+1. Create one more superuer_role and delete the default cassandra super-user
+  1. At least change the password for default super-user 'cassandra'
+  1. ALTER USER cassandra WITH password 'newpassword'
+1. Ensure system_auth keyspace should be replicated to multiple datacenter
+
+## Cassandra Role/Authorization management
+
+```sql
+    Grant Select ON killr_video.user_by_email TO user/role;
+    Grant Select ON killr_video.user_by_email TO fred;
+    Create Role DB_Accessors;
+    Grant Select ON killr_video.user_by_email to db_accessors;
+    Grant db_accessors to fred;
+    REVOKE SELECT FROM db_accessors;
+    Permissions 
+    * Create Keyspace, Create Table, 
+    * DDROP - Drop..
+    * MODIFY - 
+    * Alter -
+    * Authorize - 
+```
+
+## Cassandra encryption SSL
+
+* node-to-node
+* client-to-node
+* SSL
+  * client-symmeteric key would be used to communicate, client-key is encrypted by server public key (typical SSL)
+  * Keystore - signed key-pair (private/public key pair)
+  * Truststore - RCA (root certificate authority) for signed certificate validation
+* Inter node communiation
+  * Nodes present their certificate from keystore to other nodes
+  * Other nodes validate the certicate using their trust-store RCA details
+
+## What are two artifacts required for Cassandra to enable SSL
+
+1. TrustStore (all the trusted certificate- ROOT CA)
+   1. This is common among all the Cassandra nodes
+1. Keystore (key-pair, its own signed certificate)
+
+
+## 8 Steps for SSL setup (node-to-node)
+
+1. Create Root Cert  (Root of entire SSL communication)
+   1. Root Cert = "CA_KEY" + "Root Cert"
+1. Create keyStore w/Key pair (for each node)
+   1. KeyStore
+1. Export Signing Req (Each nodes certificate sign request)
+1. Sign the certificate using Root-CA
+   1. To Sign new certificate using root-CA, we need both CA-KEY + Root-Cert
+1. Import RootCert into keyStore
+1. Import Singed Certificate into keyStore
+7. Create Turst Store
+   1. Use RootCA to authenticate incoming Connections.
+*  Credit-Datastax ![SSL](img/SSL_STEPS_Datastax.png) "Credit-Datastax-SSL"
+* [Cassandra Security Configuration](./cassandra_security_configuration.pdf)
+   1. [Credit: SSL Configuration](https://www.slideshare.net/BrajaDas/cassandra-security-configuration?from_action=save)
+
+## How to harden Cassandra security
+
+1. Secure the keystore - since this contains private key
+1. Setup firewasll so that only nodes can talk to each other on the listen_port
+1. Protect the root CA private key - this Not be disbuted to the nodes
+1. Enable require_client_auth, otherwise program could spoof being a node
+
+
+
 ## Lab notes
 
 * 172.18.0.2
@@ -1813,6 +2026,8 @@ Honorable mention – tablesnap and tablerestore
 ```
 mdanki Cassandra_Datastax_210_Anki.md Cassandra_Datastax_210_Anki.apkg --deck "Mohan::Cassandra::DS210::Operations"
 ```
+
+
 
 
 ## RDBMS Hitstory
