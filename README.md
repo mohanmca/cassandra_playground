@@ -1562,11 +1562,13 @@ Max             0.00              0.00              0.00                86      
 * nodetool reubuild -- name-of-existing-datacenter
 * Run 'nodetool rebuild' specifying the existing datacenter on all the nodes in the new DC
 * Without above, request with LOCAL_ONE or ONE consistency level may fail if the existing DC are not completely in sync
+
 ## Multi-Datacenter Consistency Level
 
 * Local_Quorum - TO reduce latency
 * Each - Very heavy operation
 * Snitch should be specified
+
 ## What if one datacenter goes down?
 
 * Gossip will find that DC is down
@@ -2006,13 +2008,87 @@ authentication_options:
 1. Protect the root CA private key - this Not be disbuted to the nodes
 1. Enable require_client_auth, otherwise program could spoof being a node
 
+## Datastax OpsCenter
 
+1. Two Products
+1. Configure and deploy cluster
+1. Configure Security
+1. Perform software upgrades
+1. Load Certificate
+
+## Datastax OpsCenter (Cluster Monitoring/Alert)
+1. Monitoring and management (Operation)
+1. Broswer -> OpsCenter Service -> Agent running inside DataStax Cassandra JVM (exposed via JMX)
+1. UI features
+   1. Dashboard
+   1. Metrics
+   1. Alerts
+   1. Trend/Capacity analysis
+   1. Performance service
+1. Comprehensive Grafana like dashboard
+
+## Datastax OpsCenter (Management Service)
+
+1. Backup & Restore Service
+1. NodeSync Service
+1. Repair Service
+1. Best Practices Service
+1. Capacity Service
+
+## Datastax OpsCenter (Backup and restore Service)
+
+1. Visual backup management
+1. Backup & Restore on distributed system is hard
+1. Support for multi-cloud backup and restore option
+1. Enterprise-class visual backup service guards against data loss on managed database clusters
+1. Backup Destination
+    1. Local server
+    1. Amazon S3
+    1. Custom Location
+1. Compresses data
+1. Configurable retention polcies
+1. Includes alerts and reporting
+
+
+## Datastax OpsCenter LifeCycle Manager (Provisioning)
+
+1. Configuration and deployment (Onboarding)
+1. UI Menu has option for
+  1. SSH Credentials
+  1. Repositories (download software from datastax)
+  1. Config Profiles
+  1. Add DC/Nodes/Clusters
+1. Point in time backup & restore
+
+## Datastax OpsCenter NodeSync
+
+1. Prefered over repair service
+1. Low intensity continuous repair
+
+## Datastax OpsCenter other features
+
+1. Best Practice service - periodically audits, alerts and suggests solution
+1. Capacity service - Used to forecast metrics, configurable for multiple parameters
+1. Performance Service - Diagnose table performance, query performance, ThreadPool stats
+1. Datastax DSE uses one thread per core (and tries to avoid ThreadPools)
+1. Alerts - Integreated into Enterprise Monitoriing system
+    1. Post request
+    1. Mail
+    1. SNMP - to an enterprise monitoring system
+
+## Follow-up course
+
+1. DS-220 - Practical application modelling with Apache Casssandra
+1. DS-310 - DataStax Enterprise Search
+1. DS-320 - DataStax Enterprise Apache Sparx
+1. DS-330 - DataStax Enterprise Graph
 
 ## Lab notes
 
 * 172.18.0.2
 * /usr/share/dse/data
 * /var/lib/cassandra/data
+* DS-220 
 
 
 ## Cassandra people
@@ -2402,6 +2478,14 @@ for val in session.execute("select * from videos_by_tag"):
   * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
   * datacenter_aware
     * It is like sequential but one node per each DC
+
+## Repair Service (on OpsCenter)
+
+1. Runs in the background
+1. Works on small chunks to limit performance impact
+1. Continuously cycles within a specified time period
+1. Can run in parallel
+1. Can work on sub-ranges or incremental
 
 ## Repair command
 
