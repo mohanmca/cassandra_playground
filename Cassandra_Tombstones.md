@@ -21,7 +21,7 @@
 ## Where is Tombstones are handled?
 
 * Tombstones are handled part of Compaction
-* [AbstractCompactionStrategy](https://github.com/PaytmLabs/cassandra/blob/master/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)
+* [AbstractCompactionStrategy](https://github.com/apache/cassandra/blob/cassandra-3.11/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)
     *  protected boolean worthDroppingTombstones(SSTableReader sstable, int gcBefore)
     *
         ```java
