@@ -2106,506 +2106,6 @@ mdanki Cassandra_Datastax_210_Anki.md Cassandra_Datastax_210_Anki.apkg --deck "M
 
 
 
-## RDBMS Hitstory
-
-* IBM DB1 - IMS (Hierarchical dbms) - Released in 1968 
-* IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
-* Pros : It works for most of the cases
-  * SQL - Support
-  * ACID - Transaction (A Transformation of State - Jim Gray)
-    * Atomic (State A to State B - no in-between)
-    * Consistency
-    * Isolated - Force transactions to be serially executed. (If it doesn't require consistency and atomic, it is  possible to have isolated and parallel txns)
-    * Durable - Never lost
-* Cons : Won't work for massively web scale db
-
-## How RDBMS is tuned
-
-* Introduce Index
-* Master(write), Slave (many times only used for read)
-  * Introduces replication and transaction issues
-  * Introduces consistency issues
-* Add more CPU, RAM - Vertical scaling
-* Partitioning/Sharding
-* Disable journaling  
-
-## Two-phase commit vs Compensation
-
-* Compensation
-  * Writing off the transaction if it fails, deciding to discard erroneous transactions and reconciling later. 
-  * Retry failed operations later on notification. 
-* In a reservation system or a stock sales ticker, these are not likely to meet your requirements. 
-* For other kinds of applications, such as billing or ticketing applications, this can be acceptable.
-* Starbucks Does Not Use Two-Phase Commit
-  * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
-
-## Queue anti-pattern
-
-* Cassandra is not suited for Queue
-* 
-
-## Sharding (Share nothing)
-
-* Rather keeping all customer in one table, divide up that single customer table so that each database has only some of the records, with their order preserved? Then, when clients execute queries, they put load only on the machine that has the record they’re looking for, with no load on the other machines.
-* How to shard?
-  * Name-wise sharding issues like customer names that starts with "Q,J" will have less, whereas customer name starts with J, M and S may be busy
-  * Shard by DOB, SSN, HASH
-* Three basic strategies for determining shard structure  
-  * Feature-based shard or functional segmentation
-  * Key-based sharding - one-way hash on a key data element and distribute data across machines according to the hash.
-  * Lookup Table
-
-# [NoSQL](http://nosql-database.org/)
-
-* Key-Value stores - Oracle Coherence, Redis, and MemcacheD, Amazon’s Dynamo DB, Riak, and Voldemort.
-* Column stores - Cassandra, Hypertable, and Apache Hadoop’s HBase.
-* Document stores -  MongoDB and CouchDB.
-* Graph databases - Blazegraph, FlockDB, Neo4J, and Polyglot
-* Object databases -  db4o and InterSystems Caché
-* XML databases - Tamino from Software AG and eXist.
-
-
-## Apache Cassandra
-
-* “Apache Cassandra is distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database that bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable.”
-* No SPOF
-  * Is not Master/Slave (MongoDB is master/slave)
-* Tuneably consistent (not Eventual Consisten as majority believes)
-
-## Cassandra Features
-
-* CQL (moved from Thrift API)
-* Secondary indexes
-* Materialized views
-* Lightweight transactions
-* Consistency = Replication factor + consistency level  (delegated to clients)
-  * Consistency level <= replication factor
-* Cassandra is not column-oriented (it is row oriented)
-* Column values are stored according to a consistent sort order, omitting columns that are not populated
-
-## Consistency Forms
-
-* Strict (or Serial) Consistency
-  * Works on Single CPU
-* Casual Consistency (like Casuation)
-  * The cause of events to create some consistency in their order.
-  * Writes that are potentially related must be read in sequence. 
-  * If two different, unrelated operations suddenly write to the same field, then those writes are inferred not to be causally related.
-* Weak (or) Eventual Consistency
-  * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
-
-## Row-Oriented
-
-* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
-* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
-* “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
-
-## Always writeable
-
-* A design approach must decide whether to resolve these conflicts at one of two possible times: during reads or during writes. That is, a distributed database designer must choose to make the system either always readable or always writable. Dynamo and Cassandra choose to be always writable, opting to defer the complexity of reconciliation to read operations, and realize tremendous performance gains. The alternative is to reject updates amidst network and server failures.
-* CAP Theorem
-  * Choose any two (of threee)
-  * Cassandra assumes that  network partitioning is unavoidable, hence it lets us deal only with availability and consistency.
-  * CAP placement is independent of the orientation of the data storage mechanism
-  * CAP theorem database mapping
-    * AP - ?
-      * To primarily support availability and partition tolerance, your system may return inaccurate data, but the system will always be available, even in the face of network partitioning. DNS is perhaps the most popular example of a system that is massively scalable, highly available, and partition tolerant.
-    * CP - ?
-      * To primarily support consistency and partition tolerance, you may try to advance your architecture by setting up data shards in order to scale. Your data will be consistent, but you still run the risk of some data becoming unavailable if nodes fail.
-    * CA - ?
-      * To primarily support consistency and availability means that you’re likely using two-phase commit for distributed transactions. It means that the system will block when a network partition occurs, so it may be that your system is limited to a single data center cluster in an attempt to mitigate this. If your application needs only this level of scale, this is easy to manage and allows you to rely on familiar, simple structures.
-
-
-## Notable tools
-
-* Sstableloader - Bulk loader
-* Leveled compaction strategy - for faster reads
-* Atomic batches
-* Lightweight transactions were added using the Paxos consensus protocol
-* User-defined functions
-* Materialized views (sometimes also called global indexes) 
-
-## Few use cases
-
-* Cassandra has been used to create a variety of applications, including a windowed time-series store, an inverted index for document searching, and a distributed job priority queue.
-
-## Updated CAP - Brewer's Theorem
-
-* Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
-* He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
-
-## Quotes
-
-* If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
-* [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
-
-## References
-
-* [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
-* [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
-* (AWS re:Invent 2018: Amazon DynamoDB Deep Dive: Advanced Design Patterns for DynamoDB (DAT401))[https://www.youtube.com/watch?time_continue=33&v=HaEPXoXVf2k]
-* [amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb](https://www.slideshare.net/AmazonWebServices/amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb-dat401-aws-reinvent-2018pdf)
-* [Best Practices NOSql](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
-* CassandraSummit
-
-## Cassandra production error
-
-* RANGE SLICE Messages were dropped
-* StorageProxy.readRegular(group, consistencyLevel, queryStartNanoTime);
-* SinglePartitionCommand.java[1176]/StorageProxy.read(this, consistency, clientState, queryStartNanoTime);
-
-
-## (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
-* Client side should enable ssl ; true (in spring-boot application.yaml)
-  * spring.data.cassandra.ssl: true
-## (Client side) - [SSLL SSLV3_ALERT_HANDSHAKE_FAILURE]
-* Ensure you configured SSL on cient side
-## (Client side) - Since you provided explicit contact points, the local DC must be explicitly set (see basic.load-balancing-policy.local-datacenter)
-* spring.data.cassandra.local-datacenter: asiapac
-## Cassandra read - query timedout out after PT2S
-* 
-## Data types
-
-* Text
-* timestamp -- we can use in query like added_date > '2013-03-17';
-
-## How to connect to Cassandra from API
-
-1. Create Cluster object
-1. Create Session object
-1. Execute Query using session and retrieve the result
-
-```java
-Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
-Session session = cluster.connect("KillrVideo")
-ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
-
-boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
-
-List<Book> books = new ArrayList<Book>();
-result.forEach(r -> {
-   books.add(new Book(
-      r.getUUID("id"), 
-      r.getString("title"),  
-      r.getString("subject")));
-});
-return books;
-```
-
-## TO setup python
-
-```bash
-python -m pip install --upgrade pip
-pip install cassandra-driver
-``
-
-```python
-from cassandra.cluster import Cluster
-cluster = Cluster(protocol_version = 3)
-session = cluster.connect('Killrvideo')
-result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
-print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
-for val in session.execute("select * from videos_by_tag"):
-   print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
-```
-## Cluster level monitoring
-
-* Current cluster availability
-* Current Storage Load
-* Average Cluster Availablity for Period
-* For Each datacenter
-  * # of client requests
-
-## Top worst performing
-
-* Top 5 worst performing nodes by client latency
-  
-
-## List monitoring elements
-
-1. Node status
-1. Disk Usage
-1. Read Requests
-1. Write Requests
-1. Read Latency
-1. Write Latency
-1. Clients
-1. Native Transport Requests
-1. Compactions Pending
-1. Dropped Mutations
-1. Full GC Duration
-1. Full GC Count
-1. Heap memory usage
-1. Off-Heap Memory Usage
-
-## List table level
-
-1. Read Latency
-1. Write Latency
-1. SSTable Count
-1. SSTable Per Read
-1. Table Disk Used
-1. Table Row Size
-
-
-
-
-
-## Node Status
-## Nodetool usage
-
-* 
-```bash
-     usage: nodetool [(-pwf <passwordFilePath> | --password-file <passwordFilePath>)]
-          [(-u <username> | --username <username>)]
-          [(-pw <password> | --password <password>)] [(-h <host> | --host <host>)]
-          [(-p <port> | --port <port>)] <command> [<args>]
-```
-
-## Nodetool commands
-
-```bash
-     The most commonly used nodetool commands are:
-     assassinate                  Forcefully remove a dead node without re-replicating any data.  Use as a last resort if you cannot removenode
-     bootstrap                    Monitor/manage node-s bootstrap process
-     cleanup                      Triggers the immediate cleanup of keys no longer belonging to a node. By default, clean all keyspaces
-     clearsnapshot                Remove the snapshot with the given name from the given keyspaces. If no snapshotName is specified we will remove all snapshots
-     compact                      Force a (major) compaction on one or more tables or user-defined compaction on given SSTables
-     compactionhistory            Print history of compaction
-     compactionstats              Print statistics on compactions
-     decommission                 Decommission the *node I am connecting to*
-     describecluster              Print the name, snitch, partitioner and schema version of a cluster
-     describering                 Shows the token ranges info of a given keyspace
-     disableautocompaction        Disable autocompaction for the given keyspace and table
-     disablebackup                Disable incremental backup
-     disablebinary                Disable native transport (binary protocol)
-     disablegossip                Disable gossip (effectively marking the node down)
-     disablehandoff               Disable storing hinted handoffs
-     disablehintsfordc            Disable hints for a data center
-     disablethrift                Disable thrift server
-     drain                        Drain the node (stop accepting writes and flush all tables)
-     enableautocompaction         Enable autocompaction for the given keyspace and table
-     enablebackup                 Enable incremental backup
-     enablebinary                 Reenable native transport (binary protocol)
-     enablegossip                 Reenable gossip
-     enablehandoff                Reenable future hints storing on the current node
-     enablehintsfordc             Enable hints for a data center that was previsouly disabled
-     enablethrift                 Reenable thrift server
-     failuredetector              Shows the failure detector information for the cluster
-     flush                        Flush one or more tables
-     garbagecollect               Remove deleted data from one or more tables
-     gcstats                      Print GC Statistics
-     getcompactionthreshold       Print min and max compaction thresholds for a given table
-     getcompactionthroughput      Print the MB/s throughput cap for compaction in the system
-     getconcurrentcompactors      Get the number of concurrent compactors in the system.
-     getendpoints                 Print the end points that owns the key
-     getinterdcstreamthroughput   Print the Mb/s throughput cap for inter-datacenter streaming in the system
-     getlogginglevels             Get the runtime logging levels
-     getsstables                  Print the sstable filenames that own the key
-     getstreamthroughput          Print the Mb/s throughput cap for streaming in the system
-     gettimeout                   Print the timeout of the given type in ms
-     gettraceprobability          Print the current trace probability value
-     gossipinfo                   Shows the gossip information for the cluster
-     help                         Display help information
-     info                         Print node information (uptime, load, ...)
-     invalidatecountercache       Invalidate the counter cache
-     invalidatekeycache           Invalidate the key cache
-     invalidaterowcache           Invalidate the row cache
-     join                         Join the ring
-     listsnapshots                Lists all the snapshots along with the size on disk and true size.
-     move                         Move node on the token ring to a new token
-     netstats                     Print network information on provided host (connecting node by default)
-     pausehandoff                 Pause hints delivery process
-     proxyhistograms              Print statistic histograms for network operations
-     rangekeysample               Shows the sampled keys held across all keyspaces
-     rebuild                      Rebuild data by streaming from other nodes (similarly to bootstrap)
-     rebuild_index                A full rebuild of native secondary indexes for a given table
-     refresh                      Load newly placed SSTables to the system without restart
-     refreshsizeestimates         Refresh system.size_estimates
-     reloadlocalschema            Reload local node schema from system tables
-     reloadtriggers               Reload trigger classes
-     relocatesstables             Relocates sstables to the correct disk
-     removenode                   Show status of current node removal, force completion of pending removal or remove provided ID
-     repair                       Repair one or more tables
-     replaybatchlog               Kick off batchlog replay and wait for finish
-     resetlocalschema             Reset node=s local schema and resync
-     resumehandoff                Resume hints delivery process
-     ring                         Print information about the token ring
-     scrub                        Scrub (rebuild sstables for) one or more tables
-     setcachecapacity             Set global key, row, and counter cache capacities (in MB units)
-     setcachekeystosave           Set number of keys saved by each cache for faster post-restart warmup. 0 to disable
-     setcompactionthreshold       Set min and max compaction thresholds for a given table
-     setcompactionthroughput      Set the MB/s throughput cap for compaction in the system, or 0 to disable throttling
-     setconcurrentcompactors      Set number of concurrent compactors in the system.
-     sethintedhandoffthrottlekb   Set hinted handoff throttle in kb per second, per delivery thread.
-     setinterdcstreamthroughput   Set the Mb/s throughput cap for inter-datacenter streaming in the system, or 0 to disable throttling
-     setlogginglevel              Set the log level threshold for a given class. If both class and level are empty/null, it will reset to the initial configuration
-     setstreamthroughput          Set the Mb/s throughput cap for streaming in the system, or 0 to disable throttling
-     settimeout                   Set the specified timeout in ms, or 0 to disable timeout
-     settraceprobability          Sets the probability for tracing any given request to value. 0 disables, 1 enables for all requests, 0 is the default
-     snapshot                     Take a snapshot of specified keyspaces or a snapshot of the specified table
-     status                       Print cluster information (state, load, IDs, ...)
-     statusbackup                 Status of incremental backup
-     statusbinary                 Status of native transport (binary protocol)
-     statusgossip                 Status of gossip
-     statushandoff                Status of storing future hints on the current node
-     statusthrift                 Status of thrift server
-     stop                         Stop compaction
-     stopdaemon                   Stop cassandra daemon
-     tablehistograms              Print statistic histograms for a given table
-     tablestats                   Print statistics on tables
-     toppartitions                Sample and print the most active partitions for a given column family
-     tpstats                      Print usage statistics of thread pools
-     truncatehints                Truncate all hints on the local node, or truncate hints for the endpoint(s) specified.
-     upgradesstables              Rewrite sstables (for the requested tables) that are not on the current version (thus upgrading them to said current version)
-     verify                       Verify (check data checksum for) one or more tables
-     version                      Print cassandra version
-     viewbuildstatus              Show progress of a materialized view build
-
-     See "nodetool help <command>" for more information on a specific command.
-```
-* [WORKSHOP: Opensource Tools for Apache Cassandra 24 Nov 20. Adam Zegelin SVP Engineering, Instaclustr](https://www.youtube.com/watch?v=v1zkqHfSSUE)
-* [Best Practices of Cassandra in Production](https://www.youtube.com/watch?v=P6UkQJrEQyU)
-## What is repair?
-
-* Repair ensures that all replicas have identical copies of a given partition
-* Data won't be in sync due to eventual consistency pattern, Merkel-Tree based reconciliation would help to fix the data.
-* It is also called anti-entropy repair.
-* [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
-* Reaper and nodetool repair works slightly different
-* Reaper repair mode
-  * sequential
-  * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
-  * datacenter_aware
-    * It is like sequential but one node per each DC
-
-## Repair Service (on OpsCenter)
-
-1. Runs in the background
-1. Works on small chunks to limit performance impact
-1. Continuously cycles within a specified time period
-1. Can run in parallel
-1. Can work on sub-ranges or incremental
-
-## Repair command
-
-* 
-  ```bash
-  nodetool <options> repair
-  --dc <dc_name> identify data centers
-  --pr <partitioner-range> repair only primary range
-  --st <start_token> used when repairing a subrange
-  --et <end_token> used when repairing a subrange
-  ```
-
-## Why repairs are necessary?
-
-* Nodes may go down for a period of time and miss writes
-  * Especially if down for more than max_hint_window_in_ms
-* If nodes become overloaded and drop writes
-* if dropped mutation is high repair was missing in its place
-
-## Repair guideline
-
-* Make sure repair completes within gc_grace_seconds window
-* Repair should be scheduled once before every gc_grace_seconds
-
-## What is Primary Range Repair?
-
-* The primary range is the set of tokens the node is assigned
-* Repairing only the node's primary range will make sure that data is synchronized for that range
-* Repairing only the node's primary range will eliminate reduandant repairs
-
-## How does repair work?
-
-1. Nodes build merkel-trees from partitions to represent how current data values are
-1. Nodes exchange merkel trees
-1. Nodes compare the merkel trees to identify specific values that need synchronization
-1. Nodes exchange data values and update their data
-
-## Events that trigger Repair
-
-* 'CL=Quorum' - Read would trigger the repair
-* Random repair (even for non-quorum read)
-  * read_repair_chance
-  * dclocal_read-repair_chance
-* Nodetool repair - externally triggered
-
-## Dropped Mutation vs Repair
-
-
-## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
-
-* 5 nodes.
-* Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4 (copy-1)  + N5 (copy-2) )
-* Node-1 would use N3 for copy-2
-* Node-2 would use N3 for copy-1
-
-## How to specifically use only one node to repair itself
-
-* nodetool -pr node-3 --But we have to run in all the nodes immediately
-* runing nodetool -pr on only one node is **not-recommended**
-
-## If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
-
-* We repair thrice.
-
-
-## Developer who maintains/presented about Reaper
-
-* [Alexander Dejanovski](Alexandar Dejanvoski)
-* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
-
-## Repair documentation
-
-* [All the options of nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
-* [Cassandra documentation](https://cassandra.apache.org/doc/latest/operating/repair.html)
-* [Datastax documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
-
-## Repair and some number related to time
-
-* First scheduled repair would always take more time
-* Repair scheduled often generally completes faster, since there are less data to repair
-* Few reported - it took 308+ hours to complete repair on 2.1.12 version
-* With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to repair it.
-
-## What are Reaper settings
-
-* Segments per node
-* Tables
-* Blacklist
-* Nodes
-* Datacenters
-* Threads
-* Repair intensity
-
-## Reaper is predominantly used for repair tasks
-
-* Reaper uses concept called segments (despite in Cassandra world Segment means CommitLog)
-* As per Reaper, you need to use a segment for every 50mb, 20K Segment for every 1 TB
-* Smaller the segement, let reaper to repair it faster
-
-## Repair related commands
-
-```bash
-nodetool repair -dc DC ## is the command to repair using nodetool
-nodetool -h 1.1.1.1 status
-```
-
-## Reference
-
-* [Repair Improvements in Apache Cassandra 4.0 | DataStax](https://www.youtube.com/watch?v=kl2ea0Cxmi0)
-* [Apache Cassandra Maintenance and Repair](http://datastax.com/dev/blog/repair-in-cassandra)
-* [DSE 6.8  Architecture Guide, About Repair](https://docs.datastax.com/en/dse/6.8/dse-arch/datastax_enterprise/dbArch/archAboutRepair.html)
-* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
-* [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
-
-## How to create anki from this markdown file
-
-```
-mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
-```
-
 ## How to create anki from this markdown file
 
 ```
@@ -3259,6 +2759,506 @@ try (CqlSession session = ...) {
 
 
 
+## RDBMS Hitstory
+
+* IBM DB1 - IMS (Hierarchical dbms) - Released in 1968 
+* IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
+* Pros : It works for most of the cases
+  * SQL - Support
+  * ACID - Transaction (A Transformation of State - Jim Gray)
+    * Atomic (State A to State B - no in-between)
+    * Consistency
+    * Isolated - Force transactions to be serially executed. (If it doesn't require consistency and atomic, it is  possible to have isolated and parallel txns)
+    * Durable - Never lost
+* Cons : Won't work for massively web scale db
+
+## How RDBMS is tuned
+
+* Introduce Index
+* Master(write), Slave (many times only used for read)
+  * Introduces replication and transaction issues
+  * Introduces consistency issues
+* Add more CPU, RAM - Vertical scaling
+* Partitioning/Sharding
+* Disable journaling  
+
+## Two-phase commit vs Compensation
+
+* Compensation
+  * Writing off the transaction if it fails, deciding to discard erroneous transactions and reconciling later. 
+  * Retry failed operations later on notification. 
+* In a reservation system or a stock sales ticker, these are not likely to meet your requirements. 
+* For other kinds of applications, such as billing or ticketing applications, this can be acceptable.
+* Starbucks Does Not Use Two-Phase Commit
+  * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
+
+## Queue anti-pattern
+
+* Cassandra is not suited for Queue
+* 
+
+## Sharding (Share nothing)
+
+* Rather keeping all customer in one table, divide up that single customer table so that each database has only some of the records, with their order preserved? Then, when clients execute queries, they put load only on the machine that has the record they’re looking for, with no load on the other machines.
+* How to shard?
+  * Name-wise sharding issues like customer names that starts with "Q,J" will have less, whereas customer name starts with J, M and S may be busy
+  * Shard by DOB, SSN, HASH
+* Three basic strategies for determining shard structure  
+  * Feature-based shard or functional segmentation
+  * Key-based sharding - one-way hash on a key data element and distribute data across machines according to the hash.
+  * Lookup Table
+
+# [NoSQL](http://nosql-database.org/)
+
+* Key-Value stores - Oracle Coherence, Redis, and MemcacheD, Amazon’s Dynamo DB, Riak, and Voldemort.
+* Column stores - Cassandra, Hypertable, and Apache Hadoop’s HBase.
+* Document stores -  MongoDB and CouchDB.
+* Graph databases - Blazegraph, FlockDB, Neo4J, and Polyglot
+* Object databases -  db4o and InterSystems Caché
+* XML databases - Tamino from Software AG and eXist.
+
+
+## Apache Cassandra
+
+* “Apache Cassandra is distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database that bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable.”
+* No SPOF
+  * Is not Master/Slave (MongoDB is master/slave)
+* Tuneably consistent (not Eventual Consisten as majority believes)
+
+## Cassandra Features
+
+* CQL (moved from Thrift API)
+* Secondary indexes
+* Materialized views
+* Lightweight transactions
+* Consistency = Replication factor + consistency level  (delegated to clients)
+  * Consistency level <= replication factor
+* Cassandra is not column-oriented (it is row oriented)
+* Column values are stored according to a consistent sort order, omitting columns that are not populated
+
+## Consistency Forms
+
+* Strict (or Serial) Consistency
+  * Works on Single CPU
+* Casual Consistency (like Casuation)
+  * The cause of events to create some consistency in their order.
+  * Writes that are potentially related must be read in sequence. 
+  * If two different, unrelated operations suddenly write to the same field, then those writes are inferred not to be causally related.
+* Weak (or) Eventual Consistency
+  * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
+
+## Row-Oriented
+
+* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
+* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
+* “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
+
+## Always writeable
+
+* A design approach must decide whether to resolve these conflicts at one of two possible times: during reads or during writes. That is, a distributed database designer must choose to make the system either always readable or always writable. Dynamo and Cassandra choose to be always writable, opting to defer the complexity of reconciliation to read operations, and realize tremendous performance gains. The alternative is to reject updates amidst network and server failures.
+* CAP Theorem
+  * Choose any two (of threee)
+  * Cassandra assumes that  network partitioning is unavoidable, hence it lets us deal only with availability and consistency.
+  * CAP placement is independent of the orientation of the data storage mechanism
+  * CAP theorem database mapping
+    * AP - ?
+      * To primarily support availability and partition tolerance, your system may return inaccurate data, but the system will always be available, even in the face of network partitioning. DNS is perhaps the most popular example of a system that is massively scalable, highly available, and partition tolerant.
+    * CP - ?
+      * To primarily support consistency and partition tolerance, you may try to advance your architecture by setting up data shards in order to scale. Your data will be consistent, but you still run the risk of some data becoming unavailable if nodes fail.
+    * CA - ?
+      * To primarily support consistency and availability means that you’re likely using two-phase commit for distributed transactions. It means that the system will block when a network partition occurs, so it may be that your system is limited to a single data center cluster in an attempt to mitigate this. If your application needs only this level of scale, this is easy to manage and allows you to rely on familiar, simple structures.
+
+
+## Notable tools
+
+* Sstableloader - Bulk loader
+* Leveled compaction strategy - for faster reads
+* Atomic batches
+* Lightweight transactions were added using the Paxos consensus protocol
+* User-defined functions
+* Materialized views (sometimes also called global indexes) 
+
+## Few use cases
+
+* Cassandra has been used to create a variety of applications, including a windowed time-series store, an inverted index for document searching, and a distributed job priority queue.
+
+## Updated CAP - Brewer's Theorem
+
+* Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
+* He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
+
+## Quotes
+
+* If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
+* [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
+
+## References
+
+* [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
+* [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
+* (AWS re:Invent 2018: Amazon DynamoDB Deep Dive: Advanced Design Patterns for DynamoDB (DAT401))[https://www.youtube.com/watch?time_continue=33&v=HaEPXoXVf2k]
+* [amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb](https://www.slideshare.net/AmazonWebServices/amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb-dat401-aws-reinvent-2018pdf)
+* [Best Practices NOSql](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
+* CassandraSummit
+
+## Cassandra production error
+
+* RANGE SLICE Messages were dropped
+* StorageProxy.readRegular(group, consistencyLevel, queryStartNanoTime);
+* SinglePartitionCommand.java[1176]/StorageProxy.read(this, consistency, clientState, queryStartNanoTime);
+
+
+## (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
+* Client side should enable ssl ; true (in spring-boot application.yaml)
+  * spring.data.cassandra.ssl: true
+## (Client side) - [SSLL SSLV3_ALERT_HANDSHAKE_FAILURE]
+* Ensure you configured SSL on cient side
+## (Client side) - Since you provided explicit contact points, the local DC must be explicitly set (see basic.load-balancing-policy.local-datacenter)
+* spring.data.cassandra.local-datacenter: asiapac
+## Cassandra read - query timedout out after PT2S
+* 
+## Data types
+
+* Text
+* timestamp -- we can use in query like added_date > '2013-03-17';
+
+## How to connect to Cassandra from API
+
+1. Create Cluster object
+1. Create Session object
+1. Execute Query using session and retrieve the result
+
+```java
+Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
+Session session = cluster.connect("KillrVideo")
+ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
+
+boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
+
+List<Book> books = new ArrayList<Book>();
+result.forEach(r -> {
+   books.add(new Book(
+      r.getUUID("id"), 
+      r.getString("title"),  
+      r.getString("subject")));
+});
+return books;
+```
+
+## TO setup python
+
+```bash
+python -m pip install --upgrade pip
+pip install cassandra-driver
+``
+
+```python
+from cassandra.cluster import Cluster
+cluster = Cluster(protocol_version = 3)
+session = cluster.connect('Killrvideo')
+result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
+print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
+for val in session.execute("select * from videos_by_tag"):
+   print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
+```
+## Cluster level monitoring
+
+* Current cluster availability
+* Current Storage Load
+* Average Cluster Availablity for Period
+* For Each datacenter
+  * # of client requests
+
+## Top worst performing
+
+* Top 5 worst performing nodes by client latency
+  
+
+## List monitoring elements
+
+1. Node status
+1. Disk Usage
+1. Read Requests
+1. Write Requests
+1. Read Latency
+1. Write Latency
+1. Clients
+1. Native Transport Requests
+1. Compactions Pending
+1. Dropped Mutations
+1. Full GC Duration
+1. Full GC Count
+1. Heap memory usage
+1. Off-Heap Memory Usage
+
+## List table level
+
+1. Read Latency
+1. Write Latency
+1. SSTable Count
+1. SSTable Per Read
+1. Table Disk Used
+1. Table Row Size
+
+
+
+
+
+## Node Status
+## Nodetool usage
+
+* 
+```bash
+     usage: nodetool [(-pwf <passwordFilePath> | --password-file <passwordFilePath>)]
+          [(-u <username> | --username <username>)]
+          [(-pw <password> | --password <password>)] [(-h <host> | --host <host>)]
+          [(-p <port> | --port <port>)] <command> [<args>]
+```
+
+## Nodetool commands
+
+```bash
+     The most commonly used nodetool commands are:
+     assassinate                  Forcefully remove a dead node without re-replicating any data.  Use as a last resort if you cannot removenode
+     bootstrap                    Monitor/manage node-s bootstrap process
+     cleanup                      Triggers the immediate cleanup of keys no longer belonging to a node. By default, clean all keyspaces
+     clearsnapshot                Remove the snapshot with the given name from the given keyspaces. If no snapshotName is specified we will remove all snapshots
+     compact                      Force a (major) compaction on one or more tables or user-defined compaction on given SSTables
+     compactionhistory            Print history of compaction
+     compactionstats              Print statistics on compactions
+     decommission                 Decommission the *node I am connecting to*
+     describecluster              Print the name, snitch, partitioner and schema version of a cluster
+     describering                 Shows the token ranges info of a given keyspace
+     disableautocompaction        Disable autocompaction for the given keyspace and table
+     disablebackup                Disable incremental backup
+     disablebinary                Disable native transport (binary protocol)
+     disablegossip                Disable gossip (effectively marking the node down)
+     disablehandoff               Disable storing hinted handoffs
+     disablehintsfordc            Disable hints for a data center
+     disablethrift                Disable thrift server
+     drain                        Drain the node (stop accepting writes and flush all tables)
+     enableautocompaction         Enable autocompaction for the given keyspace and table
+     enablebackup                 Enable incremental backup
+     enablebinary                 Reenable native transport (binary protocol)
+     enablegossip                 Reenable gossip
+     enablehandoff                Reenable future hints storing on the current node
+     enablehintsfordc             Enable hints for a data center that was previsouly disabled
+     enablethrift                 Reenable thrift server
+     failuredetector              Shows the failure detector information for the cluster
+     flush                        Flush one or more tables
+     garbagecollect               Remove deleted data from one or more tables
+     gcstats                      Print GC Statistics
+     getcompactionthreshold       Print min and max compaction thresholds for a given table
+     getcompactionthroughput      Print the MB/s throughput cap for compaction in the system
+     getconcurrentcompactors      Get the number of concurrent compactors in the system.
+     getendpoints                 Print the end points that owns the key
+     getinterdcstreamthroughput   Print the Mb/s throughput cap for inter-datacenter streaming in the system
+     getlogginglevels             Get the runtime logging levels
+     getsstables                  Print the sstable filenames that own the key
+     getstreamthroughput          Print the Mb/s throughput cap for streaming in the system
+     gettimeout                   Print the timeout of the given type in ms
+     gettraceprobability          Print the current trace probability value
+     gossipinfo                   Shows the gossip information for the cluster
+     help                         Display help information
+     info                         Print node information (uptime, load, ...)
+     invalidatecountercache       Invalidate the counter cache
+     invalidatekeycache           Invalidate the key cache
+     invalidaterowcache           Invalidate the row cache
+     join                         Join the ring
+     listsnapshots                Lists all the snapshots along with the size on disk and true size.
+     move                         Move node on the token ring to a new token
+     netstats                     Print network information on provided host (connecting node by default)
+     pausehandoff                 Pause hints delivery process
+     proxyhistograms              Print statistic histograms for network operations
+     rangekeysample               Shows the sampled keys held across all keyspaces
+     rebuild                      Rebuild data by streaming from other nodes (similarly to bootstrap)
+     rebuild_index                A full rebuild of native secondary indexes for a given table
+     refresh                      Load newly placed SSTables to the system without restart
+     refreshsizeestimates         Refresh system.size_estimates
+     reloadlocalschema            Reload local node schema from system tables
+     reloadtriggers               Reload trigger classes
+     relocatesstables             Relocates sstables to the correct disk
+     removenode                   Show status of current node removal, force completion of pending removal or remove provided ID
+     repair                       Repair one or more tables
+     replaybatchlog               Kick off batchlog replay and wait for finish
+     resetlocalschema             Reset node=s local schema and resync
+     resumehandoff                Resume hints delivery process
+     ring                         Print information about the token ring
+     scrub                        Scrub (rebuild sstables for) one or more tables
+     setcachecapacity             Set global key, row, and counter cache capacities (in MB units)
+     setcachekeystosave           Set number of keys saved by each cache for faster post-restart warmup. 0 to disable
+     setcompactionthreshold       Set min and max compaction thresholds for a given table
+     setcompactionthroughput      Set the MB/s throughput cap for compaction in the system, or 0 to disable throttling
+     setconcurrentcompactors      Set number of concurrent compactors in the system.
+     sethintedhandoffthrottlekb   Set hinted handoff throttle in kb per second, per delivery thread.
+     setinterdcstreamthroughput   Set the Mb/s throughput cap for inter-datacenter streaming in the system, or 0 to disable throttling
+     setlogginglevel              Set the log level threshold for a given class. If both class and level are empty/null, it will reset to the initial configuration
+     setstreamthroughput          Set the Mb/s throughput cap for streaming in the system, or 0 to disable throttling
+     settimeout                   Set the specified timeout in ms, or 0 to disable timeout
+     settraceprobability          Sets the probability for tracing any given request to value. 0 disables, 1 enables for all requests, 0 is the default
+     snapshot                     Take a snapshot of specified keyspaces or a snapshot of the specified table
+     status                       Print cluster information (state, load, IDs, ...)
+     statusbackup                 Status of incremental backup
+     statusbinary                 Status of native transport (binary protocol)
+     statusgossip                 Status of gossip
+     statushandoff                Status of storing future hints on the current node
+     statusthrift                 Status of thrift server
+     stop                         Stop compaction
+     stopdaemon                   Stop cassandra daemon
+     tablehistograms              Print statistic histograms for a given table
+     tablestats                   Print statistics on tables
+     toppartitions                Sample and print the most active partitions for a given column family
+     tpstats                      Print usage statistics of thread pools
+     truncatehints                Truncate all hints on the local node, or truncate hints for the endpoint(s) specified.
+     upgradesstables              Rewrite sstables (for the requested tables) that are not on the current version (thus upgrading them to said current version)
+     verify                       Verify (check data checksum for) one or more tables
+     version                      Print cassandra version
+     viewbuildstatus              Show progress of a materialized view build
+
+     See "nodetool help <command>" for more information on a specific command.
+```
+* [WORKSHOP: Opensource Tools for Apache Cassandra 24 Nov 20. Adam Zegelin SVP Engineering, Instaclustr](https://www.youtube.com/watch?v=v1zkqHfSSUE)
+* [Best Practices of Cassandra in Production](https://www.youtube.com/watch?v=P6UkQJrEQyU)
+## What is repair?
+
+* Repair ensures that all replicas have identical copies of a given partition
+* Data won't be in sync due to eventual consistency pattern, Merkel-Tree based reconciliation would help to fix the data.
+* It is also called anti-entropy repair.
+* [Cassandra reaper](http://cassandra-reaper.io/) is famous tool for scheduling repair
+* Reaper and nodetool repair works slightly different
+* Reaper repair mode
+  * sequential
+  * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
+  * datacenter_aware
+    * It is like sequential but one node per each DC
+
+## Repair Service (on OpsCenter)
+
+1. Runs in the background
+1. Works on small chunks to limit performance impact
+1. Continuously cycles within a specified time period
+1. Can run in parallel
+1. Can work on sub-ranges or incremental
+
+## Repair command
+
+* 
+  ```bash
+  nodetool <options> repair
+  --dc <dc_name> identify data centers
+  --pr <partitioner-range> repair only primary range
+  --st <start_token> used when repairing a subrange
+  --et <end_token> used when repairing a subrange
+  ```
+
+## Why repairs are necessary?
+
+* Nodes may go down for a period of time and miss writes
+  * Especially if down for more than max_hint_window_in_ms
+* If nodes become overloaded and drop writes
+* if dropped mutation is high repair was missing in its place
+
+## Repair guideline
+
+* Make sure repair completes within gc_grace_seconds window
+* Repair should be scheduled once before every gc_grace_seconds
+
+## What is Primary Range Repair?
+
+* The primary range is the set of tokens the node is assigned
+* Repairing only the node's primary range will make sure that data is synchronized for that range
+* Repairing only the node's primary range will eliminate reduandant repairs
+
+## How does repair work?
+
+1. Nodes build merkel-trees from partitions to represent how current data values are
+1. Nodes exchange merkel trees
+1. Nodes compare the merkel trees to identify specific values that need synchronization
+1. Nodes exchange data values and update their data
+
+## Events that trigger Repair
+
+* 'CL=Quorum' - Read would trigger the repair
+* Random repair (even for non-quorum read)
+  * read_repair_chance
+  * dclocal_read-repair_chance
+* Nodetool repair - externally triggered
+
+## Dropped Mutation vs Repair
+
+
+## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
+
+* 5 nodes.
+* Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4 (copy-1)  + N5 (copy-2) )
+* Node-1 would use N3 for copy-2
+* Node-2 would use N3 for copy-1
+
+## How to specifically use only one node to repair itself
+
+* nodetool -pr node-3 --But we have to run in all the nodes immediately
+* runing nodetool -pr on only one node is **not-recommended**
+
+## If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
+
+* We repair thrice.
+
+
+## Developer who maintains/presented about Reaper
+
+* [Alexander Dejanovski](Alexandar Dejanvoski)
+* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
+
+## Repair documentation
+
+* [All the options of nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
+* [Cassandra documentation](https://cassandra.apache.org/doc/latest/operating/repair.html)
+* [Datastax documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
+
+## Repair and some number related to time
+
+* First scheduled repair would always take more time
+* Repair scheduled often generally completes faster, since there are less data to repair
+* Few reported - it took 308+ hours to complete repair on 2.1.12 version
+* With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to repair it.
+
+## What are Reaper settings
+
+* Segments per node
+* Tables
+* Blacklist
+* Nodes
+* Datacenters
+* Threads
+* Repair intensity
+
+## Reaper is predominantly used for repair tasks
+
+* Reaper uses concept called segments (despite in Cassandra world Segment means CommitLog)
+* As per Reaper, you need to use a segment for every 50mb, 20K Segment for every 1 TB
+* Smaller the segement, let reaper to repair it faster
+
+## Repair related commands
+
+```bash
+nodetool repair -dc DC ## is the command to repair using nodetool
+nodetool -h 1.1.1.1 status
+```
+
+## Reference
+
+* [Repair Improvements in Apache Cassandra 4.0 | DataStax](https://www.youtube.com/watch?v=kl2ea0Cxmi0)
+* [Apache Cassandra Maintenance and Repair](http://datastax.com/dev/blog/repair-in-cassandra)
+* [DSE 6.8  Architecture Guide, About Repair](https://docs.datastax.com/en/dse/6.8/dse-arch/datastax_enterprise/dbArch/archAboutRepair.html)
+* [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle) | Cassandra Summit 2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
+* [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
+
+## How to create anki from this markdown file
+
+```
+mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
+```
+
 ## Create Keyspace (and use it)
 
 ```sql
@@ -3482,6 +3482,310 @@ system_traces
 ## [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
 
 # [C23: Lessons from SQLite4 by SQLite.org - Richard Hipp ](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
+## DSE Cassandra Course topics
+
+1. Install and Start Apache Cassandra™
+1. CQL
+1. Partitions
+1. Clustering Columns
+1. Application Connectivity and Drivers
+1. Node
+1. Ring
+1. VNodes
+1. Gossip
+1. Snitches
+1. Replication
+1. Consistency Levels
+1. Hinted Handoff
+1. Read Repair
+1. Node Sync
+1. Write Path
+1. Read Path
+1. Compaction
+1. Advanced Performance
+
+## Course DSE installation
+
+```bash
+ubuntu@ds201-node1:~$ tar -xf dse-6.0.0-bin.tar.gz
+mv dse-6.0.0 node
+. labwork/config_node
+cd node/bin
+./dse cassandra
+./dsetool status
+```
+
+## Nodetool vs DSEtool
+
+* nodetool -- only Apache Cassandra
+* dsetool -- Apache Cassandra™, Apache Spark™, Apache Solr™, Graph
+
+## Nodetool  Gauge the server performance
+
+```SQL
+./nodetool describecluster
+./nodetool getlogginglevels
+./nodetool setlogginglevels org.apache.cassandra TRACE
+## Create and populate garbage to stress the cluster
+/home/ubuntu/node/resources/cassandra/tools/bin/cassandra-stress write n=50000 no-warmup -rate threads=2
+./nodetool flush
+./nodetool status
+```
+
+## Find all the material view of a keyspace
+
+```bash
+SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
+```
+
+## How to find number of partitions/node-of partition in a table
+
+* ./nodetool tablestats -H keyspace.tablename;
+* select token(tag) from killrvideo.videos_by_tag;
+  * ./nodetool getendpoints killrvideo videos_by_tag -1651127669401031945
+  * ./nodetool getendpoints keyspace table_name #token_number;
+  * ./nodetool ring
+  * ./nodetool getendpoints killrvideo videos_by_tag 'cassandra'
+  * ./nodetool getendpoints killrvideo videos_by_tag 'datastax'
+
+## Cassandra Node (Server/VM/H/W)
+
+* Runs a java process (JVM)
+* Only supported on local storage or direct attached storage
+* If your disk has ethernet cable, It is wrong choice
+  * Don't run it on SAN (not supported)
+* Typically 6000-12000 TXN per second / core
+* How much data a single Cassandra node can handle? 
+  * 2 -to- 4 TB
+* How do you manage node?
+  * Use nodetool utilitiy  
+
+## Cassandra Ring (The cluster)
+
+* Any node can act as a co-ordinator to incoming data
+* How does co-ordinator knows the node that handles the data?
+  * Co-ordinator has token-range, Token range is all about paritition key range and node
+  * (2^^63)-1 --> (-2^^63) - ranges of tokents are available
+  * 20 digit number - 18,446,744,073,709,551,616
+
+## How new nodes join the ring
+
+* Uses seed-nodes configured in new-nodes Cassandra.yaml
+  * SeedNode provider could be rest-api
+* Node joins by communicating with any seed-nodes
+* Seed nodes communicate cluster topology to the joining node
+* Once the new-node joins the cluster, all the nodes are peers
+  * Node status could be - Leaving/Joining/Up/Running - UN (Up and Normal)
+
+## Peer-to-Peer
+
+* Leader-Follower fails when we do sharding
+  * Leader-Follower model is just client-server model on the service side
+* Leader follower would fail other leaders are read-replicas, and also supports sharding
+* If Leader and follower can't each other due to network glitch, It becomes even more error prone.
+* In Cassandra, It is peer-to-peer
+  * No node is superior than other
+  * Everyone is peer
+
+## Why do we need VNode?
+
+* When adding a new physical node, how to equally distribute data from existing nodes into new node?
+* If overloaded node, is distributing data to new node, it would become additional burden for existing overloaded node
+* VNode also help distributing data consistently acorss nodes
+  * Without vnode, Cluster has to store continuous sequential ranges of data into node
+  * VNode automate token range assignment
+* It helps making easier to bootstrap new node
+* Adding/removing nodes with vnodes helps keep the cluster balanced
+* By default each node has 128 vnodes
+## How to enable VNode?
+
+* num_tokens value should greather than 1 in Cassandra.yaml
+* num_tokens = 1 ## Disable vnode
+
+## Gossip protocol (nodemeta data is the subject)
+
+* No centralized service to spread the information - How do we share information?
+* Gossip protocol helps to spread information (despite peer-to-peer)
+* Every second a node pick one-to-three other nodes to gossip with
+  * It might pick same node successive time, they don't keep track of the node that they gossped with
+
+## What do nodes Gossip about?
+
+* They gossip about node-meta-data
+  * Heartbeat, generation, version and load
+* What is the difference between generation and version?
+  * Generation - timestamp of when the node-bootstraps
+  * version - counter incremented every-second
+
+## What is Gossip data structure look like?
+
+* EP: 127.0.0.1, HB:100:20, LOAD:86
+* Endpoint, HeartBeat:generation:version, Load
+* ```
+EndPointState {
+  HeartBeatState: {
+    Generation: 5,
+    Version: 22
+  },
+  ApplicationState: {
+    Status: Normal/Leaving/Left/Joining/Removing,
+    DC: CDC1,
+    RACK: sg-2a,
+    SCHEMA: c2acbn,
+    Severity=0.75,
+  }
+}
+```
+
+## What is Gossip protocol?
+
+* Initiator - Sends SYN
+* Receiver - Receives SYN and Constructs and replies with ACK message
+* Initiator - Gets ACK reponse from receiver  
+* Initiator - ACKs the ACK (from receiver) using ACK2 reponse
+
+## How to find more details about Gossip
+
+* project = CASSANDRA AND component = "Cluster/Gossip"
+* https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
+
+
+# Sample Gossipinfo
+
+```json
+ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
+/127.0.0.1
+  generation:1623251077
+  heartbeat:732
+  STATUS:32:NORMAL,-117951217631614635
+  LOAD:717:6930897.0
+  SCHEMA:322:08e0aca4-d15e-3357-8876-0e7cc6cc60ba
+  DC:50:Cassandra
+  RACK:18:rack1
+  RELEASE_VERSION:4:4.0.0.2284
+  NATIVE_TRANSPORT_ADDRESS:3:127.0.0.1
+  X_11_PADDING:677:{"dse_version":"6.0.0","workloads":"Cassandra","workload":"Cassandra","active":"true","server_id":"08-00-27-32-1E-DD","graph":false,"health":0.1}
+  NET_VERSION:1:256
+  HOST_ID:2:d8e387df-71c3-4584-b911-bb8867f66b8b
+  NATIVE_TRANSPORT_READY:86:true
+  NATIVE_TRANSPORT_PORT:6:9041
+  NATIVE_TRANSPORT_PORT_SSL:7:9041
+  STORAGE_PORT:8:7000
+  STORAGE_PORT_SSL:9:7001
+  JMX_PORT:10:7199
+  TOKENS:31:<hidden>
+/127.0.0.2
+  generation:1623251055
+  heartbeat:736
+  STATUS:61:NORMAL,-1182052107726675062
+  LOAD:699:7303102.0
+  SCHEMA:328:08e0aca4-d15e-3357-8876-0e7cc6cc60ba
+  DC:65:Cassandra
+  RACK:18:rack1
+  RELEASE_VERSION:4:4.0.0.2284
+  NATIVE_TRANSPORT_ADDRESS:3:127.0.0.1
+  X_11_PADDING:680:{"dse_version":"6.0.0","workloads":"Cassandra","workload":"Cassandra","active":"true","server_id":"08-00-27-32-1E-DD","graph":false,"health":0.1}
+  NET_VERSION:1:256
+  HOST_ID:2:55c76577-e187-4948-807f-a95026a7c4dd
+  NATIVE_TRANSPORT_READY:95:true
+  NATIVE_TRANSPORT_PORT:6:9042
+  NATIVE_TRANSPORT_PORT_SSL:7:9042
+  STORAGE_PORT:8:7000
+  STORAGE_PORT_SSL:9:7001
+  JMX_PORT:10:7299
+  TOKENS:60:<hidden>
+```
+
+
+## Node failure detector
+
+* Every node declares their own status.
+* Every node detects failure of peer-node
+* They don't send their assumptions/evaluations during gossip (nodes don't send their judgement about other nodes)
+
+## Snitch (meaning informer)
+
+* Snitch - toplogy of cluster
+* Informs each IP and its physical location
+  * DC and Rack
+* HttpPropertyFileSnitch
+* SimpleSnitch
+* Cloud-Based snitches
+  * EC2Snitch
+  * EC2MultiRegionSnitch
+  * RackInferrringSnitch
+  * GoogleCloudSnitch
+  * CloudStackSnitch
+* PropertyFileSnitch
+* RackInferingSnitch (don't rely on it)
+  * ip=DC1:RACK2
+  * ip2=DC2:RACK2
+  * 110:100:200:105
+    * 110 - Country (ignored by snitcher)
+    * 100 - DC octet (second ip octet)
+    * 200 - rack octet
+    * 105 - node octet
+  * cassandra-rackdc.properties can contain the data  
+
+## What is the role of DynamicSnitch
+
+* It uses underlying snitch
+* Maintains pulse of each nodes performance
+* Determines which node to query based on performance
+* Turned on by default for all snitches
+
+## Mandatory operational practice
+
+* All nodes should use same snitch
+* Changing network topology requires restarting all the nodes with latest snitch
+* Run sequential repair and cleanup on each node
+
+## Replication with RF=1
+
+* Every node is responsible for certain token range
+* Partitioner finds the token from the data (MurMurPartitioner)
+* RF=1 - Only one copy of the data (source alone)
+* Let us say we have token range or 0, 13, 25, 38, 50, 63, 75, 88, 100
+* If we try to insert data with token value of 59. 
+  * Node that owns token higher than 59 is (here 63 is choosen)
+  * Node that owns 50 and above.. but below 63 would store the data
+
+## Replication with RF>=2
+
+* Data would be stored in node that supposed to own token range
+* For every RF>1, Node who is neighbour (token range higher) also gets copy of the data
+* Let us say if we try to store token()==59 and RF=2
+  * Node that owns 50-63 would get a copy
+  * Node that owns 63-75 would also get a copy
+
+
+## Replication with RF>=2 and Cross DataCenter
+
+* Cross DC replication is hard
+* We can have different RF for each DC
+* Country specific replication can be controlled at the keyspace level
+* Remote Co-ordinator would act as a local-cordinator to replicate data within remote DC
+
+## Consistency
+
+* Cassandra is AP System and Consistency is tunable 
+
+## Consistency in CQL
+
+```CQL
+cqlsh:killrvideo> consistency ANY;
+Consistency level set to ANY.
+cqlsh:killrvideo> select * from videos_by_tag;
+InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+cqlsh:killrvideo> INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
+cqlsh:killrvideo> select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+```
+
+## Reference
+
+* [Datastax videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
+* [Datastax Virtual-box VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
+
 ## Time-series presentations
 
 1. (https://www.youtube.com/watch?v=nHes8XW1VHw)
@@ -3495,6 +3799,38 @@ system_traces
 1. (https://www.youtube.com/watch?v=3pPser3MYEE)
 1. (https://www.youtube.com/watch?v=ovMo5pIMj8M)
 1. (https://www.youtube.com/watch?v=iQBtkhvaOBM)
+## What are Tombstones?
+
+* Dead cells (columns/rows) are kept it memory and disk, for other other nodes to aware about dead cells for 10-days.
+* When rows are queried, query has to scan over multiple expired cells/rows to get to the live cells
+
+
+## What are all the majore issues due to Tombstones
+
+* Often query read ends up in timesout
+* Memory is occupied by dead-cells
+* Rarely TombstoneOverwhelmException happens
+
+
+## How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
+
+1. tombstone_threshold ratio to 0.1
+1. unchecked_tombstone_compaction: true
+1. min_threshold: 2 (Compaction would be triggered for just 2 similar sized SSTables)
+
+
+## Where is Tombstones are handled?
+
+* Tombstones are handled part of Compaction
+* [AbstractCompactionStrategy](https://github.com/apache/cassandra/blob/cassandra-3.11/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)
+    *  protected boolean worthDroppingTombstones(SSTableReader sstable, int gcBefore)
+    *
+        ```java
+            System.currentTimeMillis() > sstable.getCreationTimeFor(Component.DATA) + tombstoneCompactionInterval * 1000
+            AND
+            double droppableRatio = sstable.getEstimatedDroppableTombstoneRatio(gcBefore);
+            if (droppableRatio > tombstoneThreshold=0.2f) 
+        ``` 
 ## Hinted Handoff
 
 * Simple sticky note on co-ordinator
@@ -3922,6 +4258,28 @@ ubuntu@ds201-node1:~/node/bin$
 ## Reference
 *[Understanding the Nuance of Compaction in Apache Cassandra](https://thelastpickle.com/blog/2017/03/16/compaction-nuance.html)
 * [TWCS part 1 - how does it work and when should you use it ?](https://thelastpickle.com/blog/2016/12/08/TWCS-part1.html)
+## Anti-patterns in the Cassandra
+
+* [Anti-patterns in Cassandra - 2.2](https://docs.datastax.com/en/cassandra-oss/2.2/cassandra/planning/planPlanningAntiPatterns.html)
+* [Anti-patterns-Planning and testing DataStax Enterprise deployments](https://docs.datastax.com/en/dse-planning/doc/planning/planningAntiPatterns.html)
+* [Anti-patterns which all Cassandra users must know](https://morioh.com/p/9e872f2fcd88)
+* [Anti-patterns which all Cassandra users must know](https://medium.com/analytics-vidhya/anti-patterns-which-all-cassandra-users-must-know-1e54c60ff1fa)
+* [Cassandra nice use cases and worst anti patterns](https://www.slideshare.net/doanduyhai/cassandra-nice-use-cases-and-worst-anti-patterns)
+* [Apache Cassandra Anti Patterns-2012](https://www.infoq.com/presentations/Apache-Cassandra-Anti-Patterns/)
+* [Cassandra anti-patterns: Queues and queue-like datasets](https://irrlab.com/2016/04/14/cassandra-anti-patterns-queues-and-queue-like-datasets/)
+* [Cassandra Anti-Patterns](https://www.tomaz.me/slides/2014-24-03-cassandra-anti-patterns/#/)
+* Building a queue, Frequently updated data, Query flexibility, Incorrect use of BATCH, Querying an entire table
+*
+    ```pre
+        Using Apache Cassandra as a backend for a queue or queue-like structure is never going to end well. We have discussed at length that, due to Cassandra's log-based storage engine, inserts, updates, and deletes are all treated as writes. Well, what does a queue do? It does the following:
+
+            Data gets written to a queue.
+            Data gets updated while it's in the queue (example: status). Sometimes several times.
+            When the data is no longer required, it gets deleted.
+
+        Given what we have covered about how Cassandra handles things, such as in-place updates (obsoleted data) and deletes (tombstones), it should be obvious that this is not a good idea. Remember, a data model built to accommodate a small amount of in-place updates or deletes is fine. A data model that relies on in-place updates and deletes isn’t going to make anyone happy in the end.
+    ```
+
 ## Important Spring Java project
 
 * [Cassandra Datastax PetClinic](https://github.com/spring-petclinic/spring-petclinic-reactive)
