@@ -1,3 +1,4 @@
+#include "Cassandra_Definitive_Guide_Anki.md"
 #include "Cassandra_Installation.md"
 #include "Cassandra_Architecture.md"
 #include "Cassandra_Partition.md"
@@ -5,8 +6,6 @@
 #include "Cassandra_Commands_Output.md"
 #include "Cassandra_Performance.md"
 #include "Cassandra_Datastax_210_Anki.md"
-#include "Cassandra_Definitive_Guide_Anki.md"
-#include "Cassandra_TDG.md"
 #include "Cassandra_Knownerrors.md"
 #include "Cassandra_Datatypes.md"
 #include "Cassandra_Metrics_Monitoring.md"

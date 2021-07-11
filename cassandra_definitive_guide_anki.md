@@ -1,17 +1,23 @@
-## How to create anki from this markdown file
+## RDBMS history
 
-```
-mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck "Mohan::Cassandra::DefinitiveGuid"
-```
-
-## Datbase history
-
-* 1968-IMS (DBI/DB1) 
+* IBM DB1 - IMS Hierarchical dbms - DBI/DB1 - Released in 1968 
+* IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
 * 1979-DB2 (E.F Cod 1970s), RDBMS relational model (not working system, just theoratical model)
 * Traditionally RDBMS supports locks, locks helps to maintain consistency but reduces access/availability to others
 * Journal or WAL log files are used for rollback or atomic-commit in RDBMS, journal sometime switched of to increase performance
 * Codd provided a list of 12 rules (0-12, actually 13 :-)) in ComputerWorld Magazine in 1985 (15 years later from original paper)
 * ANSI SQL - 1986
+
+## RDBMS Pros and cons
+
+* Pros : It works for most of the cases
+  * SQL - Support
+  * ACID - Transaction (A Transformation of State - Jim Gray)
+    * Atomic (State A to State B - no in-between)
+    * Consistency
+    * Isolated - Force transactions to be serially executed. (If it doesn't require consistency and atomic, it is  possible to have isolated and parallel txns)
+    * Durable - Never lost
+* Cons : Won't work for massively web scale db
 
 ## Why RDBMS is successful?
 
@@ -19,6 +25,117 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * Atomic Transaction with ACID properties
 * Two-phase commit was marketted well (Co-ordinated txn)
 * Rich schema
+
+## How RDBMS is tuned
+
+* Introduce Index
+* Master(write), Slave (many times only used for read)
+  * Introduces replication and transaction issues
+  * Introduces consistency issues
+* Add more CPU, RAM - Vertical scaling
+* Partitioning/Sharding
+* Disable journaling  
+
+## Two-phase commit vs Compensation
+
+* Compensation
+  * Writing off the transaction if it fails, deciding to discard erroneous transactions and reconciling later. 
+  * Retry failed operations later on notification.
+* In a reservation system or a stock sales ticker, these are not likely to meet your requirements. 
+* For other kinds of applications, such as billing or ticketing applications, this can be acceptable.
+* Starbucks Does Not Use Two-Phase Commit
+  * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
+
+
+## Sharding (Share nothing)
+
+* Rather keeping all customer in one table, divide up that single customer table so that each database has only some of the records, with their order preserved? Then, when clients execute queries, they put load only on the machine that has the record they’re looking for, with no load on the other machines.
+* How to shard?
+  * Name-wise sharding issues like customer names that starts with "Q,J" will have less, whereas customer name starts with J, M and S may be busy
+  * Shard by DOB, SSN, HASH
+* Three basic strategies for determining shard structure  
+  * Feature-based shard or functional segmentation
+  * Key-based sharding - one-way hash on a key data element and distribute data across machines according to the hash.
+  * Lookup Table
+
+## [List of NoSQL databases](http://nosql-database.org/)
+
+* Key-Value stores - Oracle Coherence, Redis, and MemcacheD, Amazon’s Dynamo DB, Riak, and Voldemort.
+* Column stores - Cassandra, Hypertable, and Apache Hadoop’s HBase.
+* Document stores -  MongoDB and CouchDB.
+* Graph databases - Blazegraph, FlockDB, Neo4J, and Polyglot
+* Object databases -  db4o and InterSystems Caché
+* XML databases - Tamino from Software AG and eXist.
+
+
+## Apache Cassandra - Official definition
+
+* “Apache Cassandra is an open source, distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database. Cassandra bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable, with a query language similar to SQL"
+* Tuneably consistent (not Eventual Consisten as majority believes)
+
+
+## Cassandra Features
+
+* CQL (Thrift API is completely removed in 3.x)
+  * CQL also known as native-transport
+* Secondary indexes
+* Materialized views
+* Lightweight transactions
+* Consistency = Replication factor + consistency level  (delegated to clients)
+  * Consistency level <= replication factor
+* Cassandra is not column-oriented (it is row oriented)
+* Column values are stored according to a consistent sort order, omitting columns that are not populated
+
+## What are all Consistency Forms?
+
+* Strict (or Serial) Consistency
+  * Works on Single CPU
+* Casual Consistency (like Casuation)
+  * The cause of events to create some consistency in their order.
+  * Writes that are potentially related must be read in sequence. 
+  * If two different, unrelated operations suddenly write to the same field, then those writes are inferred not to be causally related.
+* Weak (or) Eventual Consistency
+  * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
+
+## Row-Oriented data store
+
+* Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
+* “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
+* “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
+
+## Always writeable
+
+* A design approach must decide whether to resolve these conflicts at one of two possible times: during reads or during writes. That is, a distributed database designer must choose to make the system either always readable or always writable. Dynamo and Cassandra choose to be always writable, opting to defer the complexity of reconciliation to read operations, and realize tremendous performance gains. The alternative is to reject updates amidst network and server failures.
+* CAP Theorem
+  * Choose any two (of threee)
+  * Cassandra assumes that  network partitioning is unavoidable, hence it lets us deal only with availability and consistency.
+  * CAP placement is independent of the orientation of the data storage mechanism
+  * CAP theorem database mapping
+    * AP - ?
+      * To primarily support availability and partition tolerance, your system may return inaccurate data, but the system will always be available, even in the face of network partitioning. DNS is perhaps the most popular example of a system that is massively scalable, highly available, and partition tolerant.
+    * CP - ?
+      * To primarily support consistency and partition tolerance, you may try to advance your architecture by setting up data shards in order to scale. Your data will be consistent, but you still run the risk of some data becoming unavailable if nodes fail.
+    * CA - ?
+      * To primarily support consistency and availability means that you’re likely using two-phase commit for distributed transactions. It means that the system will block when a network partition occurs, so it may be that your system is limited to a single data center cluster in an attempt to mitigate this. If your application needs only this level of scale, this is easy to manage and allows you to rely on familiar, simple structures.
+
+
+## Notable tools
+
+* Sstableloader - Bulk loader
+* Leveled compaction strategy - for faster reads
+* Atomic batches
+* Lightweight transactions were added using the Paxos consensus protocol
+* User-defined functions
+* Materialized views (sometimes also called global indexes) 
+
+## Few use cases
+
+* Cassandra has been used to create a variety of applications, including a windowed time-series store, an inverted index for document searching, and a distributed job priority queue.
+
+## Updated CAP - Brewer's Theorem
+
+* Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
+* He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
 
 ## What is the alternative for Two-phase commit
 
@@ -60,16 +177,11 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * FaunaDB is an example of a database that implements the approach on the Calvin paper
 
 
-
-## Cassandra in 50 Words or Less
-
-* “Apache Cassandra is an open source, distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database. Cassandra bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable, with a query language similar to SQL"
-
 ## Cassandra features
 
 * It uses gossip protcol (feature of peer-to-peer architecture) to maintain details of other nodes.
 * It allows tunable cosistency and client can decide for each write/read (how many RF?)
-* You can remove one column value alone in Cassandra
+* It is possible to remove one column value alone in Cassandra
 
 ## Cap Theorem (Brewer's theorem)
 
@@ -125,7 +237,7 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 * Social network usage, recommendations/reviews, 
 * Application statistics
 * Inverted index for document searching
-* Distributed job priority queue
+* ~~Distributed job priority queue~~ (queues are not recommended anymore)
 * Ability to handle application workloads that require high performance at significant write volumes with many concurrent client threads is one of the primary features of Cassandra.
 
 
@@ -149,7 +261,6 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
   * CommitLog-7-1566780133999.log
 * 1-SSTable has multiple files
   * SSTable stored under - $CASSANDRA_HOME/data/data
-  * 
 
 ## Cassandra run-time properties
 
@@ -173,25 +284,25 @@ mdanki cassandra_definitive_guide_anki.md cassandra_definitive_guide.apkg --deck
 
 * Object names are in snake_case. Cassandra converts into lower_case by default, double quote to override
 * bin/cqlsh localhost 9042
-* ```sql
-  show version;
-  describe cluster; 
-  create keyspace sample_ks with replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-  use sample_ks;
-  DESCRIBE KEYSPACES;
-  describe keyspace sample_ks;
-  describe keyspace system;
-  create table user ( first_name text, last_name text, title text, PRIMARY KEY(last_name, first_name) );
-  describe table user;
-  insert into user(first_name, last_name, title) values  ('Mohan', 'Narayanaswamy', 'Developer');
-  select * from user where first_name='Mohan' and last_name = 'Narayanaswamy';
-  select * from user where first_name='Mohan';
-  --* InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and hus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
-  select count(*) from user; --Aggregation query used without partition key
-  delete title from user where last_name='Narayanaswamy' and first_name='Mohan';  --one column alone
-  delete from user where last_name='Narayanaswamy' and first_name='Mohan';  --entire row deletion
-```
-
+* 
+  ```sql
+    show version;
+    describe cluster; 
+    create keyspace sample_ks with replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+    use sample_ks;
+    DESCRIBE KEYSPACES;
+    describe keyspace sample_ks;
+    describe keyspace system;
+    create table user ( first_name text, last_name text, title text, PRIMARY KEY(last_name, first_name) );
+    describe table user;
+    insert into user(first_name, last_name, title) values  ('Mohan', 'Narayanaswamy', 'Developer');
+    select * from user where first_name='Mohan' and last_name = 'Narayanaswamy';
+    select * from user where first_name='Mohan';
+    --* InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot execute this query as it might involve data filtering and hus may have unpredictable performance. If you want to execute this query despite the performance unpredictability, use ALLOW FILTERING"
+    select count(*) from user; --Aggregation query used without partition key
+    delete title from user where last_name='Narayanaswamy' and first_name='Mohan';  --one column alone
+    delete from user where last_name='Narayanaswamy' and first_name='Mohan';  --entire row deletion
+  ```
 
 ## How to run apache Cassandra using docker
 
@@ -207,7 +318,7 @@ docker stop apc2
 
 ## Datamodel quick checklist
 
-* All the possible impory query that needs to satisfied should be considered before design
+* All the possible important query that needs to satisfied should be considered before design
 * Minimize the number of partitions that must be searched to satisfy a given query
 * Growing number of tombstones begins to degrade read performance. Data-model should account to minmize it
 * Partition-size = Nv=Nr(Nc−Npk−Ns)+Ns (hard-limit 2 billion, in-general 100K)
@@ -246,13 +357,15 @@ docker stop apc2
 ## Hinted Handoff
 
 * Acts like JMS MQ, till message is delivered
+* But message is deleted after 3 hours (should be consumed within that)
 
-
-## Replication Factor vs Consistency Level
-
-9/
 
 ## Conflict-free replicated data type
+
+* To resolve conflicts, system can use the Last-Writer-Wins Register
+* Which keeps only the last updated value when merging diverged data sets. 
+* Cassandra uses this strategy to resolve conflicts.
+* We need to be very cautious when using this strategy because it drops changes that occurred in the meantime.
 
 
 ## What is anti-entropy repair?
@@ -260,7 +373,7 @@ docker stop apc2
 * Replica synchronization mechanism for ensuring that data on different nodes is updated to the newest version.
 * Replica synchronization as well as hinted handoff.
 * Project Voldemort also uses read-repair similar to Cassandra (not anti-entropy repair)
-* 
+
 
 ## MERKLE TREE usage in Cassandra?
 
@@ -293,22 +406,18 @@ docker stop apc2
 
 ## Deletion and Tombstones
 
-* Nodes that was down when records deleted should have mechnism, hence tombstones
+* Nodes that was down when records deleted should have mechanism, hence tombstones
 * Tombstones can be configured using gc_grace_seconds (garbage collection grace seconds)
 * gc_grace_seconds = 864000 seconds ( 10 days)
 
 ## Bloom Filter
 
+* SSTable is not good when key that is not available in a table is queried
+* Without bloomfilter, Cassandra read-path would query multiple files (sgements) to confirm a key is absent. It queries latest to oldest before confirming lack of key.
 * Used to reduce disk access
 * Used in Hadoop, Bigtable, Squid Proxy Cache (and many big-data systems)
 * False-negative is not possible, but falst-positive is possible
-* if bloom-filter conveys data is not available, it is not avialble. If available, it may not be available.
-
-
-## What are operational mechanics that affects how you application configuration for data consistency?
-
-
-## Failure boundaries of Cassandra
+* if bloom-filter conveys data is not available, if it is not avialble. But it might return 'may be available', it may not be available.
 
 ## cluster topology of Cassandra
 
@@ -324,26 +433,30 @@ PRIMARY KEY (("k1", "k2"), "c1", "c2"), ) WITH CLUSTERING ORDER BY ("c1" DESC, "
 ```
 
 ## CQLSH - useful
+
 * CQL would use Murmur3 partitioner
 * Minimum token is -9223372036854775808 (and maximum token is 9223372036854775808).
 * ```sql
      cassandra@cqlsh:system_schema>
      DESCRIBE CLUSTER;
+     DESCRIBE KEYSPACES;
+     DESCRIBE TABLES;
      SELECT * FROM system_schema.keyspaces;
      desc KEYSPACE Keyspace_Name;
-     select token(key), key, my_column from mytable where token(key) >= %s limit 10000;```
-
+     select token(key), key, my_column from mytable where token(key) >= %s limit 10000;
+```
 
 ## How to remove node using nodetool
 
 * Decommission - Streams data from the leaving node (prefered and guaranteed consistency as if it started)
 * Removenode -  Streams data from any available node that owns the range
+* assassinate - Forcefully remove a dead node without re-replicating any data. Use as a last resort if you cannot removenode
 
 ## Cassandra linux limits
 
 * if cassandra has 30 sstables, it would use 30 * 6 - 180 file handles
 * XX:MaxDirectMemorySize - we can set off-heap memory (outside JVM on OS)
-* 
+ 
 
 ## Cassandra troubleshoot linux commands
 
@@ -388,7 +501,14 @@ default=DC3:RAC1
 
 ## Cassandra Client - features (Datastax Driver 4.9.0)
 
-*   <groupId>com.datastax.oss</groupId>{<artifactId>java-driver-query-builder</artifactId>| <artifactId>java-driver-core</artifactId>| <artifactId>java-driver-mapper-processor</artifactId>|<artifactId>java-driver-mapper-runtime</artifactId>
+*  
+    ```xml 
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-query-builder</artifactId>
+        <artifactId>java-driver-core</artifactId>
+        <artifactId>java-driver-mapper-processor</artifactId>
+        <artifactId>java-driver-mapper-runtime</artifactId>
+    ```
 * CqlSession maintains TCP connections to multiple nodes, it is a heavyweight object. Reuse it
 * Prefer file based client side driver configuration
 * PreparedStatements also improve security by separating the query logic of CQL from the data.
@@ -401,14 +521,12 @@ default=DC3:RAC1
 * Security can be configured between client and server
 * Deifferent profiles can be configured between invocation by the same client
 
-## Client 
-
 ## Cassandra Client - Retry Failied Queries (if node failed)
 
 * ExponentialReconnectionPolicy  vs ConstantReconnectionPolicy
 * onReadTimeout(), onWriteTimeout(), and onUnavailable()
 * The RetryPolicy operations return a RetryDecision
-* 
+
 
 ## Cassandra Client side - SPECULATIVE EXECUTION
 
@@ -418,10 +536,10 @@ default=DC3:RAC1
 
 ## Cassandra Client side - CONNECTION POOLING
 
+* Default single connection per node
 * 128 simultaneous requests in protocol - v2
 * 32768 simultaneous requests in protocol - v3 
-* Default single connection per node
-* 1024 -  The maximum number of simultaneous requests per connection (defaults to 1,024).
+* 1024 -  Default maximum number of simultaneous requests per connection.
 
 
 ## Cassandra Client side driver configuration 
@@ -456,8 +574,7 @@ CqlSession cqlSession = CqlSession.builder()
 ## Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
 
 ```java
-Select reservationSelect =
-  selectFrom("reservation", "reservations_by_confirmation")
+Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmation")
   .all()
   .whereColumn("confirm_number").isEqualTo("RS2G0Z");
 
@@ -466,13 +583,12 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 
 ## Cassandra Client (Datastax Driver 5.0) - Async API
 * CQL native protocol is asynchronous
-* ```java
+* 
+```java
       CompletionStage<AsyncResultSet> resultStage =  cqlSession.executeAsync(statement);
 
       // Load the reservation by confirmation number
-      CompletionStage<AsyncResultSet> selectStage = session.executeAsync(
-        "SELECT * FROM reservations_by_confirmation WHERE
-          confirm_number=RS2G0Z");
+      CompletionStage<AsyncResultSet> selectStage = session.executeAsync("SELECT * FROM reservations_by_confirmation WHERE confirm_number=RS2G0Z");
 
       // Use fields of the reservation to delete from other table
       CompletionStage<AsyncResultSet> deleteStage =
@@ -497,29 +613,27 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
             }      
 ```
 
-
 ## JDK 9 - Reactive style API
+* The CqlSession interface extends a new ReactiveSession interface. Which adds methods such as executeReactive() to process queries expressed as reactive streams.
+* 
+  ```java
+            try (CqlSession session = ...) {
+                  Flux.from(session.executeReactive("SELECT ..."))
+                      .doOnNext(System.out::println)
+                      .blockLast();
+            } catch (DriverException e) {
+              e.printStackTrace();
+            }
 
-* The CqlSession interface extends a new ReactiveSession interface
-  * which adds methods such as executeReactive() to process queries expressed as reactive streams.
-* ```java
-    try (CqlSession session = ...) {
-          Flux.from(session.executeReactive("SELECT ..."))
-              .doOnNext(System.out::println)
-              .blockLast();
-    } catch (DriverException e) {
-      e.printStackTrace();
-    }
-
-try (CqlSession session = ...) {
-  Flux.just("INSERT ...", "INSERT ...", "INSERT ...", ...)
-      .doOnNext(System.out::println)
-      .flatMap(session::executeReactive)
-      .blockLast();
-} catch (DriverException e) {
-  e.printStackTrace();
-}    
-````
+            try (CqlSession session = ...) {
+              Flux.just("INSERT ...", "INSERT ...", "INSERT ...", ...)
+                  .doOnNext(System.out::println)
+                  .flatMap(session::executeReactive)
+                  .blockLast();
+            } catch (DriverException e) {
+              e.printStackTrace();
+            }
+  ```
 
 ## Cassandra write path
 
@@ -531,15 +645,15 @@ try (CqlSession session = ...) {
 * Write-Path
   * Client > Cassandra Cordinator Node > Nodes (replicas)
   * If client uses token-aware cordinator itself replica, if not key is used by partitioner to find node
-  * Co-ordinator selects remote co-ordinator fro X-DC replications
+  * Co-ordinator selects remote co-ordinator for X-DC replications
 * Node that was down will have data using one of the following
-  * Anti-entropy mechanisms: 
   * hinted handoff
   * read repair
   * Anti-entropy repair.
 * Existing Row-Cache is invalidated during write
 * Flush and Compaction might be peformed if necessary
 * Memtables are stored as SS-Table to disk
+
 
 ## Cassandra write path - Materialized view
 
@@ -548,8 +662,6 @@ try (CqlSession session = ...) {
 * The Cassandra database performs an additional read-before-write operation to update each materialized view
 * If a delete on the source table affects two or more contiguous rows, this delete is tagged with one tombstone.
 * But one delete in a source table might create multiple tombstones in the materialized view
-
-
 
 
 ## Cassandra write/read - consistency CQLS
@@ -566,26 +678,26 @@ try (CqlSession session = ...) {
 
 * java.lang.OutOfMemoryError: Map failed` - Almost always incorrect user limits - check ulimit -a 
   * Check the values of max memory size and virtual memory
-* 
 
 ## Scaling Quotes
 
-* If you can't split it, you can't scale it.
+* If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
+* [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
 * No sane pilot would take off in an airplane without the ability to land, and no sane engineer would roll code that they could not pull back off in an emergency
 * Management means measurement, and a failure to measure is a failure to manage.
 
 ## Performance Quotes
 
-“The recommendation for speeding up .... is to add cache and more cache. And after that add a little more cache just in case.”
-“When something becomes slow it's a candidate for caching.”
-“LRU policy is perhaps the most popular due to its simplicity, good runtime performance, and a decent hit rate in common workloads.”
-“Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
+1. “The recommendation for speeding up .... is to add cache and more cache. And after that add a little more cache just in case.”
+1. “When something becomes slow it's a candidate for caching.”
+1. “LRU policy is perhaps the most popular due to its simplicity, good runtime performance, and a decent hit rate in common workloads.”
+1. “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
 
 
 ## Nodetool
 
 * Adminstration tool uses JMX to interact with Cassandra
-* TPstats and Tablestats  are subcommands in nodetool
+* TPstats (threadpoolstatus) and Tablestats  are subcommands in nodetool
 * nodetool help tpstats
 * nodetool tpstats --
 
@@ -617,15 +729,24 @@ try (CqlSession session = ...) {
   * [https://www.datastax.com/blog](https://www.datastax.com/blog)
 
 
-## Follow-up questions
+## Follow-up questions for Cassandra
 
+* What are the other peer-to-peer databases?
+  * How clients are connecting to them?  
 * Does mongo-db/kafka supports Cassandra-toplogy/cross-dc kind of configurations?
 * How to find node using token in Cassandra?
 * Where else "PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS" being used?
 * MerkleTree (surprise usage in Cassandra)
 * PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS (Surprise)
-## Reference
 
+
+## Definitive Guide References
+
+* [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
+* [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
+* [AWS re:Invent 2018: Amazon DynamoDB Deep Dive: Advanced Design Patterns for DynamoDB (DAT401)](https://www.youtube.com/watch?time_continue=33&v=HaEPXoXVf2k)
+* [amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb](https://www.slideshare.net/AmazonWebServices/amazon-dynamodb-deep-dive-advanced-design-patterns-for-dynamodb-dat401-aws-reinvent-2018pdf)
+* [Best Practices NOSql](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
 * [E.F Codd paper](https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf)
 * [The Case for Shared Nothing - Michael Stonebraker](https://dsf.berkeley.edu/papers/hpts85-nothing.pdf)
 * [CAP Theorem](http://www.julianbrowne.com/article/brewers-cap-theorem)
@@ -641,12 +762,17 @@ try (CqlSession session = ...) {
 * [Paxos made simple](https://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/past/03F/notes/paxos-simple.pdf)
 * [Datastax driver reference](https://github.com/datastax/java-driver/)
 * [Incremental Repair Improvements in Cassandra 4](https://thelastpickle.com/blog/2018/09/10/incremental-repair-improvements-in-cassandra-4.html)
+* CassandraSummit
+
 ## Code 
 
 * [jeffreyscarpenter/reservation-service](https://github.com/jeffreyscarpenter/reservation-service)
 * [Datastax KillrVideo sample java application](https://killrvideo.github.io/docs/languages/java/)
 * [Datastax spring pet-clinic](https://github.com/DataStax-Examples/spring-petclinic-reactive#prerequisites)
 
-## rough (throw-away)
 
+## How to create anki from this markdown file
 
+```
+mdanki Cassandra_Definitive_Guide_Anki.md Cassandra_Definitive_Guide.apkg --deck "Mohan::Cassandra::DefinitiveGuide"
+```

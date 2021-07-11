@@ -1,3 +1,7 @@
+## Queue anti-pattern
+
+* Cassandra is not suited for Queue
+
 ## Anti-patterns in the Cassandra
 
 * [Anti-patterns in Cassandra - 2.2](https://docs.datastax.com/en/cassandra-oss/2.2/cassandra/planning/planPlanningAntiPatterns.html)
