@@ -410,113 +410,100 @@
 -   [What is the role of index file](#what-is-the-role-of-index-file)
 -   [What is the role of statitics
     file](#what-is-the-role-of-statitics-file)
--   [What is LSM (SS-Table)](#what-is-lsm-ss-table)
 -   [Why SQLite4 didn't use LSM?](#why-sqlite4-didnt-use-lsm)
 -   [LSM Pros and Cons](#lsm-pros-and-cons)
--   [What is in All of Those SSTable Files Not Just the Data One but All
-    the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit
-    2016](#what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
--   [So you have a broken Cassandra SSTable
-    file?](#so-you-have-a-broken-cassandra-sstable-file)
--   [C23: Lessons from SQLite4 by SQLite.org - Richard
-    Hipp](#c23-lessons-from-sqlite4-by-sqlite.org---richard-hipp)
-    -   [DSE Cassandra Course topics](#dse-cassandra-course-topics)
-    -   [Course DSE installation](#course-dse-installation)
-    -   [Nodetool vs DSEtool](#nodetool-vs-dsetool)
-    -   [Nodetool Gauge the server
-        performance](#nodetool-gauge-the-server-performance)
-    -   [Find all the material view of a
-        keyspace](#find-all-the-material-view-of-a-keyspace)
-    -   [How to find number of partitions/node-of partition in a
-        table](#how-to-find-number-of-partitionsnode-of-partition-in-a-table)
-    -   [Cassandra Node (Server/VM/H/W)](#cassandra-node-servervmhw)
-    -   [Cassandra Ring (The cluster)](#cassandra-ring-the-cluster)
-    -   [How new nodes join the ring](#how-new-nodes-join-the-ring)
-    -   [Peer-to-Peer](#peer-to-peer-1)
-    -   [Why do we need VNode?](#why-do-we-need-vnode)
-    -   [Gossip protocol (nodemeta data is the
-        subject)](#gossip-protocol-nodemeta-data-is-the-subject)
-    -   [What do nodes Gossip about?](#what-do-nodes-gossip-about)
-    -   [What is Gossip data structure look
-        like?](#what-is-gossip-data-structure-look-like)
-    -   [What is Gossip protocol?](#what-is-gossip-protocol)
-    -   [How to find more details about
-        Gossip](#how-to-find-more-details-about-gossip)
+-   [SSTable references](#sstable-references)
+-   [Course DSE installation](#course-dse-installation)
+-   [Nodetool vs DSEtool](#nodetool-vs-dsetool)
+-   [Nodetool Gauge the server
+    performance](#nodetool-gauge-the-server-performance)
+-   [Find all the material view of a
+    keyspace](#find-all-the-material-view-of-a-keyspace)
+-   [How to find number of partitions/node-of partition in a
+    table](#how-to-find-number-of-partitionsnode-of-partition-in-a-table)
+-   [Cassandra Node (Server/VM/H/W)](#cassandra-node-servervmhw)
+-   [Cassandra Ring (The cluster)](#cassandra-ring-the-cluster)
+-   [How new nodes join the ring](#how-new-nodes-join-the-ring)
+-   [Peer-to-Peer](#peer-to-peer-1)
+-   [Why do we need VNode?](#why-do-we-need-vnode)
+-   [How to enable VNode?](#how-to-enable-vnode)
+-   [Gossip protocol (nodemeta data is the
+    subject)](#gossip-protocol-nodemeta-data-is-the-subject)
+-   [What do nodes Gossip about?](#what-do-nodes-gossip-about)
+-   [What is Gossip data structure look
+    like?](#what-is-gossip-data-structure-look-like)
+-   [What is Gossip protocol?](#what-is-gossip-protocol)
+-   [How to find more details about
+    Gossip](#how-to-find-more-details-about-gossip)
 -   [Sample Gossipinfo](#sample-gossipinfo)
-    -   [Node failure detector](#node-failure-detector)
-    -   [Snitch (meaning informer)](#snitch-meaning-informer)
-    -   [What is the role of
-        DynamicSnitch](#what-is-the-role-of-dynamicsnitch)
-    -   [Mandatory operational
-        practice](#mandatory-operational-practice)
-    -   [Replication with RF=1](#replication-with-rf1)
-    -   [Replication with RF>=2](#replication-with-rf2)
-    -   [Replication with RF>=2 and Cross
-        DataCenter](#replication-with-rf2-and-cross-datacenter)
-    -   [Consistency](#consistency-1)
-    -   [Consistency in CQL](#consistency-in-cql)
-    -   [Reference](#reference-3)
-    -   [Time-series presentations](#time-series-presentations)
-    -   [What are all the majore issues due to
-        Tombstones](#what-are-all-the-majore-issues-due-to-tombstones)
-    -   [How to agressively collect tombstones (to resolve few of the
-        query timeout tactical
-        solution)](#how-to-agressively-collect-tombstones-to-resolve-few-of-the-query-timeout-tactical-solution)
-    -   [Where is Tombstones are
-        handled?](#where-is-tombstones-are-handled)
-    -   [How read works?](#how-read-works)
-    -   [Read Repair (Happens only when
-        CL=All)](#read-repair-happens-only-when-clall)
-    -   [Read Repair Chance (when CL \< ALL) (less than ALL consistency
-        read)](#read-repair-chance-when-cl-all-less-than-all-consistency-read)
-    -   [Nodetool repair](#nodetool-repair)
-    -   [Nodetool Sync (only datastax)](#nodetool-sync-only-datastax)
-    -   [Nodetool Sync Save points (only
-        datastax)](#nodetool-sync-save-points-only-datastax)
-    -   [Nodetool Sync - Segments
-        Sizes](#nodetool-sync---segments-sizes)
-    -   [Nodetool Sync - Segments
-        failures](#nodetool-sync---segments-failures)
-    -   [Nodetool Sync - Segments
-        Validation](#nodetool-sync---segments-validation)
-    -   [Cassandra Write Path (inside the node, and for *a*
-        partition)](#cassandra-write-path-inside-the-node-and-for-a-partition)
-    -   [Cassandra Read Path (inside the node, and for particular a
-        partition)](#cassandra-read-path-inside-the-node-and-for-particular-a-partition)
-    -   [Cassandra Read Path workflow](#cassandra-read-path-workflow)
-    -   [Bloom filter](#bloom-filter-1)
-    -   [Datastax](#datastax)
-    -   [Compaction (merging ss-tables)](#compaction-merging-ss-tables)
-    -   [Compaction Strategies (based on
-        use-case)](#compaction-strategies-based-on-use-case)
-    -   [Advanced Peformance Gains in
-        (DSE)](#advanced-peformance-gains-in-dse)
-    -   [Before and after flush](#before-and-after-flush)
-    -   [Sample data directory wiht WITH bloom_filter_fp_chance =
-        0.1;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.1)
-    -   [Sample data directory wiht WITH bloom_filter_fp_chance =
-        0.0001;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.0001)
-    -   [Sample data directory wiht WITH bloom_filter_fp_chance = 1.0;
-        (100% false positive allowed... No filter
-        file)](#sample-data-directory-wiht-with-bloom_filter_fp_chance-1.0-100-false-positive-allowed-no-filter-file)
-    -   [Nodetool CFStats](#nodetool-cfstats)
-    -   [Followup questions](#followup-questions)
-    -   [What is compaction in
-        Cassandra?](#what-is-compaction-in-cassandra)
-    -   [Pre-requisite for Compaction](#pre-requisite-for-compaction)
-    -   [We have problem with two nodes with large number of compaction
-        pending, how to speed
-        up?](#we-have-problem-with-two-nodes-with-large-number-of-compaction-pending-how-to-speed-up)
-    -   [Reference](#reference-4)
-    -   [Anti-patterns in the
-        Cassandra](#anti-patterns-in-the-cassandra)
-    -   [Important Spring Java project](#important-spring-java-project)
-    -   [JIRA based on labels](#jira-based-on-labels)
-    -   [JIRA Features in Cassandra](#jira-features-in-cassandra)
-    -   [Cassandra index](#cassandra-index)
-    -   [Famous Cassandra articles](#famous-cassandra-articles)
-    -   [Analyze Cassandra code](#analyze-cassandra-code)
-    -   [K8ssandra](#k8ssandra)
+-   [Node failure detector](#node-failure-detector)
+-   [Snitch (meaning informer)](#snitch-meaning-informer)
+-   [What is the role of
+    DynamicSnitch](#what-is-the-role-of-dynamicsnitch)
+-   [Mandatory operational practice](#mandatory-operational-practice)
+-   [Replication with RF=1](#replication-with-rf1)
+-   [Replication with RF>=2](#replication-with-rf2)
+-   [Replication with RF>=2 and Cross
+    DataCenter](#replication-with-rf2-and-cross-datacenter)
+-   [Consistency in CQL](#consistency-in-cql)
+-   [Reference](#reference-3)
+-   [Time-series presentations](#time-series-presentations)
+-   [What are all the majore issues due to
+    Tombstones](#what-are-all-the-majore-issues-due-to-tombstones)
+-   [How to agressively collect tombstones (to resolve few of the query
+    timeout tactical
+    solution)](#how-to-agressively-collect-tombstones-to-resolve-few-of-the-query-timeout-tactical-solution)
+-   [Where is Tombstones are handled?](#where-is-tombstones-are-handled)
+-   [How read works?](#how-read-works)
+-   [Read Repair (Happens only when
+    CL=All)](#read-repair-happens-only-when-clall)
+-   [Read Repair Chance (when CL \< ALL) (less than ALL consistency
+    read)](#read-repair-chance-when-cl-all-less-than-all-consistency-read)
+-   [Nodetool repair](#nodetool-repair)
+-   [Nodetool Sync (only datastax)](#nodetool-sync-only-datastax)
+-   [Nodetool Sync Save points (only
+    datastax)](#nodetool-sync-save-points-only-datastax)
+-   [Nodetool Sync - Segments Sizes](#nodetool-sync---segments-sizes)
+-   [Nodetool Sync - Segments
+    failures](#nodetool-sync---segments-failures)
+-   [Nodetool Sync - Segments
+    Validation](#nodetool-sync---segments-validation)
+-   [Cassandra Write Path (inside the node, and for *a*
+    partition)](#cassandra-write-path-inside-the-node-and-for-a-partition)
+-   [Cassandra Read Path (inside the node, and for particular a
+    partition)](#cassandra-read-path-inside-the-node-and-for-particular-a-partition)
+-   [Cassandra Read Path workflow](#cassandra-read-path-workflow)
+-   [Bloom filter](#bloom-filter-1)
+-   [Datastax](#datastax)
+-   [Compaction (merging ss-tables)](#compaction-merging-ss-tables)
+-   [Compaction Strategies (based on
+    use-case)](#compaction-strategies-based-on-use-case)
+-   [Advanced Peformance Gains in
+    (DSE)](#advanced-peformance-gains-in-dse)
+-   [Before and after flush](#before-and-after-flush)
+-   [Sample data directory wiht WITH bloom_filter_fp_chance =
+    0.1;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.1)
+-   [Sample data directory wiht WITH bloom_filter_fp_chance =
+    0.0001;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.0001)
+-   [Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100%
+    false positive allowed... No filter
+    file)](#sample-data-directory-wiht-with-bloom_filter_fp_chance-1.0-100-false-positive-allowed-no-filter-file)
+-   [Nodetool CFStats](#nodetool-cfstats)
+-   [Followup questions](#followup-questions)
+-   [What is compaction in Cassandra?](#what-is-compaction-in-cassandra)
+-   [Pre-requisite for Compaction](#pre-requisite-for-compaction)
+-   [We have problem with two nodes with large number of compaction
+    pending, how to speed
+    up?](#we-have-problem-with-two-nodes-with-large-number-of-compaction-pending-how-to-speed-up)
+-   [Reference](#reference-4)
+-   [Anti-patterns in the Cassandra](#anti-patterns-in-the-cassandra)
+-   [Important Spring Java project](#important-spring-java-project)
+-   [JIRA based on labels](#jira-based-on-labels)
+-   [JIRA Features in Cassandra](#jira-features-in-cassandra)
+-   [Cassandra index](#cassandra-index)
+-   [Famous Cassandra articles](#famous-cassandra-articles)
+-   [Analyze Cassandra code](#analyze-cassandra-code)
+-   [K8ssandra](#k8ssandra)
 
 ## RDBMS history
 
@@ -4305,9 +4292,13 @@ system_traces
 ## Storage Architecture
 
 -   Only one commit log per cluster
--   Commit-logs are flused to sstables
--   When memtables are flushed to disk, they are written into SSTables
+-   Commit-logs are flused to (via MemTable) sstables
+-   When memtables are flushed to disk, they are written as SSTables
     (fast compression used by default)
+-   Memtable and SSTable is sorted by primary-key and clustering-key
+    -   A partition-key would be exist within SSTable only one page
+-   SSTable very poor to find absence of key (hence we need
+    bloom-filter)
 
 ## SStable - settings in cassandra.yaml
 
@@ -4340,14 +4331,13 @@ system_traces
 ## What is the role of index file
 
 -   It lists the partition-keys/cluster-keys that are available inside
-    the SSTable
+    the SSTable with offset information. Disk seek can directly locate
+    few keys
 
 ## What is the role of statitics file
 
 -   It has the column definition
 -   It has almost all the details about DDL of a table
-
-## What is LSM (SS-Table)
 
 ## Why SQLite4 didn't use LSM?
 
@@ -4369,13 +4359,16 @@ system_traces
     -   More space on disk
     -   Greater Complexity
 
-## [What is in All of Those SSTable Files Not Just the Data One but All the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit 2016](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
+## SSTable references
 
-## [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
-
-# [C23: Lessons from SQLite4 by SQLite.org - Richard Hipp](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
-
-## DSE Cassandra Course topics
+-   [What is in All of Those SSTable Files Not Just the Data One but All
+    the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit
+    2016](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
+-   [So you have a broken Cassandra SSTable
+    file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
+-   [C23: Lessons from SQLite4 by SQLite.org - Richard
+    Hipp](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
+    ## DSE Cassandra Course topics
 
 1.  Install and Start Apache Cassandra™
 2.  CQL
@@ -4490,24 +4483,19 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 
 -   When adding a new physical node, how to equally distribute data from
     existing nodes into new node?
-
 -   If overloaded node, is distributing data to new node, it would
     become additional burden for existing overloaded node
-
 -   VNode also help distributing data consistently acorss nodes
-
     -   Without vnode, Cluster has to store continuous sequential ranges
         of data into node
     -   VNode automate token range assignment
-
 -   It helps making easier to bootstrap new node
-
 -   Adding/removing nodes with vnodes helps keep the cluster balanced
+-   By default each node has 128 vnodes
 
--   By default each node has 128 vnodes ## How to enable VNode?
+## How to enable VNode?
 
 -   num_tokens value should greather than 1 in Cassandra.yaml
-
 -   num_tokens = 1 ## Disable vnode
 
 ## Gossip protocol (nodemeta data is the subject)
@@ -4533,19 +4521,21 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 
 -   Endpoint, HeartBeat:generation:version, Load
 
--   EndPointState {
-          HeartBeatState: {
-            Generation: 5,
-            Version: 22
-          },
-          ApplicationState: {
-            Status: Normal/Leaving/Left/Joining/Removing,
-            DC: CDC1,
-            RACK: sg-2a,
-            SCHEMA: c2acbn,
-            Severity=0.75,
-          }
-        }
+-   ``` json
+    EndPointState {
+      HeartBeatState: {
+        Generation: 5,
+        Version: 22
+      },
+      ApplicationState: {
+        Status: Normal/Leaving/Left/Joining/Removing,
+        DC: CDC1,
+        RACK: sg-2a,
+        SCHEMA: c2acbn,
+        Severity=0.75,
+      }
+    }
+    ```
 
 ## What is Gossip protocol?
 
@@ -4559,7 +4549,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   project = CASSANDRA AND component = "Cluster/Gossip"
 -   https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
-# Sample Gossipinfo
+## Sample Gossipinfo
 
 ``` json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -4677,19 +4667,18 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 -   Remote Co-ordinator would act as a local-cordinator to replicate
     data within remote DC
 
-## Consistency
-
--   Cassandra is AP System and Consistency is tunable
-
 ## Consistency in CQL
 
-``` cql
-cqlsh:killrvideo> consistency ANY;
-Consistency level set to ANY.
-cqlsh:killrvideo> select * from videos_by_tag;
-InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
-cqlsh:killrvideo> INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
-cqlsh:killrvideo> select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+``` sql
+consistency ANY;
+##Consistency level set to ANY.
+
+select * from videos_by_tag;
+##InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+
+INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
+
+select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
 ## Reference

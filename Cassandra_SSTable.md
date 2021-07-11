@@ -1,8 +1,12 @@
 ## Storage Architecture
 
 * Only one commit log per cluster
-* Commit-logs are flused to sstables
-* When memtables are flushed to disk, they are written into SSTables (fast compression used by default)
+* Commit-logs are flused to (via MemTable) sstables
+* When memtables are flushed to disk, they are written as SSTables (fast compression used by default)
+* Memtable and SSTable is sorted by primary-key and clustering-key
+   * A partition-key would be exist within SSTable only one page
+* SSTable very poor to find absence of key (hence we need bloom-filter)
+
 
 ## SStable - settings in cassandra.yaml
 
@@ -33,16 +37,13 @@
 
 ## What is the role of index file
 
-* It lists the partition-keys/cluster-keys that are available inside the SSTable
+* It lists the partition-keys/cluster-keys that are available inside the SSTable with offset information. Disk seek can directly locate few keys
 
 ## What is the role of statitics file
 
 * It has the column definition
 * It has almost all the details about DDL of a table
 
-
-
-## What is LSM (SS-Table)
 
 ## Why SQLite4 didn't use LSM?
 
@@ -64,7 +65,8 @@
   * Greater Complexity
 
 
-## [What is in All of Those SSTable Files Not Just the Data One but All the Rest Too! (John Schulz, The Pythian Group) | Cassandra Summit 2016 ](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
-## [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
+## SSTable references
 
-# [C23: Lessons from SQLite4 by SQLite.org - Richard Hipp ](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
+* [What is in All of Those SSTable Files Not Just the Data One but All the Rest Too! (John Schulz, The Pythian Group) | Cassandra Summit 2016 ](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
+* [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
+* [C23: Lessons from SQLite4 by SQLite.org - Richard Hipp ](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)

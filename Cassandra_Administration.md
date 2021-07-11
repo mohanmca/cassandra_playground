@@ -113,6 +113,8 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 * It helps making easier to bootstrap new node
 * Adding/removing nodes with vnodes helps keep the cluster balanced
 * By default each node has 128 vnodes
+
+
 ## How to enable VNode?
 
 * num_tokens value should greather than 1 in Cassandra.yaml
@@ -137,21 +139,22 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 
 * EP: 127.0.0.1, HB:100:20, LOAD:86
 * Endpoint, HeartBeat:generation:version, Load
-* ```
-EndPointState {
-  HeartBeatState: {
-    Generation: 5,
-    Version: 22
-  },
-  ApplicationState: {
-    Status: Normal/Leaving/Left/Joining/Removing,
-    DC: CDC1,
-    RACK: sg-2a,
-    SCHEMA: c2acbn,
-    Severity=0.75,
+* 
+  ```json
+  EndPointState {
+    HeartBeatState: {
+      Generation: 5,
+      Version: 22
+    },
+    ApplicationState: {
+      Status: Normal/Leaving/Left/Joining/Removing,
+      DC: CDC1,
+      RACK: sg-2a,
+      SCHEMA: c2acbn,
+      Severity=0.75,
+    }
   }
-}
-```
+  ```
 
 ## What is Gossip protocol?
 
@@ -166,7 +169,7 @@ EndPointState {
 * https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
 
-# Sample Gossipinfo
+## Sample Gossipinfo
 
 ```json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -282,19 +285,18 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 * Country specific replication can be controlled at the keyspace level
 * Remote Co-ordinator would act as a local-cordinator to replicate data within remote DC
 
-## Consistency
-
-* Cassandra is AP System and Consistency is tunable 
-
 ## Consistency in CQL
 
-```CQL
-cqlsh:killrvideo> consistency ANY;
-Consistency level set to ANY.
-cqlsh:killrvideo> select * from videos_by_tag;
-InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
-cqlsh:killrvideo> INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
-cqlsh:killrvideo> select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+```sql
+consistency ANY;
+##Consistency level set to ANY.
+
+select * from videos_by_tag;
+##InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+
+INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
+
+select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
 ## Reference
