@@ -10,6 +10,7 @@
     definition](#apache-cassandra---official-definition)
 -   [Cassandra Features](#cassandra-features)
 -   [What are all Consistency Forms?](#what-are-all-consistency-forms)
+-   [Strong consistency in Cassandra](#strong-consistency-in-cassandra)
 -   [Row-Oriented data store](#row-oriented-data-store)
 -   [Always writeable](#always-writeable)
 -   [Notable tools](#notable-tools)
@@ -28,8 +29,6 @@
 -   [Cap Theorem (Brewer's theorem)](#cap-theorem-brewers-theorem)
 -   [Cassandra Lightweight transaction (LWT) - Linearizable
     consistency](#cassandra-lightweight-transaction-lwt---linearizable-consistency)
--   [Consistencey levels](#consistencey-levels)
--   [Strong consistency in Cassandra](#strong-consistency-in-cassandra)
 -   [Row-Oriented (Wide column store)](#row-oriented-wide-column-store)
 -   [Cassandra - schema free?](#cassandra---schema-free)
 -   [Cassandra - use-cases?](#cassandra---use-cases)
@@ -616,9 +615,13 @@
 
 ## What are all Consistency Forms?
 
--   Strict (or Serial) Consistency
+-   Strict (or Serial) Consistency or Strong (sequential consistency)
     -   Works on Single CPU
+    -   "Rather than dealing with the uncertainty of the correctness of
+        an answer, the data is made unavailable until it is absolutely
+        certain that it is correct."
 -   Casual Consistency (like Casuation)
+    -   Happens before
     -   The cause of events to create some consistency in their order.
     -   Writes that are potentially related must be read in sequence.
     -   If two different, unrelated operations suddenly write to the
@@ -628,6 +631,13 @@
     -   Rather than dealing with the uncertainty of the correctness of
         an answer, the data is made unavailable until it is absolutely
         certain that it is correct
+    -   Eventual consisteny (matter of milli-seconds)
+
+## Strong consistency in Cassandra
+
+-   R + W > RF = Strong consistency
+-   In this equation, R, W, and RF are the read replica count, the write
+    replica count, and the replication factor, respectively;
 
 ## Row-Oriented data store
 
@@ -774,21 +784,6 @@
     (Check-and-set)
 -   LWT is based on Paxos algorithm (and it is better than two-phase
     commit)
-
-## Consistencey levels
-
--   Strong consistency (sequential consistency)
-    -   "Rather than dealing with the uncertainty of the correctness of
-        an answer, the data is made unavailable until it is absolutely
-        certain that it is correct."
--   Casual consistency (Happens before)
--   Eventual consisteny (matter of milli-seconds)
-
-## Strong consistency in Cassandra
-
--   R + W > RF = strong consistency
--   In this equation, R, W, and RF are the read replica count, the write
-    replica count, and the replication factor, respectively;
 
 ## Row-Oriented (Wide column store)
 

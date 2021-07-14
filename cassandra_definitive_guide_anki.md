@@ -88,14 +88,22 @@
 
 ## What are all Consistency Forms?
 
-* Strict (or Serial) Consistency
+* Strict (or Serial) Consistency or Strong (sequential consistency)
   * Works on Single CPU
+  * “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.”
 * Casual Consistency (like Casuation)
+  * Happens before
   * The cause of events to create some consistency in their order.
   * Writes that are potentially related must be read in sequence. 
   * If two different, unrelated operations suddenly write to the same field, then those writes are inferred not to be causally related.
 * Weak (or) Eventual Consistency
   * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
+  * Eventual consisteny (matter of milli-seconds)
+
+## Strong consistency in Cassandra
+
+* R + W > RF = Strong consistency
+* In this equation, R, W, and RF are the read replica count, the write replica count, and the replication factor, respectively;
 
 ## Row-Oriented data store
 
@@ -197,19 +205,6 @@
 * Example: Check if user exist, if not create user (don't overwrite in between)
 * Example: Update the value if and only if the value is X (Check-and-set)
 * LWT is based on Paxos algorithm (and it is better than two-phase commit)
-
-
-## Consistencey levels
-
-* Strong consistency (sequential consistency)
-  * “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.”
-* Casual consistency (Happens before)
-* Eventual consisteny (matter of milli-seconds)
-
-## Strong consistency in Cassandra
-
-* R + W > RF = strong consistency
-* In this equation, R, W, and RF are the read replica count, the write replica count, and the replication factor, respectively;
 
 
 ## Row-Oriented (Wide column store)
