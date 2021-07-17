@@ -1,9 +1,9 @@
-## Pre-requisite for this tutorial is docker
+## (Section: Installation) - Pre-requisite for this tutorial is docker
 
 * [Docker cheatsheet](https://github.com/mohanmca/MohanLearningGround/blob/master/src/main/md/Tools/docker.md)
 * [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 
-## Use Os-boxes as virtual machine to install cassandra
+## (Section: Installation) -  Use Os-boxes as virtual machine to install cassandra
 
 * Base installation location - /home/osboxes/node
 * Base location for lab - /home/osboxes/Downloads/labwork/data-files
@@ -27,7 +27,7 @@ Status=Up/Down
 UN   127.0.0.1        180.95 KiB       100.00%              0                                            rack1        0.70         
 ```
 
-## Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
+## (Section: Installation) -  Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
 
 ```bash
 docker pull cassandra:3.11.10
@@ -36,12 +36,16 @@ docker run --name cass1 --network cassnet -d cassandra:3.11.10
 docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra:3.11.10
 docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra:3.11.10
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest 
+## (Section: Installation) -  Check log
+docker logs -f cass1
+## (Section: Installation) -  Loging using CQLSH
 docker exec -it cass2 cqlsh
+docker exec -it cass2 nodetool ring
 docker exec -it cass2 nodetool stopdaemon
 ```
 
 
-## Connect to cassandra docker cluster
+## (Section: Installation) -  Connect to cassandra docker cluster
 
 ```bash
 docker inspect cass2 | grep IPAddress
@@ -50,32 +54,30 @@ cqlsh 172.18.0.3 9042
 use cycling;
 ```
 
-## Run commands into cassandra docker node
+## (Section: Installation) -  Run commands into cassandra docker node
 
 ```bash
-docker exec -it cass2 bash
-docker exec -it cass2 cqlsh
 docker exec -it cass2 nodetool tpstats
 docker exec -it cass2 nodetool repair
 ```
 
 
-## [Via docker for DSE server](https://docs.datastax.com/en/landing_page/doc/landing_page/compatibility.html)
+## (Section: Installation) -  [Via docker for DSE server](https://docs.datastax.com/en/landing_page/doc/landing_page/compatibility.html)
 
 ```bash
-## Find Cassandra tag to practice -- choose ops-center and later dse server -- 6.0.16-1
+## (Section: Installation) -  Find Cassandra tag to practice -- choose ops-center and later dse server -- 6.0.16-1
 docker pull datastax/dse-server:6.0.16-1
 docker network create cassnet # docker network create --driver=bridge cassnet
-## OPS Center can manage cluser, it should run first
+## (Section: Installation) -  OPS Center can manage cluser, it should run first
 docker run -e DS_LICENSE=accept -d -p 8888:8888 -p 61620:61620 --name my-opscenter --network cassnet datastax/dse-opscenter:6.1.10
 docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra --network cassnet datastax/dse-server:6.0.16-1
 docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra-2 --network -e CASSANDRA_SEEDS=my-cassandra cassnet datastax/dse-server:6.0.16-1
-## Running dse-studio
+## (Section: Installation) -  Running dse-studio
 docker run -e DS_LICENSE=accept --network cassnet  --link some-cassandra --name my-studio -d datastax/dse-studio
 docker exec -it my-cassandra cqlsh
 docker exec -it my-cassandra nodetool status
 
-## #172.19.0.2 #172.19.0.3
+## (Section: Installation) -  #172.19.0.2 #172.19.0.3
 
 docker exec -it my-studio cqlsh ip_address
 docker exec -it my-cassandra sh -c "/opt/dse/bin/cqlsh.sh"
@@ -84,7 +86,7 @@ docker exec -it my-cassandra sh -c "/opt/dse/bin/cqlsh.sh"
 docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/videos.csv
 ```
 
-## [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
+## (Section: Installation) -  [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
 
 * 
     ```bash
@@ -127,7 +129,7 @@ docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassan
 * [Swagger-API](http://localhost:9966/swagger-ui/)
 
 
-## Copy files into and out-of containers
+## (Section: Installation) -  Copy files into and out-of containers
 
 ```bash
 docker cp cass1:/etc/cassandra/cassandra.yaml /tmp
@@ -135,7 +137,8 @@ docker cp cass1:/var/log/cassandra/* D:/git/cassandra_playground/log
 docker cp cass1:/var/log/cassandra/system.log D:/git/cassandra_playground/log
 docker cp cass1:/var/log/cassandra/debug.log D:/git/cassandra_playground/log
 ```
-## Some Cassandra commands
+
+## (Section: Installation) -  Some Cassandra commands
 
 ```bash
 nodetool status
@@ -150,7 +153,7 @@ nodtool flush
 cassandra-stress write n=50000 no-warmup -rate threads=1
 ```
 
-## Cassandra directory (Apache Cassandra)
+## (Section: Installation) -  Cassandra directory (Apache Cassandra)
 
 * /etc/cassandra
 * -Dcom.sun.management.jmxremote.password.file=/etc/cassandra/jmxremote.password
@@ -158,12 +161,12 @@ cassandra-stress write n=50000 no-warmup -rate threads=1
 * -Dcassandra.storagedir=/var/lib/cassandra
 * /usr/share/cassandra/lib/HdrHistogram-2.1.9.jar
 
-## Cassandra stress-tool
+## (Section: Installation) -  Cassandra stress-tool
 
 * Creates keyspace1
 * Reports maximum possible io-ops, partition-rate and latency mean
 
-## To start CQLSH
+## (Section: Installation) -  To start CQLSH
 
 ```bash
 set PATH=D:\Apps\Python\Python27;%PATH%;
@@ -193,7 +196,7 @@ TRUNCATE videos;
 COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
 ```
 
-## References
+## (Section: Installation) -  References
 * [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 * [Docker DSE](https://docs.datastax.com/en/docker/doc/docker/docker67/dockerDSE.html)
 * [Docker Setup](https://docs.datastax.com/en/docker/doc/docker/docker68/dockerReadme.html)

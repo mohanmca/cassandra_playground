@@ -1,4 +1,5 @@
-## Partition
+
+## (Section: Partition) - Partition
 
 * The most important concept in Cassandra is patition.
 * Primary Key (state, (id))
@@ -11,7 +12,7 @@
 * We can choose partition after table were constructed and data inserted
 
 
-## Clustering Columns
+## (Section: Partition) -  Clustering Columns
 
 * This constitutes part of Primary Key along with partition key
 * We can have one or more clustering column
@@ -30,7 +31,7 @@
       PRIMARY KEY(tag, added_date) 
     ) WITH CLUSTERING ORDER BY (added_date DESC);"
 
-## Primary Key
+## (Section: Partition) -  Primary Key
 
 * Primary Key = Partition Key + Clustering Column
 * Decides uniqueness and date order (sorted and stored)
@@ -40,7 +41,7 @@
     * PRIMARY KEY ((a, b), c) : a and b compose the partition key (this is often called a composite partition key) and c is the clustering column.
 
 
-## Impact of partition key on query (CQL)
+## (Section: Partition) -  Impact of partition key on query (CQL)
 
 * All equality comparision comes before inequality (<, >)
 * Inequality comparision or range queries on clustering columns are allowed (provided partition-key precedes)
@@ -53,7 +54,7 @@
   * allows query on just clustering columns without knowing partition key 
   * Don't use it
 
-## Querying
+## (Section: Partition) -  Querying
 
 * Always provide partition key
 * Follow the equality similar to the way it is defined
@@ -61,7 +62,7 @@
   * If CQL has more than one equality within clustering column, follow the order of table definition
 *   
 
-## CQL
+## (Section: Partition) -  CQL
 
 ```bash
 cqlsh:killrvideo> desc table video;
@@ -124,9 +125,9 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.c
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```
 
-## Datastax slides
+## (Section: Partition) -  Datastax slides
 
 * (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)[DataStax: A deep look at the CQL WHERE clause ]
-## Reference
+## (Section: Partition) -  Reference
 * [Primary Key, Partition Key and Data Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
 * [Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)

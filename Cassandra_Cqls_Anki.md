@@ -1,14 +1,23 @@
-## Create Keyspace (and use it)
+## (Section: Cqls) - Create KeySpace (and use it)
 
 ```sql
-## Only when cluster replication exercise
+## (Section: Cqls) - Only when cluster replication exercise
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy','east-side': 1,'west-side': 1};
 
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 ```
 
-## Create TABLE and load/export data in and out-of-tables
+## (Section: Cqls) - Partition Key vs Primary Key
+
+* Partition key uniquiely identifies partition inside a table
+* Primary key uniquely identifies row inside partition
+* PartitionKey == Primary-Key, every partition has single-row
+* PrimaryKey = Partition_Key + Clustering Key
+  * Partition has multiple rows
+
+
+## (Section: Cqls) - Create TABLE and load/export data in and out-of-tables
 
 ```sql
 CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
@@ -28,7 +37,7 @@ UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag
 --Export data
 COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
-## How to select token values of primary-key
+## (Section: Cqls) - How to select token values of primary-key
 
 ```sql
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
@@ -42,7 +51,30 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
 ```
 
-## CQL Copy and rules
+## (Section: Cqls) - IS CQL Case-sensitive
+
+* By default, names are case-insensitive, but case sensitivity can be forced by using double quotation marks around a name.
+
+
+## (Section: Cqls) - Create Keyspace/Table Syntax
+
+```sql
+CREATE KEYSPACE [ IF NOT EXISTS ] keyspace_name  WITH REPLICATION = { replication_map };
+
+CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
+( 
+  column_name data_type [ , ... ] 
+  PRIMARY KEY ( 
+   ( partition_key_column_name  [ , ... ] )
+   [ clustering_key_column_name [ , ... ] ]
+  )     
+)
+[ WITH CLUSTERING ORDER BY 
+   ( clustering_key_column_name ASC|DESC [ , ... ] )
+];
+```
+
+## (Section: Cqls) - CQL Copy and rules
 
 * Cassandra expects same number of columns in every row (in delimited file)
 * Number of columns should match the table
@@ -51,33 +83,31 @@ system.token(tag)    | tag
 * For importing larger datasets, use DSBulk
 * Can be piped with standar-input and standrd-outpu
 
-## CQL Copy options
+## (Section: Cqls) - CQL Copy options
 
 1. DELIMITER
 1. HEADER
 1. CHUNKSIZE - 1000 (default)
 1. SKIPROW - number of rows to skip (for testing)
 
-
-
-## How to list partition_key (or the actual token) along with other columns
+## (Section: Cqls) - How to list partition_key (or the actual token) along with other columns
 
 * USe token fucntion and pass all the parameter of the partition_key
 * select tag, title, video_added_date, token(tag) from videos_by_tag;
 * "InvalidRequest: code=2200 [Invalid query] message="Invalid number of arguments in call to function token: 1 required but 2 provided"
   * When you pass clustering column that are not part of partition_key, CQL throws this error
 
-## Gosspinfo
+## (Section: Cqls) - Gosspinfo
 
 ```sql
   SELECT peer, data_center, host_id, preferred_ip, rach, release_version, rpc_address, schema_version FROM system.peers;
 ```
 
-## nodetool getendpoints killrvideo videos_by_tag cassandra
+## (Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag cassandra
 
 172.19.0.2
 
-## What are all the System Schema
+## (Section: Cqls) - What are all the System Schema
 
 ```bash
 system
@@ -88,65 +118,79 @@ system_traces
 ```
 
 
-## See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
+## (Section: Cqls) - See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
 
 * SELECT COUNT (*) FROM user;
 
-## Write a couple of rows, populate different columns for each, and view the results
+## (Section: Cqls) - Write a couple of rows, populate different columns for each, and view the results
 
 1. INSERT INTO user (first_name, last_name, title) VALUES ('Bill', 'Nguyen', 'Mr.');
 1. INSERT INTO user (first_name, last_name) VALUES ('Mary', 'Rodriguez');
 1. SELECT * FROM user;
 
-## View the timestamps generated for previous writes
+## (Section: Cqls) - View the timestamps generated for previous writes
 
 * SELECT first_name, last_name, writetime(last_name) FROM user;
 
-## Note that we’re not allowed to ask for the timestamp on primary key columns
+## (Section: Cqls) - Note that we’re not allowed to ask for the timestamp on primary key columns
 
 * SELECT WRITETIME(first_name) FROM user;
 
-## Set the timestamp on a write
+## (Section: Cqls) - Set the timestamp on a write
 
 * UPDATE user USING TIMESTAMP 1434373756626000 SET last_name = 'Boateng' WHERE first_name = 'Mary' ;
 
-## Verify the timestamp used
+## (Section: Cqls) - Verify the timestamp used
 
 * SELECT first_name, last_name, WRITETIME(last_name) FROM user WHERE first_name = 'Mary';
 
-## View the time to live value for a column
+## (Section: Cqls) - View the time to live value for a column
 
 * SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
 
-## Set the TTL on the  last name column to one hour
+## (Section: Cqls) - Set the TTL on the  last name column to one hour
 
 * UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE first_name = 'Mary' ;
 
-## View the TTL of the last_name - (counting down)
+## (Section: Cqls) - View the TTL of the last_name - (counting down)
 
 * SELECT first_name, last_name, TTL(last_name) FROM user WHERE first_name = 'Mary';
 
 
-## Find the token
+## (Section: Cqls) - Find the token
 
 * SELECT last_name, first_name, token(last_name) FROM user;
 
-## Clear the screen of output from previous commands
+## (Section: Cqls) - Clear the screen of output from previous commands
 
 * CLEAR
 
-## Cassandra Dual equivalent table and SQL
+## (Section: Cqls) - Cassandra Dual equivalent table and SQL
 
 ```sql
 1. select now() from system.local;
 ```
 
-## Exit cqlsh
+## (Section: Cqls) - How to add column to a table?
+
+* ALTER TABLE movies ADD country TEXT;
+
+## (Section: Cqls) - Exit cqlsh
 
 * EXIT
 * Quit
 
+## (Section: Cqls) - What would happen if we use Clustering Column where STATIC columns are updated
 
-## Reference
+```sql
+cqlsh:killr_video> update rating_by_user set name='bkj' where email='akj@je.com' and year=2021;
+InvalidRequest: Error from server: 
+code=2200 [Invalid query] 
+message="Invalid restrictions on clustering columns since the UPDATE statement modifies only static columns"
+```
+
+
+
+## (Section: Cqls) - Reference
 
 * [A deep look at the CQL WHERE clause](https://www.datastax.com/blog/deep-look-cql-where-clause)

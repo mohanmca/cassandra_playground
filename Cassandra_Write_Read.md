@@ -1,4 +1,4 @@
-## Hinted Handoff
+## (Section: WriteRead) - Hinted Handoff
 
 * Simple sticky note on co-ordinator
 * Once actual node is available, Co-ordinator would deliver the message
@@ -10,13 +10,13 @@
   * Gossip protocol helps to trigger
 * COnsistency level of ANY - Hinted handoff is considered as valid transaction
 
-## How read works?
+## (Section: WriteRead) -  How read works?
 
 * Co-ordinator reads data from fastest machine
 * Co-ordinator reads checksum form other two machine
 * if 1 and 2, matches, then we co-ordinator responds to client queries
 
-## Read Repair (Happens only when CL=All)
+## (Section: WriteRead) -  Read Repair (Happens only when CL=All)
 
 * Over-time nodes goes out-of-sync
 * Every write chooses between availablity and consistency
@@ -28,7 +28,7 @@
     1. It sends latest copies to two other nodes for them to udpate (their obsolete data is repaired)
     1. Responds to client with latest result
 
-## Read Repair Chance (when CL < ALL) (less than ALL consistency read)
+## (Section: WriteRead) -  Read Repair Chance (when CL < ALL) (less than ALL consistency read)
 
 * Cassandra does read-repair even for request less than ALL, But not 100% but probablistically
   * Probability is configurable
@@ -37,7 +37,7 @@
 * Client can't be sure if data is latest or replicas are in sync
 * Read repair done asynchronously in the background
 
-## Nodetool repair
+## (Section: WriteRead) -  Nodetool repair
 
 * It is the last line of defence for us to improve consistency within stored data
 * Syncs all data in the cluster
@@ -47,7 +47,7 @@
 * Must run to synchronize a failed node coming back online
 * Run on nodes not read from very often
 
-## Nodetool Sync (only datastax)
+## (Section: WriteRead) -  Nodetool Sync (only datastax)
 
 * Peforming full-repair is costly
 * Full-repair should be run before gc_grace_seconds
@@ -55,7 +55,7 @@
 * Repairs in small chunks as we go rather than full repair
   * Create table myTable (...) WITH nodesync = {'enabled': 'true'};
 
-## Nodetool Sync Save points (only datastax)
+## (Section: WriteRead) -  Nodetool Sync Save points (only datastax)
 
 * Each node splits its local range into segments
   * Small token range of a table
@@ -66,13 +66,13 @@
   * Save-point is the place where progress is stored
 * NodeSync priorities segments to meet deadline target
 
-## Nodetool Sync - Segments Sizes
+## (Section: WriteRead) -  Nodetool Sync - Segments Sizes
 
 * Eache segment is less than 200MB
 * If a partition is great than 200MB win over segments less than 200MB
 * Each segment cannot be less than its partition size, hence if segments are larger .. it means partition was larger
 
-## Nodetool Sync - Segments failures
+## (Section: WriteRead) -  Nodetool Sync - Segments failures
 
 * Node fails during segment validation, node drops all work for that segment and starts over
 * A segment repair is automic operation
@@ -85,7 +85,7 @@
   * uncompleted : one node availabled/responded; no validation occurred
   * failed: unexpected error happened; check logs.
 
-## Nodetool Sync - Segments Validation
+## (Section: WriteRead) -  Nodetool Sync - Segments Validation
 
 * NodeSync - simply performs a read repair on the segment
 * read-data from all replicas
@@ -93,7 +93,7 @@
 * Repair stale nodes
 
 
-## Cassandra Write Path (inside the node, and for *a* partition)
+## (Section: WriteRead) -  Cassandra Write Path (inside the node, and for *a* partition)
 
 * Two atomic operation makes a write successfull (Both commit-log + mem-table)
   * HDD - Commit Log
@@ -109,7 +109,7 @@
 * No inplace update performed on SS-Table
 
 
-## Cassandra Read Path (inside the node, and for particular a partition)
+## (Section: WriteRead) -  Cassandra Read Path (inside the node, and for particular a partition)
 
 * Read is easy if records are in mem-table
   * Based on token, just to binary-search on mem-table and return the data to client
@@ -124,7 +124,7 @@
 * Partition-summary is an another index used by Cassandra
   * Partition-summary resides in memory
   
-## Cassandra Read Path workflow
+## (Section: WriteRead) -  Cassandra Read Path workflow
 
 * ReadRequest --> Bloomfilter --> Key Cache --> Partition Summary --> Partition Index --> SS-Table
 * Checks in key-cache (if succseeds, data returned directly reading ss-table)
@@ -136,14 +136,14 @@
     * key-cache is cache for partition-index (it avoids searcing in partition-index about ss-table byte-offset)
 * Finally... bloom filter can optimize all the above
   
-## Bloom filter
+## (Section: WriteRead) -  Bloom filter
 
 * It might stop the entire process if the data is not present
 * It might produce false positives, but never ends in false negative
 * If Bloom-filter says "no-data", there is no such partition data in that node
 * If Bloom-filter says "possible-data", there may or may not present data in that node
 
-## Datastax
+## (Section: WriteRead) -  Datastax
 
 * Trie based partition-summary is being used
 * SSTable lookups are extreemly fast
@@ -152,7 +152,7 @@
   * It will gradually compact oss version into Trie-based partition-index
   * Tried based partition index is extreemly faster
 
-## Compaction (merging ss-tables)
+## (Section: WriteRead) -  Compaction (merging ss-tables)
 
 * Compaction
   * Removes old un-necessary immutable data
@@ -169,7 +169,7 @@
   * Merge creates new ss-table
   * Stale data removed and compacted (reduced and combined into fewer ss-tables)
 
-## Compaction Strategies (based on use-case)
+## (Section: WriteRead) -  Compaction Strategies (based on use-case)
 
 * Choose proper strategy based on use-case
   * SizeTieredCompaction - For write heavy
@@ -178,13 +178,13 @@
 * We can change compaction strategy
 
 
-## Advanced Peformance Gains in (DSE)
+## (Section: WriteRead) -  Advanced Peformance Gains in (DSE)
 
 * OSS uses thread-pools, might cause thread contention
 * DSE - uses only one thread per core
 * DSE - Uses asynchronous a lot and non-blocking
 
-## Before and after flush
+## (Section: WriteRead) -  Before and after flush
 ```
 Total number of tables: 47					Total number of tables: 47
 ----------------						----------------
@@ -232,7 +232,7 @@ Keyspace : keyspace1						Keyspace : keyspace1
 		Failed Replication Count: null					Failed Replication Count: null
 ```
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
+## (Section: WriteRead) -  Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
 
 ```
 ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
@@ -250,7 +250,7 @@ drwxrwxr-x 4 ubuntu ubuntu     4096 Jun 12 04:38 ..
 drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:41 .
 ```
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
+## (Section: WriteRead) -  Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
 
 ```
 ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
@@ -269,7 +269,7 @@ drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:47 .
 ```
 
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
+## (Section: WriteRead) -  Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
 
 ```
 ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
@@ -288,7 +288,7 @@ ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-0
 ```
 
 
-## Nodetool CFStats 
+## (Section: WriteRead) -  Nodetool CFStats 
 
 ```
 ubuntu@ds201-node1:~/node/bin$ ./nodetool cfstats keyspace1
@@ -383,7 +383,7 @@ ubuntu@ds201-node1:~/node/bin$
 ./nodetool cfstats
 ```
 
-## Followup questions
+## (Section: WriteRead) -  Followup questions
 
 * we could not find /var/log/system.log
   * During single-node check console output or nohup.out or terminal output

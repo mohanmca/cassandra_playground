@@ -1,4 +1,4 @@
-## Storage Architecture
+## (Section: SSTable) - Storage Architecture
 
 * Only one commit log per cluster
 * Commit-logs are flused to (via MemTable) sstables
@@ -8,7 +8,7 @@
 * SSTable very poor to find absence of key (hence we need bloom-filter)
 
 
-## SStable - settings in cassandra.yaml
+## (Section: SSTable) -  SStable - settings in cassandra.yaml
 
 1. flush_compression: fast
 1. file_cache_enabled: false 
@@ -23,7 +23,7 @@
 1. stream_entire_sstables: true
 1. max_value_size_in_mb: 256
 
-## What are the files part of SSTable
+## (Section: SSTable) -  What are the files part of SSTable
 
 * mb-1-big-Summary.db
 * mb-1-big-Index.db
@@ -35,23 +35,23 @@
   * mb-1-big-CRC.db
   * mb-1-big-Toc.txt -- list of the above files
 
-## What is the role of index file
+## (Section: SSTable) -  What is the role of index file
 
 * It lists the partition-keys/cluster-keys that are available inside the SSTable with offset information. Disk seek can directly locate few keys
 
-## What is the role of statitics file
+## (Section: SSTable) -  What is the role of statitics file
 
 * It has the column definition
 * It has almost all the details about DDL of a table
 
 
-## Why SQLite4 didn't use LSM?
+## (Section: SSTable) -  Why SQLite4 didn't use LSM?
 
 * Every insert needs to check constraint, and it requires reads. In simple, every write operation also ends up with read operation.
 * LSM is great for blind writes, but doesn't work work as well when constraints must be checked prior to each write
 
 
-## LSM Pros and Cons
+## (Section: SSTable) -  LSM Pros and Cons
 
 * Pros
    * Faster writes
@@ -65,7 +65,7 @@
   * Greater Complexity
 
 
-## SSTable references
+## (Section: SSTable) -  SSTable references
 
 * [What is in All of Those SSTable Files Not Just the Data One but All the Rest Too! (John Schulz, The Pythian Group) | Cassandra Summit 2016 ](https://www.slideshare.net/DataStax/what-is-in-all-of-those-sstable-files-not-just-the-data-one-but-all-the-rest-too-john-schulz-the-pythian-group-cassandra-summit-2016)
 * [So you have a broken Cassandra SSTable file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)

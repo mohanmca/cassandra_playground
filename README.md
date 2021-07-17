@@ -1,325 +1,448 @@
--   [RDBMS history](#rdbms-history)
--   [RDBMS Pros and cons](#rdbms-pros-and-cons)
--   [Why RDBMS is successful?](#why-rdbms-is-successful)
--   [How RDBMS is tuned](#how-rdbms-is-tuned)
--   [Two-phase commit vs
-    Compensation](#two-phase-commit-vs-compensation)
--   [Sharding (Share nothing)](#sharding-share-nothing)
--   [List of NoSQL databases](#list-of-nosql-databases)
--   [Apache Cassandra - Official
-    definition](#apache-cassandra---official-definition)
--   [Cassandra Features](#cassandra-features)
--   [What are all Consistency Forms?](#what-are-all-consistency-forms)
--   [Strong consistency in Cassandra](#strong-consistency-in-cassandra)
--   [Row-Oriented data store](#row-oriented-data-store)
--   [Always writeable](#always-writeable)
--   [Notable tools](#notable-tools)
--   [Few use cases](#few-use-cases)
--   [Updated CAP - Brewer's Theorem](#updated-cap---brewers-theorem)
--   [What is the alternative for Two-phase
-    commit](#what-is-the-alternative-for-two-phase-commit)
--   [How to horizontally scale RDBMS
-    (shard)](#how-to-horizontally-scale-rdbms-shard)
--   [There are three basic strategies for determining shard
-    structure:](#there-are-three-basic-strategies-for-determining-shard-structure)
--   [Shared nothing](#shared-nothing)
--   [New SQL (Scalable ACID
-    transactions)](#new-sql-scalable-acid-transactions)
--   [Cassandra features](#cassandra-features-1)
--   [Cap Theorem (Brewer's theorem)](#cap-theorem-brewers-theorem)
--   [Cassandra Lightweight transaction (LWT) - Linearizable
-    consistency](#cassandra-lightweight-transaction-lwt---linearizable-consistency)
--   [Row-Oriented (Wide column store)](#row-oriented-wide-column-store)
--   [Cassandra - schema free?](#cassandra---schema-free)
--   [Cassandra - use-cases?](#cassandra---use-cases)
--   [Cassandra directories](#cassandra-directories)
--   [Cassandra directories and files](#cassandra-directories-and-files)
--   [Cassandra run-time properties](#cassandra-run-time-properties)
--   [Cassandra cqlsh](#cassandra-cqlsh)
--   [How to run apache Cassandra using
-    docker](#how-to-run-apache-cassandra-using-docker)
--   [Datamodel quick checklist](#datamodel-quick-checklist)
--   [THE WIDE PARTITION PATTERN](#the-wide-partition-pattern)
--   [Cassandra Architecture - logical components
-    (2+4+3+4+1)](#cassandra-architecture---logical-components-24341)
--   [Cassandra token ring](#cassandra-token-ring)
--   [Hinted Handoff](#hinted-handoff)
--   [Conflict-free replicated data
-    type](#conflict-free-replicated-data-type)
--   [What is anti-entropy repair?](#what-is-anti-entropy-repair)
--   [MERKLE TREE usage in Cassandra?](#merkle-tree-usage-in-cassandra)
--   [Commit Log](#commit-log)
--   [Comapaction stragies in
-    Cassandra](#comapaction-stragies-in-cassandra)
--   [Cassandra under the hood](#cassandra-under-the-hood)
--   [Deletion and Tombstones](#deletion-and-tombstones)
--   [Bloom Filter](#bloom-filter)
--   [cluster topology of Cassandra](#cluster-topology-of-cassandra)
--   [CQL - Primary key and Clustering
-    key](#cql---primary-key-and-clustering-key)
--   [CQLSH - useful](#cqlsh---useful)
--   [How to remove node using
-    nodetool](#how-to-remove-node-using-nodetool)
--   [Cassandra linux limits](#cassandra-linux-limits)
--   [Cassandra troubleshoot linux
-    commands](#cassandra-troubleshoot-linux-commands)
--   [How does cassandra-topolgoy.properties look
-    alike](#how-does-cassandra-topolgoy.properties-look-alike)
--   [Cassandra Client - features (Datastax Driver
-    4.9.0)](#cassandra-client---features-datastax-driver-4.9.0)
--   [Cassandra Client - Retry Failied Queries (if node
-    failed)](#cassandra-client---retry-failied-queries-if-node-failed)
--   [Cassandra Client side - SPECULATIVE
-    EXECUTION](#cassandra-client-side---speculative-execution)
--   [Cassandra Client side - CONNECTION
-    POOLING](#cassandra-client-side---connection-pooling)
--   [Cassandra Client side driver
-    configuration](#cassandra-client-side-driver-configuration)
--   [Cassandra Client (Datastax Driver 4.9.0) - Java
-    API](#cassandra-client-datastax-driver-4.9.0---java-api)
--   [Cassandra Client Mapper/Entity
-    Annotations](#cassandra-client-mapperentity-annotations)
--   [Cassandra Client (Datastax Driver 5.0) - QueryBuilder API
-    API](#cassandra-client-datastax-driver-5.0---querybuilder-api-api)
--   [Cassandra Client (Datastax Driver 5.0) - Async
-    API](#cassandra-client-datastax-driver-5.0---async-api)
--   [JDK 9 - Reactive style API](#jdk-9---reactive-style-api)
--   [Cassandra write path](#cassandra-write-path)
--   [Cassandra write path - Materialized
-    view](#cassandra-write-path---materialized-view)
--   [Cassandra write/read - consistency
-    CQLS](#cassandra-writeread---consistency-cqls)
--   [Cassandra failures and
-    solutions](#cassandra-failures-and-solutions)
--   [Scaling Quotes](#scaling-quotes)
--   [Performance Quotes](#performance-quotes)
--   [Nodetool](#nodetool)
--   [Building Cassandra](#building-cassandra)
--   [Resources](#resources)
--   [Follow-up questions for
-    Cassandra](#follow-up-questions-for-cassandra)
--   [Definitive Guide References](#definitive-guide-references)
--   [Code](#code)
--   [How to create anki from this markdown
-    file](#how-to-create-anki-from-this-markdown-file)
--   [Pre-requisite for this tutorial is
-    docker](#pre-requisite-for-this-tutorial-is-docker)
--   [Use Os-boxes as virtual machine to install
-    cassandra](#use-os-boxes-as-virtual-machine-to-install-cassandra)
+-   [(Section: TDG) - RDBMS history](#section-tdg---rdbms-history)
+-   [(Section: TDG) - RDBMS Pros and
+    cons](#section-tdg---rdbms-pros-and-cons)
+-   [(Section: TDG) - Why RDBMS is
+    successful?](#section-tdg---why-rdbms-is-successful)
+-   [(Section: TDG) - How RDBMS is
+    tuned](#section-tdg---how-rdbms-is-tuned)
+-   [(Section: TDG) - Two-phase commit vs
+    Compensation](#section-tdg---two-phase-commit-vs-compensation)
+-   [(Section: TDG) - Sharding (Share
+    nothing)](#section-tdg---sharding-share-nothing)
+-   [(Section: TDG) - List of NoSQL
+    databases](#section-tdg---list-of-nosql-databases)
+-   [(Section: TDG) - Apache Cassandra - Official
+    definition](#section-tdg---apache-cassandra---official-definition)
+-   [(Section: TDG) - Cassandra
+    Features](#section-tdg---cassandra-features)
+-   [(Section: TDG) - What are all Consistency
+    Forms?](#section-tdg---what-are-all-consistency-forms)
+-   [(Section: TDG) - Strong consistency in
+    Cassandra](#section-tdg---strong-consistency-in-cassandra)
+-   [(Section: TDG) - Row-Oriented data
+    store](#section-tdg---row-oriented-data-store)
+-   [(Section: TDG) - Always writeable](#section-tdg---always-writeable)
+-   [(Section: TDG) - Notable tools](#section-tdg---notable-tools)
+-   [(Section: TDG) - Few use cases](#section-tdg---few-use-cases)
+-   [(Section: TDG) - Updated CAP - Brewer's
+    Theorem](#section-tdg---updated-cap---brewers-theorem)
+-   [(Section: TDG) - What is the alternative for Two-phase
+    commit](#section-tdg---what-is-the-alternative-for-two-phase-commit)
+-   [(Section: TDG) - How to horizontally scale RDBMS
+    (shard)](#section-tdg---how-to-horizontally-scale-rdbms-shard)
+-   [(Section: TDG) - There are three basic strategies for determining
+    shard
+    structure:](#section-tdg---there-are-three-basic-strategies-for-determining-shard-structure)
+-   [(Section: TDG) - Shared nothing](#section-tdg---shared-nothing)
+-   [(Section: TDG) - New SQL (Scalable ACID
+    transactions)](#section-tdg---new-sql-scalable-acid-transactions)
+-   [(Section: TDG) - Cassandra
+    features](#section-tdg---cassandra-features-1)
+-   [(Section: TDG) - Cap Theorem (Brewer's
+    theorem)](#section-tdg---cap-theorem-brewers-theorem)
+-   [(Section: TDG) - Cassandra Lightweight transaction (LWT) -
+    Linearizable
+    consistency](#section-tdg---cassandra-lightweight-transaction-lwt---linearizable-consistency)
+-   [(Section: TDG) - Row-Oriented (Wide column
+    store)](#section-tdg---row-oriented-wide-column-store)
+-   [(Section: TDG) - Cassandra - schema
+    free?](#section-tdg---cassandra---schema-free)
+-   [(Section: TDG) - Cassandra -
+    use-cases?](#section-tdg---cassandra---use-cases)
+-   [(Section: TDG) - Cassandra
+    directories](#section-tdg---cassandra-directories)
+-   [(Section: TDG) - Cassandra directories and
+    files](#section-tdg---cassandra-directories-and-files)
+-   [(Section: TDG) - Cassandra run-time
+    properties](#section-tdg---cassandra-run-time-properties)
+-   [(Section: TDG) - Cassandra cqlsh](#section-tdg---cassandra-cqlsh)
+-   [(Section: TDG) - How to run apache Cassandra using
+    docker](#section-tdg---how-to-run-apache-cassandra-using-docker)
+-   [(Section: TDG) - Datamodel quick
+    checklist](#section-tdg---datamodel-quick-checklist)
+-   [(Section: TDG) - THE WIDE PARTITION
+    PATTERN](#section-tdg---the-wide-partition-pattern)
+-   [(Section: TDG) - Cassandra Architecture - logical components
+    (2+4+3+4+1)](#section-tdg---cassandra-architecture---logical-components-24341)
+-   [(Section: TDG) - Cassandra token
+    ring](#section-tdg---cassandra-token-ring)
+-   [(Section: TDG) - Hinted Handoff](#section-tdg---hinted-handoff)
+-   [(Section: TDG) - Conflict-free replicated data
+    type](#section-tdg---conflict-free-replicated-data-type)
+-   [(Section: TDG) - What is anti-entropy
+    repair?](#section-tdg---what-is-anti-entropy-repair)
+-   [(Section: TDG) - MERKLE TREE usage in
+    Cassandra?](#section-tdg---merkle-tree-usage-in-cassandra)
+-   [(Section: TDG) - Commit Log](#section-tdg---commit-log)
+-   [(Section: TDG) - Comapaction stragies in
+    Cassandra](#section-tdg---comapaction-stragies-in-cassandra)
+-   [(Section: TDG) - Cassandra under the
+    hood](#section-tdg---cassandra-under-the-hood)
+-   [(Section: TDG) - Deletion and
+    Tombstones](#section-tdg---deletion-and-tombstones)
+-   [(Section: TDG) - Bloom Filter](#section-tdg---bloom-filter)
+-   [(Section: TDG) - cluster topology of
+    Cassandra](#section-tdg---cluster-topology-of-cassandra)
+-   [(Section: TDG) - CQL - Primary key and Clustering
+    key](#section-tdg---cql---primary-key-and-clustering-key)
+-   [(Section: TDG) - CQLSH - useful](#section-tdg---cqlsh---useful)
+-   [(Section: TDG) - How to remove node using
+    nodetool](#section-tdg---how-to-remove-node-using-nodetool)
+-   [(Section: TDG) - Cassandra linux
+    limits](#section-tdg---cassandra-linux-limits)
+-   [(Section: TDG) - Cassandra troubleshoot linux
+    commands](#section-tdg---cassandra-troubleshoot-linux-commands)
+-   [(Section: TDG) - How does cassandra-topolgoy.properties look
+    alike](#section-tdg---how-does-cassandra-topolgoy.properties-look-alike)
+-   [(Section: TDG) - Cassandra Client - features (Datastax Driver
+    4.9.0)](#section-tdg---cassandra-client---features-datastax-driver-4.9.0)
+-   [(Section: TDG) - Cassandra Client - Retry Failied Queries (if node
+    failed)](#section-tdg---cassandra-client---retry-failied-queries-if-node-failed)
+-   [(Section: TDG) - Cassandra Client side - SPECULATIVE
+    EXECUTION](#section-tdg---cassandra-client-side---speculative-execution)
+-   [(Section: TDG) - Cassandra Client side - CONNECTION
+    POOLING](#section-tdg---cassandra-client-side---connection-pooling)
+-   [(Section: TDG) - Cassandra Client side driver
+    configuration](#section-tdg---cassandra-client-side-driver-configuration)
+-   [(Section: TDG) - Cassandra Client (Datastax Driver 4.9.0) - Java
+    API](#section-tdg---cassandra-client-datastax-driver-4.9.0---java-api)
+-   [(Section: TDG) - Cassandra Client Mapper/Entity
+    Annotations](#section-tdg---cassandra-client-mapperentity-annotations)
+-   [(Section: TDG) - Cassandra Client (Datastax Driver 5.0) -
+    QueryBuilder API
+    API](#section-tdg---cassandra-client-datastax-driver-5.0---querybuilder-api-api)
+-   [(Section: TDG) - Cassandra Client (Datastax Driver 5.0) - Async
+    API](#section-tdg---cassandra-client-datastax-driver-5.0---async-api)
+-   [(Section: TDG) - JDK 9 - Reactive style
+    API](#section-tdg---jdk-9---reactive-style-api)
+-   [(Section: TDG) - Cassandra write
+    path](#section-tdg---cassandra-write-path)
+-   [(Section: TDG) - Cassandra write path - Materialized
+    view](#section-tdg---cassandra-write-path---materialized-view)
+-   [(Section: TDG) - Cassandra write/read - consistency
+    CQLS](#section-tdg---cassandra-writeread---consistency-cqls)
+-   [(Section: TDG) - Cassandra failures and
+    solutions](#section-tdg---cassandra-failures-and-solutions)
+-   [(Section: TDG) - Scaling Quotes](#section-tdg---scaling-quotes)
+-   [(Section: TDG) - Performance
+    Quotes](#section-tdg---performance-quotes)
+-   [(Section: TDG) - Nodetool](#section-tdg---nodetool)
+-   [(Section: TDG) - Building
+    Cassandra](#section-tdg---building-cassandra)
+-   [(Section: TDG) - Resources](#section-tdg---resources)
+-   [(Section: TDG) - Follow-up questions for
+    Cassandra](#section-tdg---follow-up-questions-for-cassandra)
+-   [(Section: TDG) - Definitive Guide
+    References](#section-tdg---definitive-guide-references)
+-   [(Section: TDG) - Code](#section-tdg---code)
+-   [(Section: TDG) - How to create anki from this markdown
+    file](#section-tdg---how-to-create-anki-from-this-markdown-file)
+-   [(Section: Installation) - Pre-requisite for this tutorial is
+    docker](#section-installation---pre-requisite-for-this-tutorial-is-docker)
+-   [(Section: Installation) - Use Os-boxes as virtual machine to
+    install
+    cassandra](#section-installation---use-os-boxes-as-virtual-machine-to-install-cassandra)
     -   [To start Cassandra](#to-start-cassandra)
--   [Cassandra cluster using apache cassandra (Wait at-least 1 minute
-    between successive container
-    spin-off)](#cassandra-cluster-using-apache-cassandra-wait-at-least-1-minute-between-successive-container-spin-off)
--   [Connect to cassandra docker
-    cluster](#connect-to-cassandra-docker-cluster)
--   [Run commands into cassandra docker
-    node](#run-commands-into-cassandra-docker-node)
--   [Via docker for DSE server](#via-docker-for-dse-server)
--   [Setting up application using DSE image -Running Cassandra in
-    Docker](#setting-up-application-using-dse-image--running-cassandra-in-docker)
--   [Copy files into and out-of
-    containers](#copy-files-into-and-out-of-containers)
--   [Some Cassandra commands](#some-cassandra-commands)
--   [Cassandra directory (Apache
-    Cassandra)](#cassandra-directory-apache-cassandra)
--   [Cassandra stress-tool](#cassandra-stress-tool)
--   [To start CQLSH](#to-start-cqlsh)
--   [References](#references)
-    -   [nodetool](#nodetool-1)
--   [Ring](#ring)
--   [When a new node joins the ring](#when-a-new-node-joins-the-ring)
--   [Driver](#driver)
--   [Peer-to-Peer](#peer-to-peer)
--   [VNode](#vnode)
-    -   [Why Vnode?](#why-vnode)
--   [Gossip protocol](#gossip-protocol)
-    -   [What is gossiped?](#what-is-gossiped)
--   [Snitch](#snitch)
-    -   [Property File Snitch](#property-file-snitch)
-    -   [Gossiping Property File
-        Snitch](#gossiping-property-file-snitch)
--   [Cassandra replication](#cassandra-replication)
--   [Consistency](#consistency)
-    -   [Consistency level in
-        Cassandra](#consistency-level-in-cassandra)
--   [Hinted hand-off](#hinted-hand-off)
--   [Read repair (Assume RF=3)](#read-repair-assume-rf3)
-    -   [Read Repair Chance](#read-repair-chance)
--   [Node-repai](#node-repai)
-    -   [Nodetool has a repair tool that can repair entire cluster -
-        Quite expensive
-        operation](#nodetool-has-a-repair-tool-that-can-repair-entire-cluster---quite-expensive-operation)
--   [Datastax Node-sync](#datastax-node-sync)
--   [Write path](#write-path)
--   [Read path](#read-path)
--   [Data-stax](#data-stax)
--   [Compaction](#compaction)
-    -   [Compacting partition](#compacting-partition)
-    -   [Compacting SSTables](#compacting-sstables)
-    -   [Types of compaction](#types-of-compaction)
--   [Datastax ES6](#datastax-es6)
--   [Reference](#reference)
--   [Clustering Columns](#clustering-columns)
--   [Primary Key](#primary-key)
--   [Impact of partition key on query
-    (CQL)](#impact-of-partition-key-on-query-cql)
--   [Querying](#querying)
--   [CQL](#cql)
--   [Datastax slides](#datastax-slides)
+-   [(Section: Installation) - Cassandra cluster using apache cassandra
+    (Wait at-least 1 minute between successive container
+    spin-off)](#section-installation---cassandra-cluster-using-apache-cassandra-wait-at-least-1-minute-between-successive-container-spin-off)
+-   [(Section: Installation) - Connect to cassandra docker
+    cluster](#section-installation---connect-to-cassandra-docker-cluster)
+-   [(Section: Installation) - Run commands into cassandra docker
+    node](#section-installation---run-commands-into-cassandra-docker-node)
+-   [(Section: Installation) - Via docker for DSE
+    server](#section-installation---via-docker-for-dse-server)
+-   [(Section: Installation) - Setting up application using DSE image
+    -Running Cassandra in
+    Docker](#section-installation---setting-up-application-using-dse-image--running-cassandra-in-docker)
+-   [(Section: Installation) - Copy files into and out-of
+    containers](#section-installation---copy-files-into-and-out-of-containers)
+-   [(Section: Installation) - Some Cassandra
+    commands](#section-installation---some-cassandra-commands)
+-   [(Section: Installation) - Cassandra directory (Apache
+    Cassandra)](#section-installation---cassandra-directory-apache-cassandra)
+-   [(Section: Installation) - Cassandra
+    stress-tool](#section-installation---cassandra-stress-tool)
+-   [(Section: Installation) - To start
+    CQLSH](#section-installation---to-start-cqlsh)
+-   [(Section: Installation) -
+    References](#section-installation---references)
+-   [(Section: Architecture) -
+    nodetool](#section-architecture---nodetool)
+-   [(Section: Architecture) - Ring](#section-architecture---ring)
+-   [(Section: Architecture) - When a new node joins the
+    ring](#section-architecture---when-a-new-node-joins-the-ring)
+-   [(Section: Architecture) - Driver](#section-architecture---driver)
+-   [(Section: Architecture) -
+    Peer-to-Peer](#section-architecture---peer-to-peer)
+-   [(Section: Architecture) - VNode](#section-architecture---vnode)
+-   [(Section: Architecture) - Why
+    Vnode?](#section-architecture---why-vnode)
+-   [(Section: Architecture) - Gossip
+    protocol](#section-architecture---gossip-protocol)
+-   [(Section: Architecture) - What is
+    gossiped?](#section-architecture---what-is-gossiped)
+-   [(Section: Architecture) - Snitch](#section-architecture---snitch)
+-   [(Section: Architecture) - Property File
+    Snitch](#section-architecture---property-file-snitch)
+-   [(Section: Architecture) - Gossiping Property File
+    Snitch](#section-architecture---gossiping-property-file-snitch)
+-   [(Section: Architecture) - Cassandra
+    replication](#section-architecture---cassandra-replication)
+-   [(Section: Architecture) -
+    Consistency](#section-architecture---consistency)
+-   [(Section: Architecture) - Consistency level in
+    Cassandra](#section-architecture---consistency-level-in-cassandra)
+-   [(Section: Architecture) - Hinted
+    hand-off](#section-architecture---hinted-hand-off)
+-   [(Section: Architecture) - Read repair (Assume
+    RF=3)](#section-architecture---read-repair-assume-rf3)
+-   [(Section: Architecture) - Read Repair
+    Chance](#section-architecture---read-repair-chance)
+-   [(Section: Architecture) -
+    Node-repai](#section-architecture---node-repai)
+-   [(Section: Architecture) - Nodetool has a repair tool that can
+    repair entire cluster - Quite expensive
+    operation](#section-architecture---nodetool-has-a-repair-tool-that-can-repair-entire-cluster---quite-expensive-operation)
+-   [(Section: Architecture) - Datastax
+    Node-sync](#section-architecture---datastax-node-sync)
+-   [(Section: Architecture) - Write
+    path](#section-architecture---write-path)
+-   [(Section: Architecture) - Read
+    path](#section-architecture---read-path)
+-   [(Section: Architecture) -
+    Data-stax](#section-architecture---data-stax)
+-   [(Section: Architecture) -
+    Compaction](#section-architecture---compaction)
+-   [(Section: Architecture) - Compacting
+    partition](#section-architecture---compacting-partition)
+-   [(Section: Architecture) - Compacting
+    SSTables](#section-architecture---compacting-sstables)
+-   [(Section: Architecture) - Types of
+    compaction](#section-architecture---types-of-compaction)
+-   [(Section: Architecture) - Datastax
+    ES6](#section-architecture---datastax-es6)
+-   [(Section: Architecture) -
+    Reference](#section-architecture---reference)
+-   [(Section: Partition) - Partition](#section-partition---partition)
+-   [(Section: Partition) - Clustering
+    Columns](#section-partition---clustering-columns)
+-   [(Section: Partition) - Primary
+    Key](#section-partition---primary-key)
+-   [(Section: Partition) - Impact of partition key on query
+    (CQL)](#section-partition---impact-of-partition-key-on-query-cql)
+-   [(Section: Partition) - Querying](#section-partition---querying)
+-   [(Section: Partition) - CQL](#section-partition---cql)
+-   [(Section: Partition) - Datastax
+    slides](#section-partition---datastax-slides)
 -   [What is Each_Quorum](#what-is-each_quorum)
--   [Peformance could be degraded for many
-    reasons](#peformance-could-be-degraded-for-many-reasons)
-    -   [Dropped Mutataions](#dropped-mutataions)
-    -   [Configuration that affects dropped
-        mutations](#configuration-that-affects-dropped-mutations)
--   [When does Cassandra end up having useless
-    data](#when-does-cassandra-end-up-having-useless-data)
--   [Usage statistics of thread-pool -
-    output](#usage-statistics-of-thread-pool---output)
--   [What is D210 Course about](#what-is-d210-course-about)
--   [What are basic parameter required for Cassandra
-    quickstart](#what-are-basic-parameter-required-for-cassandra-quickstart)
--   [What is the location of default
-    Cassandra.yaml?](#what-is-the-location-of-default-cassandra.yaml)
--   [What are two file-systedm that should be
-    separated](#what-are-two-file-systedm-that-should-be-separated)
--   [Cluster Sizing](#cluster-sizing)
--   [Cluster Sizing - Writethrough put
-    example](#cluster-sizing---writethrough-put-example)
--   [Cluster Sizing - Read throughput
-    example](#cluster-sizing---read-throughput-example)
--   [Cluster-sizing - Monthly
-    calculate](#cluster-sizing---monthly-calculate)
--   [Cluster-sizing - Latency
-    calculate](#cluster-sizing---latency-calculate)
--   [Cluster Sizing - Probing
-    Questions](#cluster-sizing---probing-questions)
--   [Cassandra stress tool](#cassandra-stress-tool-1)
--   [Linux top command](#linux-top-command)
--   [Linux top command - Cassandra](#linux-top-command---cassandra)
--   [Linux dstat command (alternative to
-    top)](#linux-dstat-command-alternative-to-top)
--   [Nodetool (Performance Analysis inside cluster
-    node)](#nodetool-performance-analysis-inside-cluster-node)
--   [Nodetool compaction-history - what are all the fields and
-    output?](#nodetool-compaction-history---what-are-all-the-fields-and-output)
--   [To figure out the name of a node's datacenter and rack, which
-    nodetool sub-command should you
-    use?](#to-figure-out-the-name-of-a-nodes-datacenter-and-rack-which-nodetool-sub-command-should-you-use)
--   [Nodetool gcstats](#nodetool-gcstats)
--   [Nodetool Gossipinfo](#nodetool-gossipinfo)
--   [Nodetool Ring command](#nodetool-ring-command)
--   [Nodetool Tableinfo (tablestats) - Quite useful for data-modelling
-    information](#nodetool-tableinfo-tablestats---quite-useful-for-data-modelling-information)
--   [How to find large partition?](#how-to-find-large-partition)
--   [Nodetool Threadpoolinfo
-    (tpstats)](#nodetool-threadpoolinfo-tpstats)
--   [Cassandra logging](#cassandra-logging)
--   [Cassandra JVM GC logging](#cassandra-jvm-gc-logging)
--   [How Cassandra JVM GC logging can be
-    configured](#how-cassandra-jvm-gc-logging-can-be-configured)
--   [How to read GC.log?](#how-to-read-gc.log)
--   [Adding a node](#adding-a-node)
--   [Bootstrapping (Adding a note)](#bootstrapping-adding-a-note)
--   [What are the steps followed by a boostrapping node when
-    joining?](#what-are-the-steps-followed-by-a-boostrapping-node-when-joining)
--   [What are the help rendered by a existing node to a
-    joining?](#what-are-the-help-rendered-by-a-existing-node-to-a-joining)
--   [Issues during bootstrap](#issues-during-bootstrap)
--   [If Bootstrap fails](#if-bootstrap-fails)
--   [After Boostrap (Cleanup)](#after-boostrap-cleanup)
--   [Removing node](#removing-node)
--   [Where is the data coming from when a node is
-    removed?](#where-is-the-data-coming-from-when-a-node-is-removed)
--   [How to replace a down-node](#how-to-replace-a-down-node)
--   [Why replace a node than
-    removing-and-adding?](#why-replace-a-node-than-removing-and-adding)
--   [STCS - Size Tieres Compaction
-    Strategy](#stcs---size-tieres-compaction-strategy)
--   [STCS Pros and Disadvantage](#stcs-pros-and-disadvantage)
--   [What triggers a STCS Compaction](#what-triggers-a-stcs-compaction)
--   [STCS - Tombstones](#stcs---tombstones)
--   [LCS - Leveled Compaction
-    Strategy](#lcs---leveled-compaction-strategy)
--   [LCS Pros and Cons](#lcs-pros-and-cons)
--   [LCS - Lagging behind](#lcs---lagging-behind)
--   [LeveledCompactionStrategy](#leveledcompactionstrategy)
--   [TWCS - Time-window compaction
-    strategies](#twcs---time-window-compaction-strategies)
--   [Nodesync (Datastax Enterprise
-    6.0)](#nodesync-datastax-enterprise-6.0)
--   [What are all the possible reason for large
-    SSTable](#what-are-all-the-possible-reason-for-large-sstable)
--   [Multi-Datacenter](#multi-datacenter)
--   [Multi-Datacenter Consistency
-    Level](#multi-datacenter-consistency-level)
--   [What if one datacenter goes
-    down?](#what-if-one-datacenter-goes-down)
--   [Why we need additional DC?](#why-we-need-additional-dc)
--   [SSTableDump](#sstabledump)
--   [SSTableloader](#sstableloader)
--   [Loading different formats of data into
-    Cassandra](#loading-different-formats-of-data-into-cassandra)
--   [Datstax - DSE Bulk (configuration should be in HOCON
-    format)](#datstax---dse-bulk-configuration-should-be-in-hocon-format)
--   [Backup and Snapshots](#backup-and-snapshots)
--   [What is Cassandra snapshots?](#what-is-cassandra-snapshots)
--   [How do incrementa backup works](#how-do-incrementa-backup-works)
--   [Where to store snapshots?](#where-to-store-snapshots)
--   [How Truncate works?](#how-truncate-works)
--   [How to snapshot?](#how-to-snapshot)
--   [Restore (We get 1 point for backup, 99 point for
-    restore)](#restore-we-get-1-point-for-backup-99-point-for-restore)
--   [Steps to restore from snapshots](#steps-to-restore-from-snapshots)
--   [JVM settings](#jvm-settings)
--   [Garbage Collections (Apache
-    Cassandra)](#garbage-collections-apache-cassandra)
--   [Why does full GC runs?](#why-does-full-gc-runs)
--   [How to troubleshoot OutOfMemoryError issues in
-    Casssandra?](#how-to-troubleshoot-outofmemoryerror-issues-in-casssandra)
--   [What is TSC?](#what-is-tsc)
--   [Tuning the Linux Kernel](#tuning-the-linux-kernel)
--   [What should be removed/disabled from Linux for Cassandra to work?
-    How to
-    remove](#what-should-be-removeddisabled-from-linux-for-cassandra-to-work-how-to-remove)
--   [Hardware resources to consider](#hardware-resources-to-consider)
--   [Datastax on Cloud](#datastax-on-cloud)
--   [Cassandra on Cloud Challenges](#cassandra-on-cloud-challenges)
--   [Cassandra on cloud security](#cassandra-on-cloud-security)
--   [Cassandra Security
-    Considerations](#cassandra-security-considerations)
--   [What is the default security
-    configuration](#what-is-the-default-security-configuration)
--   [Where is roles are stored in internal-scheme? (in default
-    scheme)](#where-is-roles-are-stored-in-internal-scheme-in-default-scheme)
--   [Cassandra Authentication table (system_auth.roles - in default
-    scheme)](#cassandra-authentication-table-system_auth.roles---in-default-scheme)
--   [What are best practices for Cassandra
-    security](#what-are-best-practices-for-cassandra-security)
--   [Cassandra Role/Authorization
-    management](#cassandra-roleauthorization-management)
--   [Cassandra encryption SSL](#cassandra-encryption-ssl)
--   [What are two artifacts required for Cassandra to enable
-    SSL](#what-are-two-artifacts-required-for-cassandra-to-enable-ssl)
--   [8 Steps for SSL setup
-    (node-to-node)](#steps-for-ssl-setup-node-to-node)
--   [How to harden Cassandra
-    security](#how-to-harden-cassandra-security)
--   [Datastax OpsCenter](#datastax-opscenter)
--   [Datastax OpsCenter (Cluster
-    Monitoring/Alert)](#datastax-opscenter-cluster-monitoringalert)
--   [Datastax OpsCenter (Management
-    Service)](#datastax-opscenter-management-service)
--   [Datastax OpsCenter (Backup and restore
-    Service)](#datastax-opscenter-backup-and-restore-service)
--   [Datastax OpsCenter LifeCycle Manager
-    (Provisioning)](#datastax-opscenter-lifecycle-manager-provisioning)
--   [Datastax OpsCenter NodeSync](#datastax-opscenter-nodesync)
--   [Datastax OpsCenter other
-    features](#datastax-opscenter-other-features)
--   [Follow-up course](#follow-up-course)
--   [Lab notes](#lab-notes)
--   [Cassandra people](#cassandra-people)
+-   [(Section: Performance) - Performance could be degraded for many
+    reasons](#section-performance---performance-could-be-degraded-for-many-reasons)
+-   [(Section: Performance) - Dropped
+    Mutataions](#section-performance---dropped-mutataions)
+-   [(Section: Performance) - Configuration that affects dropped
+    mutations](#section-performance---configuration-that-affects-dropped-mutations)
+-   [(Section: Performance) - When does Cassandra end up having useless
+    data](#section-performance---when-does-cassandra-end-up-having-useless-data)
+-   [(Section: Performance) - How to find the largest SSTable (or
+    largest partition) in the
+    cluster](#section-performance---how-to-find-the-largest-sstable-or-largest-partition-in-the-cluster)
+-   [(Section: Performance) - Usage statistics of thread-pool -
+    output](#section-performance---usage-statistics-of-thread-pool---output)
+-   [(Section: DS210) - What is D210 Course
+    about](#section-ds210---what-is-d210-course-about)
+-   [(Section: DS210) - What are basic parameter required for Cassandra
+    quickstart](#section-ds210---what-are-basic-parameter-required-for-cassandra-quickstart)
+-   [(Section: DS210) - What is the location of default
+    Cassandra.yaml?](#section-ds210---what-is-the-location-of-default-cassandra.yaml)
+-   [(Section: DS210) - What are two file-systedm that should be
+    separated](#section-ds210---what-are-two-file-systedm-that-should-be-separated)
+-   [(Section: DS210) - Cluster Sizing](#section-ds210---cluster-sizing)
+-   [(Section: DS210) - Cluster Sizing - Writethrough put
+    example](#section-ds210---cluster-sizing---writethrough-put-example)
+-   [(Section: DS210) - Cluster Sizing - Read throughput
+    example](#section-ds210---cluster-sizing---read-throughput-example)
+-   [(Section: DS210) - Cluster-sizing - Monthly
+    calculate](#section-ds210---cluster-sizing---monthly-calculate)
+-   [(Section: DS210) - Cluster-sizing - Latency
+    calculate](#section-ds210---cluster-sizing---latency-calculate)
+-   [(Section: DS210) - Cluster Sizing - Probing
+    Questions](#section-ds210---cluster-sizing---probing-questions)
+-   [(Section: DS210) - Cassandra stress
+    tool](#section-ds210---cassandra-stress-tool)
+-   [(Section: DS210) - Linux top
+    command](#section-ds210---linux-top-command)
+-   [(Section: DS210) - Linux top command -
+    Cassandra](#section-ds210---linux-top-command---cassandra)
+-   [(Section: DS210) - Linux dstat command (alternative to
+    top)](#section-ds210---linux-dstat-command-alternative-to-top)
+-   [(Section: DS210) - Nodetool (Performance Analysis inside cluster
+    node)](#section-ds210---nodetool-performance-analysis-inside-cluster-node)
+-   [(Section: DS210) - Nodetool compaction-history - what are all the
+    fields and
+    output?](#section-ds210---nodetool-compaction-history---what-are-all-the-fields-and-output)
+-   [(Section: DS210) - To figure out the name of a node's datacenter
+    and rack, which nodetool sub-command should you
+    use?](#section-ds210---to-figure-out-the-name-of-a-nodes-datacenter-and-rack-which-nodetool-sub-command-should-you-use)
+-   [(Section: DS210) - Nodetool
+    gcstats](#section-ds210---nodetool-gcstats)
+-   [(Section: DS210) - Nodetool
+    Gossipinfo](#section-ds210---nodetool-gossipinfo)
+-   [(Section: DS210) - Nodetool Ring
+    command](#section-ds210---nodetool-ring-command)
+-   [(Section: DS210) - Nodetool Tableinfo (tablestats) - Quite useful
+    for data-modelling
+    information](#section-ds210---nodetool-tableinfo-tablestats---quite-useful-for-data-modelling-information)
+-   [(Section: DS210) - How to find large
+    partition?](#section-ds210---how-to-find-large-partition)
+-   [(Section: DS210) - Nodetool Threadpoolinfo
+    (tpstats)](#section-ds210---nodetool-threadpoolinfo-tpstats)
+-   [(Section: DS210) - Cassandra
+    logging](#section-ds210---cassandra-logging)
+-   [(Section: DS210) - Cassandra JVM GC
+    logging](#section-ds210---cassandra-jvm-gc-logging)
+-   [(Section: DS210) - How Cassandra JVM GC logging can be
+    configured](#section-ds210---how-cassandra-jvm-gc-logging-can-be-configured)
+-   [(Section: DS210) - How to read
+    GC.log?](#section-ds210---how-to-read-gc.log)
+-   [(Section: DS210) - Adding a node](#section-ds210---adding-a-node)
+-   [(Section: DS210) - Bootstrapping (Adding a
+    note)](#section-ds210---bootstrapping-adding-a-note)
+-   [(Section: DS210) - What are the steps followed by a boostrapping
+    node when
+    joining?](#section-ds210---what-are-the-steps-followed-by-a-boostrapping-node-when-joining)
+-   [(Section: DS210) - What are the help rendered by a existing node to
+    a
+    joining?](#section-ds210---what-are-the-help-rendered-by-a-existing-node-to-a-joining)
+-   [(Section: DS210) - Issues during
+    bootstrap](#section-ds210---issues-during-bootstrap)
+-   [(Section: DS210) - If Bootstrap
+    fails](#section-ds210---if-bootstrap-fails)
+-   [(Section: DS210) - After Boostrap
+    (Cleanup)](#section-ds210---after-boostrap-cleanup)
+-   [(Section: DS210) - Removing node](#section-ds210---removing-node)
+-   [(Section: DS210) - Where is the data coming from when a node is
+    removed?](#section-ds210---where-is-the-data-coming-from-when-a-node-is-removed)
+-   [(Section: DS210) - How to replace a
+    down-node](#section-ds210---how-to-replace-a-down-node)
+-   [(Section: DS210) - Why replace a node than
+    removing-and-adding?](#section-ds210---why-replace-a-node-than-removing-and-adding)
+-   [(Section: DS210) - STCS - Size Tieres Compaction
+    Strategy](#section-ds210---stcs---size-tieres-compaction-strategy)
+-   [(Section: DS210) - STCS Pros and
+    Disadvantage](#section-ds210---stcs-pros-and-disadvantage)
+-   [(Section: DS210) - What triggers a STCS
+    Compaction](#section-ds210---what-triggers-a-stcs-compaction)
+-   [(Section: DS210) - STCS -
+    Tombstones](#section-ds210---stcs---tombstones)
+-   [(Section: DS210) - LCS - Leveled Compaction
+    Strategy](#section-ds210---lcs---leveled-compaction-strategy)
+-   [(Section: DS210) - LCS Pros and
+    Cons](#section-ds210---lcs-pros-and-cons)
+-   [(Section: DS210) - LCS - Lagging
+    behind](#section-ds210---lcs---lagging-behind)
+-   [(Section: DS210) -
+    LeveledCompactionStrategy](#section-ds210---leveledcompactionstrategy)
+-   [(Section: DS210) - TWCS - Time-window compaction
+    strategies](#section-ds210---twcs---time-window-compaction-strategies)
+-   [(Section: DS210) - Nodesync (Datastax Enterprise
+    6.0)](#section-ds210---nodesync-datastax-enterprise-6.0)
+-   [(Section: DS210) - What are all the possible reason for large
+    SSTable](#section-ds210---what-are-all-the-possible-reason-for-large-sstable)
+-   [(Section: DS210) -
+    Multi-Datacenter](#section-ds210---multi-datacenter)
+-   [(Section: DS210) - Multi-Datacenter Consistency
+    Level](#section-ds210---multi-datacenter-consistency-level)
+-   [(Section: DS210) - What if one datacenter goes
+    down?](#section-ds210---what-if-one-datacenter-goes-down)
+-   [(Section: DS210) - Why we need additional
+    DC?](#section-ds210---why-we-need-additional-dc)
+-   [(Section: DS210) - SSTableDump](#section-ds210---sstabledump)
+-   [(Section: DS210) - SSTableloader](#section-ds210---sstableloader)
+-   [(Section: DS210) - Loading different formats of data into
+    Cassandra](#section-ds210---loading-different-formats-of-data-into-cassandra)
+-   [(Section: DS210) - Datstax - DSE Bulk (configuration should be in
+    HOCON
+    format)](#section-ds210---datstax---dse-bulk-configuration-should-be-in-hocon-format)
+-   [(Section: DS210) - Backup and
+    Snapshots](#section-ds210---backup-and-snapshots)
+-   [(Section: DS210) - What is Cassandra
+    snapshots?](#section-ds210---what-is-cassandra-snapshots)
+-   [(Section: DS210) - How do incrementa backup
+    works](#section-ds210---how-do-incrementa-backup-works)
+-   [(Section: DS210) - Where to store
+    snapshots?](#section-ds210---where-to-store-snapshots)
+-   [(Section: DS210) - How Truncate
+    works?](#section-ds210---how-truncate-works)
+-   [(Section: DS210) - How to
+    snapshot?](#section-ds210---how-to-snapshot)
+-   [(Section: DS210) - Restore (We get 1 point for backup, 99 point for
+    restore)](#section-ds210---restore-we-get-1-point-for-backup-99-point-for-restore)
+-   [(Section: DS210) - Steps to restore from
+    snapshots](#section-ds210---steps-to-restore-from-snapshots)
+-   [(Section: DS210) - JVM settings](#section-ds210---jvm-settings)
+-   [(Section: DS210) - Garbage Collections (Apache
+    Cassandra)](#section-ds210---garbage-collections-apache-cassandra)
+-   [(Section: DS210) - Why does full GC
+    runs?](#section-ds210---why-does-full-gc-runs)
+-   [(Section: DS210) - How to troubleshoot OutOfMemoryError issues in
+    Casssandra?](#section-ds210---how-to-troubleshoot-outofmemoryerror-issues-in-casssandra)
+-   [(Section: DS210) - What is TSC?](#section-ds210---what-is-tsc)
+-   [(Section: DS210) - Tuning the Linux
+    Kernel](#section-ds210---tuning-the-linux-kernel)
+-   [(Section: DS210) - What should be removed/disabled from Linux for
+    Cassandra to work? How to
+    remove](#section-ds210---what-should-be-removeddisabled-from-linux-for-cassandra-to-work-how-to-remove)
+-   [(Section: DS210) - Hardware resources to
+    consider](#section-ds210---hardware-resources-to-consider)
+-   [(Section: DS210) - Datastax on
+    Cloud](#section-ds210---datastax-on-cloud)
+-   [(Section: DS210) - Cassandra on Cloud
+    Challenges](#section-ds210---cassandra-on-cloud-challenges)
+-   [(Section: DS210) - Cassandra on cloud
+    security](#section-ds210---cassandra-on-cloud-security)
+-   [(Section: DS210) - Cassandra Security
+    Considerations](#section-ds210---cassandra-security-considerations)
+-   [(Section: DS210) - What is the default security
+    configuration](#section-ds210---what-is-the-default-security-configuration)
+-   [(Section: DS210) - Where is roles are stored in internal-scheme?
+    (in default
+    scheme)](#section-ds210---where-is-roles-are-stored-in-internal-scheme-in-default-scheme)
+-   [(Section: DS210) - Cassandra Authentication table
+    (system_auth.roles - in default
+    scheme)](#section-ds210---cassandra-authentication-table-system_auth.roles---in-default-scheme)
+-   [(Section: DS210) - What are best practices for Cassandra
+    security](#section-ds210---what-are-best-practices-for-cassandra-security)
+-   [(Section: DS210) - Cassandra Role/Authorization
+    management](#section-ds210---cassandra-roleauthorization-management)
+-   [(Section: DS210) - Cassandra encryption
+    SSL](#section-ds210---cassandra-encryption-ssl)
+-   [(Section: DS210) - What are two artifacts required for Cassandra to
+    enable
+    SSL](#section-ds210---what-are-two-artifacts-required-for-cassandra-to-enable-ssl)
+-   [(Section: DS210) - 8 Steps for SSL setup
+    (node-to-node)](#section-ds210---8-steps-for-ssl-setup-node-to-node)
+-   [(Section: DS210) - How to harden Cassandra
+    security](#section-ds210---how-to-harden-cassandra-security)
+-   [(Section: DS210) - Datastax
+    OpsCenter](#section-ds210---datastax-opscenter)
+-   [(Section: DS210) - Datastax OpsCenter (Cluster
+    Monitoring/Alert)](#section-ds210---datastax-opscenter-cluster-monitoringalert)
+-   [(Section: DS210) - Datastax OpsCenter (Management
+    Service)](#section-ds210---datastax-opscenter-management-service)
+-   [(Section: DS210) - Datastax OpsCenter (Backup and restore
+    Service)](#section-ds210---datastax-opscenter-backup-and-restore-service)
+-   [(Section: DS210) - Datastax OpsCenter LifeCycle Manager
+    (Provisioning)](#section-ds210---datastax-opscenter-lifecycle-manager-provisioning)
+-   [(Section: DS210) - Datastax OpsCenter
+    NodeSync](#section-ds210---datastax-opscenter-nodesync)
+-   [(Section: DS210) - Datastax OpsCenter other
+    features](#section-ds210---datastax-opscenter-other-features)
+-   [(Section: DS210) - Follow-up
+    course](#section-ds210---follow-up-course)
+-   [(Section: DS210) - Lab notes](#section-ds210---lab-notes)
+-   [(Section: DS210) - Cassandra
+    people](#section-ds210---cassandra-people)
 -   [Cassandra production error](#cassandra-production-error)
 -   [(Server side) -
     com.datastax.oss.driver.api.core.connection.ConnectionIntiException..
@@ -333,168 +456,242 @@
 -   [List monitoring elements](#list-monitoring-elements)
 -   [List table level](#list-table-level)
 -   [Node Status](#node-status)
--   [Nodetool usage](#nodetool-usage)
--   [Nodetool commands](#nodetool-commands)
--   [Repair Service (on OpsCenter)](#repair-service-on-opscenter)
--   [Repair command](#repair-command)
--   [Why repairs are necessary?](#why-repairs-are-necessary)
--   [Repair guideline](#repair-guideline)
--   [What is Primary Range Repair?](#what-is-primary-range-repair)
--   [How does repair work?](#how-does-repair-work)
--   [Events that trigger Repair](#events-that-trigger-repair)
--   [Dropped Mutation vs Repair](#dropped-mutation-vs-repair)
--   [If 10 nodes equally sharing data with RF=3, if we try to repair
-    'nodetool repair on node-3', How many node will be involved in
-    repair?](#if-10-nodes-equally-sharing-data-with-rf3-if-we-try-to-repair-nodetool-repair-on-node-3-how-many-node-will-be-involved-in-repair)
--   [How to specifically use only one node to repair
-    itself](#how-to-specifically-use-only-one-node-to-repair-itself)
--   [If we run full repair on a 'n' node cluster with RF=3, How many
-    times we are repairing the
-    data?](#if-we-run-full-repair-on-a-n-node-cluster-with-rf3-how-many-times-we-are-repairing-the-data)
--   [Developer who maintains/presented about
-    Reaper](#developer-who-maintainspresented-about-reaper)
--   [Repair documentation](#repair-documentation)
--   [Repair and some number related to
-    time](#repair-and-some-number-related-to-time)
--   [What are Reaper settings](#what-are-reaper-settings)
--   [Reaper is predominantly used for repair
-    tasks](#reaper-is-predominantly-used-for-repair-tasks)
--   [Repair related commands](#repair-related-commands)
--   [Reference](#reference-1)
--   [How to create anki from this markdown
-    file](#how-to-create-anki-from-this-markdown-file-2)
--   [Create Keyspace (and use it)](#create-keyspace-and-use-it)
--   [Create TABLE and load/export data in and
-    out-of-tables](#create-table-and-loadexport-data-in-and-out-of-tables)
--   [How to select token values of
-    primary-key](#how-to-select-token-values-of-primary-key)
--   [CQL Copy and rules](#cql-copy-and-rules)
--   [CQL Copy options](#cql-copy-options)
--   [How to list partition_key (or the actual token) along with other
-    columns](#how-to-list-partition_key-or-the-actual-token-along-with-other-columns)
--   [Gosspinfo](#gosspinfo)
--   [nodetool getendpoints killrvideo videos_by_tag
-    cassandra](#nodetool-getendpoints-killrvideo-videos_by_tag-cassandra)
--   [What are all the System Schema](#what-are-all-the-system-schema)
--   [See how many rows have been written into this table (Warning - row
-    scans are expensive operations on large
-    tables)](#see-how-many-rows-have-been-written-into-this-table-warning---row-scans-are-expensive-operations-on-large-tables)
--   [Write a couple of rows, populate different columns for each, and
-    view the
-    results](#write-a-couple-of-rows-populate-different-columns-for-each-and-view-the-results)
--   [View the timestamps generated for previous
-    writes](#view-the-timestamps-generated-for-previous-writes)
--   [Note that we're not allowed to ask for the timestamp on primary key
-    columns](#note-that-were-not-allowed-to-ask-for-the-timestamp-on-primary-key-columns)
--   [Set the timestamp on a write](#set-the-timestamp-on-a-write)
--   [Verify the timestamp used](#verify-the-timestamp-used)
--   [View the time to live value for a
-    column](#view-the-time-to-live-value-for-a-column)
--   [Set the TTL on the last name column to one
-    hour](#set-the-ttl-on-the-last-name-column-to-one-hour)
--   [View the TTL of the last_name - (counting
-    down)](#view-the-ttl-of-the-last_name---counting-down)
--   [Find the token](#find-the-token)
--   [Clear the screen of output from previous
-    commands](#clear-the-screen-of-output-from-previous-commands)
--   [Cassandra Dual equivalent table and
-    SQL](#cassandra-dual-equivalent-table-and-sql)
--   [Exit cqlsh](#exit-cqlsh)
--   [Reference](#reference-2)
--   [Storage Architecture](#storage-architecture)
--   [SStable - settings in
-    cassandra.yaml](#sstable---settings-in-cassandra.yaml)
--   [What are the files part of
-    SSTable](#what-are-the-files-part-of-sstable)
--   [What is the role of index file](#what-is-the-role-of-index-file)
--   [What is the role of statitics
-    file](#what-is-the-role-of-statitics-file)
--   [Why SQLite4 didn't use LSM?](#why-sqlite4-didnt-use-lsm)
--   [LSM Pros and Cons](#lsm-pros-and-cons)
--   [SSTable references](#sstable-references)
--   [Course DSE installation](#course-dse-installation)
--   [Nodetool vs DSEtool](#nodetool-vs-dsetool)
--   [Nodetool Gauge the server
-    performance](#nodetool-gauge-the-server-performance)
--   [Find all the material view of a
-    keyspace](#find-all-the-material-view-of-a-keyspace)
--   [How to find number of partitions/node-of partition in a
-    table](#how-to-find-number-of-partitionsnode-of-partition-in-a-table)
--   [Cassandra Node (Server/VM/H/W)](#cassandra-node-servervmhw)
--   [Cassandra Ring (The cluster)](#cassandra-ring-the-cluster)
--   [How new nodes join the ring](#how-new-nodes-join-the-ring)
--   [Peer-to-Peer](#peer-to-peer-1)
--   [Why do we need VNode?](#why-do-we-need-vnode)
--   [How to enable VNode?](#how-to-enable-vnode)
--   [Gossip protocol (nodemeta data is the
-    subject)](#gossip-protocol-nodemeta-data-is-the-subject)
--   [What do nodes Gossip about?](#what-do-nodes-gossip-about)
--   [What is Gossip data structure look
-    like?](#what-is-gossip-data-structure-look-like)
--   [What is Gossip protocol?](#what-is-gossip-protocol)
--   [How to find more details about
-    Gossip](#how-to-find-more-details-about-gossip)
--   [Sample Gossipinfo](#sample-gossipinfo)
--   [Node failure detector](#node-failure-detector)
--   [Snitch (meaning informer)](#snitch-meaning-informer)
--   [What is the role of
-    DynamicSnitch](#what-is-the-role-of-dynamicsnitch)
--   [Mandatory operational practice](#mandatory-operational-practice)
--   [Replication with RF=1](#replication-with-rf1)
--   [Replication with RF>=2](#replication-with-rf2)
--   [Replication with RF>=2 and Cross
-    DataCenter](#replication-with-rf2-and-cross-datacenter)
--   [Consistency in CQL](#consistency-in-cql)
--   [Reference](#reference-3)
+-   [(Section: Nodetool) - Nodetool
+    usage](#section-nodetool---nodetool-usage)
+-   [(Section: Nodetool) - Nodetool
+    commands](#section-nodetool---nodetool-commands)
+-   [(Section: Repair) - Repair Service (on
+    OpsCenter)](#section-repair---repair-service-on-opscenter)
+-   [(Section: Repair) - Repair
+    command](#section-repair---repair-command)
+-   [(Section: Repair) - Why repairs are
+    necessary?](#section-repair---why-repairs-are-necessary)
+-   [(Section: Repair) - Repair
+    guideline](#section-repair---repair-guideline)
+-   [(Section: Repair) - What is Primary Range
+    Repair?](#section-repair---what-is-primary-range-repair)
+-   [(Section: Repair) - How does repair
+    work?](#section-repair---how-does-repair-work)
+-   [(Section: Repair) - Events that trigger
+    Repair](#section-repair---events-that-trigger-repair)
+-   [(Section: Repair) - Dropped Mutation vs
+    Repair](#section-repair---dropped-mutation-vs-repair)
+-   [(Section: Repair) - If 10 nodes equally sharing data with RF=3, if
+    we try to repair 'nodetool repair on node-3', How many node will be
+    involved in
+    repair?](#section-repair---if-10-nodes-equally-sharing-data-with-rf3-if-we-try-to-repair-nodetool-repair-on-node-3-how-many-node-will-be-involved-in-repair)
+-   [(Section: Repair) - How to specifically use only one node to repair
+    itself](#section-repair---how-to-specifically-use-only-one-node-to-repair-itself)
+-   [(Section: Repair) - If we run full repair on a 'n' node cluster
+    with RF=3, How many times we are repairing the
+    data?](#section-repair---if-we-run-full-repair-on-a-n-node-cluster-with-rf3-how-many-times-we-are-repairing-the-data)
+-   [(Section: Repair) - Developer who maintains/presented about
+    Reaper](#section-repair---developer-who-maintainspresented-about-reaper)
+-   [(Section: Repair) - Repair
+    documentation](#section-repair---repair-documentation)
+-   [(Section: Repair) - Repair and some number related to
+    time](#section-repair---repair-and-some-number-related-to-time)
+-   [(Section: Repair) - What are Reaper
+    settings](#section-repair---what-are-reaper-settings)
+-   [(Section: Repair) - Reaper is predominantly used for repair
+    tasks](#section-repair---reaper-is-predominantly-used-for-repair-tasks)
+-   [(Section: Repair) - Repair related
+    commands](#section-repair---repair-related-commands)
+-   [(Section: Repair) - Reference](#section-repair---reference)
+-   [(Section: Repair) - How to create anki from this markdown
+    file](#section-repair---how-to-create-anki-from-this-markdown-file)
+-   [(Section: Cqls) - Create KeySpace (and use
+    it)](#section-cqls---create-keyspace-and-use-it)
+-   [(Section: Cqls) - Partition Key vs Primary
+    Key](#section-cqls---partition-key-vs-primary-key)
+-   [(Section: Cqls) - Create TABLE and load/export data in and
+    out-of-tables](#section-cqls---create-table-and-loadexport-data-in-and-out-of-tables)
+-   [(Section: Cqls) - How to select token values of
+    primary-key](#section-cqls---how-to-select-token-values-of-primary-key)
+-   [(Section: Cqls) - IS CQL
+    Case-sensitive](#section-cqls---is-cql-case-sensitive)
+-   [(Section: Cqls) - Create Keyspace/Table
+    Syntax](#section-cqls---create-keyspacetable-syntax)
+-   [(Section: Cqls) - CQL Copy and
+    rules](#section-cqls---cql-copy-and-rules)
+-   [(Section: Cqls) - CQL Copy
+    options](#section-cqls---cql-copy-options)
+-   [(Section: Cqls) - How to list partition_key (or the actual token)
+    along with other
+    columns](#section-cqls---how-to-list-partition_key-or-the-actual-token-along-with-other-columns)
+-   [(Section: Cqls) - Gosspinfo](#section-cqls---gosspinfo)
+-   [(Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag
+    cassandra](#section-cqls---nodetool-getendpoints-killrvideo-videos_by_tag-cassandra)
+-   [(Section: Cqls) - What are all the System
+    Schema](#section-cqls---what-are-all-the-system-schema)
+-   [(Section: Cqls) - See how many rows have been written into this
+    table (Warning - row scans are expensive operations on large
+    tables)](#section-cqls---see-how-many-rows-have-been-written-into-this-table-warning---row-scans-are-expensive-operations-on-large-tables)
+-   [(Section: Cqls) - Write a couple of rows, populate different
+    columns for each, and view the
+    results](#section-cqls---write-a-couple-of-rows-populate-different-columns-for-each-and-view-the-results)
+-   [(Section: Cqls) - View the timestamps generated for previous
+    writes](#section-cqls---view-the-timestamps-generated-for-previous-writes)
+-   [(Section: Cqls) - Note that we're not allowed to ask for the
+    timestamp on primary key
+    columns](#section-cqls---note-that-were-not-allowed-to-ask-for-the-timestamp-on-primary-key-columns)
+-   [(Section: Cqls) - Set the timestamp on a
+    write](#section-cqls---set-the-timestamp-on-a-write)
+-   [(Section: Cqls) - Verify the timestamp
+    used](#section-cqls---verify-the-timestamp-used)
+-   [(Section: Cqls) - View the time to live value for a
+    column](#section-cqls---view-the-time-to-live-value-for-a-column)
+-   [(Section: Cqls) - Set the TTL on the last name column to one
+    hour](#section-cqls---set-the-ttl-on-the-last-name-column-to-one-hour)
+-   [(Section: Cqls) - View the TTL of the last_name - (counting
+    down)](#section-cqls---view-the-ttl-of-the-last_name---counting-down)
+-   [(Section: Cqls) - Find the token](#section-cqls---find-the-token)
+-   [(Section: Cqls) - Clear the screen of output from previous
+    commands](#section-cqls---clear-the-screen-of-output-from-previous-commands)
+-   [(Section: Cqls) - Cassandra Dual equivalent table and
+    SQL](#section-cqls---cassandra-dual-equivalent-table-and-sql)
+-   [(Section: Cqls) - How to add column to a
+    table?](#section-cqls---how-to-add-column-to-a-table)
+-   [(Section: Cqls) - Exit cqlsh](#section-cqls---exit-cqlsh)
+-   [(Section: Cqls) - What would happen if we use Clustering Column
+    where STATIC columns are
+    updated](#section-cqls---what-would-happen-if-we-use-clustering-column-where-static-columns-are-updated)
+-   [(Section: Cqls) - Reference](#section-cqls---reference)
+-   [(Section: SSTable) - Storage
+    Architecture](#section-sstable---storage-architecture)
+-   [(Section: SSTable) - SStable - settings in
+    cassandra.yaml](#section-sstable---sstable---settings-in-cassandra.yaml)
+-   [(Section: SSTable) - What are the files part of
+    SSTable](#section-sstable---what-are-the-files-part-of-sstable)
+-   [(Section: SSTable) - What is the role of index
+    file](#section-sstable---what-is-the-role-of-index-file)
+-   [(Section: SSTable) - What is the role of statitics
+    file](#section-sstable---what-is-the-role-of-statitics-file)
+-   [(Section: SSTable) - Why SQLite4 didn't use
+    LSM?](#section-sstable---why-sqlite4-didnt-use-lsm)
+-   [(Section: SSTable) - LSM Pros and
+    Cons](#section-sstable---lsm-pros-and-cons)
+-   [(Section: SSTable) - SSTable
+    references](#section-sstable---sstable-references)
+-   [(Section: Administration) - Course DSE
+    installation](#section-administration---course-dse-installation)
+-   [(Section: Administration) - Nodetool vs
+    DSEtool](#section-administration---nodetool-vs-dsetool)
+-   [(Section: Administration) - Nodetool Gauge the server
+    performance](#section-administration---nodetool-gauge-the-server-performance)
+-   [(Section: Administration) - Find all the material view of a
+    keyspace](#section-administration---find-all-the-material-view-of-a-keyspace)
+-   [(Section: Administration) - How to find number of
+    partitions/node-of partition in a
+    table](#section-administration---how-to-find-number-of-partitionsnode-of-partition-in-a-table)
+-   [(Section: Administration) - Cassandra Node
+    (Server/VM/H/W)](#section-administration---cassandra-node-servervmhw)
+-   [(Section: Administration) - Cassandra Ring (The
+    cluster)](#section-administration---cassandra-ring-the-cluster)
+-   [(Section: Administration) - How new nodes join the
+    ring](#section-administration---how-new-nodes-join-the-ring)
+-   [(Section: Administration) -
+    Peer-to-Peer](#section-administration---peer-to-peer)
+-   [(Section: Administration) - Why do we need
+    VNode?](#section-administration---why-do-we-need-vnode)
+-   [(Section: Administration) - How to enable
+    VNode?](#section-administration---how-to-enable-vnode)
+-   [(Section: Administration) - Gossip protocol (nodemeta data is the
+    subject)](#section-administration---gossip-protocol-nodemeta-data-is-the-subject)
+-   [(Section: Administration) - What do nodes Gossip
+    about?](#section-administration---what-do-nodes-gossip-about)
+-   [(Section: Administration) - What is Gossip data structure look
+    like?](#section-administration---what-is-gossip-data-structure-look-like)
+-   [(Section: Administration) - What is Gossip
+    protocol?](#section-administration---what-is-gossip-protocol)
+-   [(Section: Administration) - How to find more details about
+    Gossip](#section-administration---how-to-find-more-details-about-gossip)
+-   [(Section: Administration) - Sample
+    Gossipinfo](#section-administration---sample-gossipinfo)
+-   [(Section: Administration) - Node failure
+    detector](#section-administration---node-failure-detector)
+-   [(Section: Administration) - Snitch (meaning
+    informer)](#section-administration---snitch-meaning-informer)
+-   [(Section: Administration) - What is the role of
+    DynamicSnitch](#section-administration---what-is-the-role-of-dynamicsnitch)
+-   [(Section: Administration) - Mandatory operational
+    practice](#section-administration---mandatory-operational-practice)
+-   [(Section: Administration) - Replication with
+    RF=1](#section-administration---replication-with-rf1)
+-   [(Section: Administration) - Replication with
+    RF>=2](#section-administration---replication-with-rf2)
+-   [(Section: Administration) - Replication with RF>=2 and Cross
+    DataCenter](#section-administration---replication-with-rf2-and-cross-datacenter)
+-   [(Section: Administration) - Consistency in
+    CQL](#section-administration---consistency-in-cql)
+-   [(Section: Administration) -
+    Reference](#section-administration---reference)
 -   [Time-series presentations](#time-series-presentations)
--   [What are all the majore issues due to
-    Tombstones](#what-are-all-the-majore-issues-due-to-tombstones)
--   [How to agressively collect tombstones (to resolve few of the query
-    timeout tactical
-    solution)](#how-to-agressively-collect-tombstones-to-resolve-few-of-the-query-timeout-tactical-solution)
--   [Where is Tombstones are handled?](#where-is-tombstones-are-handled)
--   [How read works?](#how-read-works)
--   [Read Repair (Happens only when
-    CL=All)](#read-repair-happens-only-when-clall)
--   [Read Repair Chance (when CL \< ALL) (less than ALL consistency
-    read)](#read-repair-chance-when-cl-all-less-than-all-consistency-read)
--   [Nodetool repair](#nodetool-repair)
--   [Nodetool Sync (only datastax)](#nodetool-sync-only-datastax)
--   [Nodetool Sync Save points (only
-    datastax)](#nodetool-sync-save-points-only-datastax)
--   [Nodetool Sync - Segments Sizes](#nodetool-sync---segments-sizes)
--   [Nodetool Sync - Segments
-    failures](#nodetool-sync---segments-failures)
--   [Nodetool Sync - Segments
-    Validation](#nodetool-sync---segments-validation)
--   [Cassandra Write Path (inside the node, and for *a*
-    partition)](#cassandra-write-path-inside-the-node-and-for-a-partition)
--   [Cassandra Read Path (inside the node, and for particular a
-    partition)](#cassandra-read-path-inside-the-node-and-for-particular-a-partition)
--   [Cassandra Read Path workflow](#cassandra-read-path-workflow)
--   [Bloom filter](#bloom-filter-1)
--   [Datastax](#datastax)
--   [Compaction (merging ss-tables)](#compaction-merging-ss-tables)
--   [Compaction Strategies (based on
-    use-case)](#compaction-strategies-based-on-use-case)
--   [Advanced Peformance Gains in
-    (DSE)](#advanced-peformance-gains-in-dse)
--   [Before and after flush](#before-and-after-flush)
--   [Sample data directory wiht WITH bloom_filter_fp_chance =
-    0.1;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.1)
--   [Sample data directory wiht WITH bloom_filter_fp_chance =
-    0.0001;](#sample-data-directory-wiht-with-bloom_filter_fp_chance-0.0001)
--   [Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100%
-    false positive allowed... No filter
-    file)](#sample-data-directory-wiht-with-bloom_filter_fp_chance-1.0-100-false-positive-allowed-no-filter-file)
--   [Nodetool CFStats](#nodetool-cfstats)
--   [Followup questions](#followup-questions)
+-   [(Section: Tombstone) - What are all the majore issues due to
+    Tombstones](#section-tombstone---what-are-all-the-majore-issues-due-to-tombstones)
+-   [(Section: Tombstone) - How to agressively collect tombstones (to
+    resolve few of the query timeout tactical
+    solution)](#section-tombstone---how-to-agressively-collect-tombstones-to-resolve-few-of-the-query-timeout-tactical-solution)
+-   [(Section: Tombstone) - Where is Tombstones are
+    handled?](#section-tombstone---where-is-tombstones-are-handled)
+-   [(Section: WriteRead) - How read
+    works?](#section-writeread---how-read-works)
+-   [(Section: WriteRead) - Read Repair (Happens only when
+    CL=All)](#section-writeread---read-repair-happens-only-when-clall)
+-   [(Section: WriteRead) - Read Repair Chance (when CL \< ALL) (less
+    than ALL consistency
+    read)](#section-writeread---read-repair-chance-when-cl-all-less-than-all-consistency-read)
+-   [(Section: WriteRead) - Nodetool
+    repair](#section-writeread---nodetool-repair)
+-   [(Section: WriteRead) - Nodetool Sync (only
+    datastax)](#section-writeread---nodetool-sync-only-datastax)
+-   [(Section: WriteRead) - Nodetool Sync Save points (only
+    datastax)](#section-writeread---nodetool-sync-save-points-only-datastax)
+-   [(Section: WriteRead) - Nodetool Sync - Segments
+    Sizes](#section-writeread---nodetool-sync---segments-sizes)
+-   [(Section: WriteRead) - Nodetool Sync - Segments
+    failures](#section-writeread---nodetool-sync---segments-failures)
+-   [(Section: WriteRead) - Nodetool Sync - Segments
+    Validation](#section-writeread---nodetool-sync---segments-validation)
+-   [(Section: WriteRead) - Cassandra Write Path (inside the node, and
+    for *a*
+    partition)](#section-writeread---cassandra-write-path-inside-the-node-and-for-a-partition)
+-   [(Section: WriteRead) - Cassandra Read Path (inside the node, and
+    for particular a
+    partition)](#section-writeread---cassandra-read-path-inside-the-node-and-for-particular-a-partition)
+-   [(Section: WriteRead) - Cassandra Read Path
+    workflow](#section-writeread---cassandra-read-path-workflow)
+-   [(Section: WriteRead) - Bloom
+    filter](#section-writeread---bloom-filter)
+-   [(Section: WriteRead) - Datastax](#section-writeread---datastax)
+-   [(Section: WriteRead) - Compaction (merging
+    ss-tables)](#section-writeread---compaction-merging-ss-tables)
+-   [(Section: WriteRead) - Compaction Strategies (based on
+    use-case)](#section-writeread---compaction-strategies-based-on-use-case)
+-   [(Section: WriteRead) - Advanced Peformance Gains in
+    (DSE)](#section-writeread---advanced-peformance-gains-in-dse)
+-   [(Section: WriteRead) - Before and after
+    flush](#section-writeread---before-and-after-flush)
+-   [(Section: WriteRead) - Sample data directory wiht WITH
+    bloom_filter_fp_chance =
+    0.1;](#section-writeread---sample-data-directory-wiht-with-bloom_filter_fp_chance-0.1)
+-   [(Section: WriteRead) - Sample data directory wiht WITH
+    bloom_filter_fp_chance =
+    0.0001;](#section-writeread---sample-data-directory-wiht-with-bloom_filter_fp_chance-0.0001)
+-   [(Section: WriteRead) - Sample data directory wiht WITH
+    bloom_filter_fp_chance = 1.0; (100% false positive allowed... No
+    filter
+    file)](#section-writeread---sample-data-directory-wiht-with-bloom_filter_fp_chance-1.0-100-false-positive-allowed-no-filter-file)
+-   [(Section: WriteRead) - Nodetool
+    CFStats](#section-writeread---nodetool-cfstats)
+-   [(Section: WriteRead) - Followup
+    questions](#section-writeread---followup-questions)
 -   [What is compaction in Cassandra?](#what-is-compaction-in-cassandra)
 -   [Pre-requisite for Compaction](#pre-requisite-for-compaction)
 -   [We have problem with two nodes with large number of compaction
     pending, how to speed
     up?](#we-have-problem-with-two-nodes-with-large-number-of-compaction-pending-how-to-speed-up)
--   [Reference](#reference-4)
+-   [Reference](#reference)
 -   [Anti-patterns in the Cassandra](#anti-patterns-in-the-cassandra)
 -   [Important Spring Java project](#important-spring-java-project)
 -   [JIRA based on labels](#jira-based-on-labels)
@@ -504,7 +701,7 @@
 -   [Analyze Cassandra code](#analyze-cassandra-code)
 -   [K8ssandra](#k8ssandra)
 
-## RDBMS history
+## (Section: TDG) - RDBMS history
 
 -   IBM DB1 - IMS Hierarchical dbms - DBI/DB1 - Released in 1968
 -   IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data
@@ -519,7 +716,7 @@
     ComputerWorld Magazine in 1985 (15 years later from original paper)
 -   ANSI SQL - 1986
 
-## RDBMS Pros and cons
+## (Section: TDG) - RDBMS Pros and cons
 
 -   Pros : It works for most of the cases
     -   SQL - Support
@@ -532,14 +729,14 @@
         -   Durable - Never lost
 -   Cons : Won't work for massively web scale db
 
-## Why RDBMS is successful?
+## (Section: TDG) - Why RDBMS is successful?
 
 -   SQL
 -   Atomic Transaction with ACID properties
 -   Two-phase commit was marketted well (Co-ordinated txn)
 -   Rich schema
 
-## How RDBMS is tuned
+## (Section: TDG) - How RDBMS is tuned
 
 -   Introduce Index
 -   Master(write), Slave (many times only used for read)
@@ -549,7 +746,7 @@
 -   Partitioning/Sharding
 -   Disable journaling
 
-## Two-phase commit vs Compensation
+## (Section: TDG) - Two-phase commit vs Compensation
 
 -   Compensation
     -   Writing off the transaction if it fails, deciding to discard
@@ -562,7 +759,7 @@
 -   Starbucks Does Not Use Two-Phase Commit
     -   https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
 
-## Sharding (Share nothing)
+## (Section: TDG) - Sharding (Share nothing)
 
 -   Rather keeping all customer in one table, divide up that single
     customer table so that each database has only some of the records,
@@ -580,7 +777,7 @@
         distribute data across machines according to the hash.
     -   Lookup Table
 
-## [List of NoSQL databases](http://nosql-database.org/)
+## (Section: TDG) - [List of NoSQL databases](http://nosql-database.org/)
 
 -   Key-Value stores - Oracle Coherence, Redis, and MemcacheD, Amazon's
     Dynamo DB, Riak, and Voldemort.
@@ -590,7 +787,7 @@
 -   Object databases - db4o and InterSystems Caché
 -   XML databases - Tamino from Software AG and eXist.
 
-## Apache Cassandra - Official definition
+## (Section: TDG) - Apache Cassandra - Official definition
 
 -   "Apache Cassandra is an open source, distributed, decentralized,
     elastically scalable, highly available, fault-tolerant, tuneably
@@ -599,7 +796,7 @@
     with a query language similar to SQL"
 -   Tuneably consistent (not Eventual Consisten as majority believes)
 
-## Cassandra Features
+## (Section: TDG) - Cassandra Features
 
 -   CQL (Thrift API is completely removed in 3.x)
     -   CQL also known as native-transport
@@ -613,7 +810,7 @@
 -   Column values are stored according to a consistent sort order,
     omitting columns that are not populated
 
-## What are all Consistency Forms?
+## (Section: TDG) - What are all Consistency Forms?
 
 -   Strict (or Serial) Consistency or Strong (sequential consistency)
     -   Works on Single CPU
@@ -633,13 +830,13 @@
         certain that it is correct
     -   Eventual consisteny (matter of milli-seconds)
 
-## Strong consistency in Cassandra
+## (Section: TDG) - Strong consistency in Cassandra
 
 -   R + W > RF = Strong consistency
 -   In this equation, R, W, and RF are the read replica count, the write
     replica count, and the replication factor, respectively;
 
-## Row-Oriented data store
+## (Section: TDG) - Row-Oriented data store
 
 -   Cassandra's data model can be described as a partitioned row store,
     in which data is stored in sparse multidimensional hashtables.
@@ -650,7 +847,7 @@
     data accessible, and the keys are used to distribute the rows across
     multiple data stores.
 
-## Always writeable
+## (Section: TDG) - Always writeable
 
 -   A design approach must decide whether to resolve these conflicts at
     one of two possible times: during reads or during writes. That is, a
@@ -689,7 +886,7 @@
                 needs only this level of scale, this is easy to manage
                 and allows you to rely on familiar, simple structures.
 
-## Notable tools
+## (Section: TDG) - Notable tools
 
 -   Sstableloader - Bulk loader
 -   Leveled compaction strategy - for faster reads
@@ -699,13 +896,13 @@
 -   User-defined functions
 -   Materialized views (sometimes also called global indexes)
 
-## Few use cases
+## (Section: TDG) - Few use cases
 
 -   Cassandra has been used to create a variety of applications,
     including a windowed time-series store, an inverted index for
     document searching, and a distributed job priority queue.
 
-## Updated CAP - Brewer's Theorem
+## (Section: TDG) - Updated CAP - Brewer's Theorem
 
 -   Brewer now describes the "2 out of 3" axiom as somewhat misleading.
 -   He notes that designers only need sacrifice consistency or
@@ -713,7 +910,7 @@
     partition recovery techniques have made it possible for designers to
     achieve high levels of both consistency and availability.
 
-## What is the alternative for Two-phase commit
+## (Section: TDG) - What is the alternative for Two-phase commit
 
 -   Compensation or compensatory action
 -   Writing off the tranaction if it fails, deciding to discard
@@ -722,7 +919,7 @@
 -   Retry failed operation later on notification
 -   "Starbucks does not use Two-phase commit" - Gregor Hohpe
 
-## How to horizontally scale RDBMS (shard)
+## (Section: TDG) - How to horizontally scale RDBMS (shard)
 
 -   Shard the database, (key for sharding is important)
 -   Split the customer based on name (few letter has less load) or
@@ -731,7 +928,7 @@
     database
 -   Shard users in one database, items in another database
 
-## There are three basic strategies for determining shard structure:
+## (Section: TDG) - There are three basic strategies for determining shard structure:
 
 -   Feature-based shard or functional segmentation
     -   Shard users in one database, items in another database
@@ -739,25 +936,26 @@
     -   Hash based sharding
     -   time-based on numeri-ckeys to hash on
 -   Lookup table
-    -   Make one of the noe as "Yellow-pages", look-up for information
+    -   Make one of the node as "Yellow-pages", look-up for information
         about where the data stored
 
-## Shared nothing
+## (Section: TDG) - Shared nothing
 
 -   Sharding could be termed a kind of shared-nothing architecture
     that's specific to databases
 -   Shared-nothing - no primary or no-secondary
 -   Every node is independent
 -   No centralized shared state
--   Cassandra (key-based sharding) and MongoDB - Autho sharding database
+-   Cassandra (key-based sharding) and MongoDB - Autn o sharding
+    database
 
-## New SQL (Scalable ACID transactions)
+## (Section: TDG) - New SQL (Scalable ACID transactions)
 
 -   Calvin transaction protocol vs Google's Spanner paper
 -   FaunaDB is an example of a database that implements the approach on
     the Calvin paper
 
-## Cassandra features
+## (Section: TDG) - Cassandra features
 
 -   It uses gossip protcol (feature of peer-to-peer architecture) to
     maintain details of other nodes.
@@ -765,7 +963,7 @@
     write/read (how many RF?)
 -   It is possible to remove one column value alone in Cassandra
 
-## Cap Theorem (Brewer's theorem)
+## (Section: TDG) - Cap Theorem (Brewer's theorem)
 
 -   CAP - Choose two (as of 2000)
 -   Network issue would certainly happens, hence network partition
@@ -775,7 +973,7 @@
 -   CP - Neo4j, MongoDB, HBase, BigTable
 -   AP - DNS, Cassandra, Amazon Dynamo
 
-## Cassandra Lightweight transaction (LWT) - Linearizable consistency
+## (Section: TDG) - Cassandra Lightweight transaction (LWT) - Linearizable consistency
 
 -   Ensure there are not operation between read and write
 -   Example: Check if user exist, if not create user (don't overwrite in
@@ -785,7 +983,7 @@
 -   LWT is based on Paxos algorithm (and it is better than two-phase
     commit)
 
-## Row-Oriented (Wide column store)
+## (Section: TDG) - Row-Oriented (Wide column store)
 
 -   Partitioned row store - sparse multidimensional hash tables
 -   Partitioned - means that each row has a unique partition key used to
@@ -797,7 +995,7 @@
 -   Column values are stored according to a consistent sort order,
     omitting columns that are not populated.
 
-## Cassandra - schema free?
+## (Section: TDG) - Cassandra - schema free?
 
 -   Started as schema free using Thrift API, later CQL was introduced
 -   No! Till 2.0 CQL and Thrit API co-exist, It was known as "Schema
@@ -808,7 +1006,7 @@
     -   Now-a-days it is considered flexible-schema
 -   Schema free -\> "Optional Schema" -\> "Flexible Schema"
 
-## Cassandra - use-cases?
+## (Section: TDG) - Cassandra - use-cases?
 
 -   Storing user activity updates
 -   Social network usage, recommendations/reviews,
@@ -820,7 +1018,7 @@
     performance at significant write volumes with many concurrent client
     threads is one of the primary features of Cassandra.
 
-## Cassandra directories
+## (Section: TDG) - Cassandra directories
 
 -   /opt/cassadra/bin
 -   /opt/cassadra/bin/cassandra -f --run the process in foreground for
@@ -833,7 +1031,7 @@
 -   /var/log/cassandra/system.log
 -   /var/log/cassandra/debug.log
 
-## Cassandra directories and files
+## (Section: TDG) - Cassandra directories and files
 
 -   \$CASSANDRA_HOME/data/commitlog
     -   CommitLog-`<version>`{=html}`<timestamp>`{=html}.log
@@ -841,7 +1039,7 @@
 -   1-SSTable has multiple files
     -   SSTable stored under - \$CASSANDRA_HOME/data/data
 
-## Cassandra run-time properties
+## (Section: TDG) - Cassandra run-time properties
 
 -   -Dcassandra-foreground=yes
 -   -Dcassandra.jmx.local.port=7199
@@ -858,7 +1056,7 @@
 -   -XX:StringTableSize=1000003
 -   /opt/java/openjdk/bin/java
 
-## Cassandra cqlsh
+## (Section: TDG) - Cassandra cqlsh
 
 -   Object names are in snake_case. Cassandra converts into lower_case
     by default, double quote to override
@@ -884,7 +1082,7 @@
       delete from user where last_name='Narayanaswamy' and first_name='Mohan';  --entire row deletion
     ```
 
-## How to run apache Cassandra using docker
+## (Section: TDG) - How to run apache Cassandra using docker
 
 ``` bash
 docker pull cassandra
@@ -896,7 +1094,7 @@ docker exec -it apc2 cqlsh
 docker stop apc2
 ```
 
-## Datamodel quick checklist
+## (Section: TDG) - Datamodel quick checklist
 
 -   All the possible important query that needs to satisfied should be
     considered before design
@@ -911,7 +1109,7 @@ docker stop apc2
 -   Joins are not supported and should be discouraged in Cassandra
 -   NO REFERENTIAL INTEGRITY - supported in Cassandra (or any nosql)
 
-## THE WIDE PARTITION PATTERN
+## (Section: TDG) - THE WIDE PARTITION PATTERN
 
 -   group multiple related rows in a partition in order to support fast
     access to multiple rows within the partition in a single query.
@@ -919,7 +1117,7 @@ docker stop apc2
     collector, impact read latencies, and can cause issues ranging from
     load shedding and dropped messages to crashed and downed nodes.
 
-## Cassandra Architecture - logical components (2+4+3+4+1)
+## (Section: TDG) - Cassandra Architecture - logical components (2+4+3+4+1)
 
 -   Network topology, Peer-to-peer
 -   Gossip, repair, hinted handoff, and lightweight transactions
@@ -927,7 +1125,7 @@ docker stop apc2
 -   Data-structures of memtable, commit-logs, caches and SSTables
 -   LWW-Element-Set (Last-Write-Wins-Element-Set) and no-reconciliation
 
-## Cassandra token ring
+## (Section: TDG) - Cassandra token ring
 
 -   Tokens range from -2\^63 to 2\^63 - 1
 -   Every node owns multiple token (and it's token ranges)
@@ -947,13 +1145,13 @@ docker stop apc2
 -   Partitioner can't be changed after initializing a cluster. Cassandra
     uses MurMurPartitioner since 1.2
 
-## Hinted Handoff
+## (Section: TDG) - Hinted Handoff
 
 -   Acts like JMS MQ, till message is delivered
 -   But message is deleted after 3 hours (should be consumed within
     that)
 
-## Conflict-free replicated data type
+## (Section: TDG) - Conflict-free replicated data type
 
 -   To resolve conflicts, system can use the Last-Writer-Wins Register
 -   Which keeps only the last updated value when merging diverged data
@@ -962,7 +1160,7 @@ docker stop apc2
 -   We need to be very cautious when using this strategy because it
     drops changes that occurred in the meantime.
 
-## What is anti-entropy repair?
+## (Section: TDG) - What is anti-entropy repair?
 
 -   Replica synchronization mechanism for ensuring that data on
     different nodes is updated to the newest version.
@@ -970,7 +1168,7 @@ docker stop apc2
 -   Project Voldemort also uses read-repair similar to Cassandra (not
     anti-entropy repair)
 
-## MERKLE TREE usage in Cassandra?
+## (Section: TDG) - MERKLE TREE usage in Cassandra?
 
 -   The advantage MERKLE TREE usage is that it reduces network I/O.
 -   Used to ensure that the peer-to-peer network of nodes receives data
@@ -980,7 +1178,7 @@ docker stop apc2
 -   MerkleTree is kept only as long as is required to send it to the
     neighboring nodes on the ring.
 
-## Commit Log
+## (Section: TDG) - Commit Log
 
 -   Only one commit log for entire server
 -   Commit log shares across multiple table
@@ -989,7 +1187,7 @@ docker stop apc2
     flush_required, 0 - flush-not-required)
 -   Throw more memory to reduce false-positives
 
-## Comapaction stragies in Cassandra
+## (Section: TDG) - Comapaction stragies in Cassandra
 
 -   SizeTieredCompactionStrategy (STCS) is the default compaction
     strategy and is recommended for write-intensive tables.
@@ -1000,7 +1198,7 @@ docker stop apc2
 -   Anticompaction - Split SSTable with one containing repaied data and
     other containing unrepaired data
 
-## Cassandra under the hood
+## (Section: TDG) - Cassandra under the hood
 
 -   [Refactor and modernize the storage
     engine](https://issues.apache.org/jira/browse/CASSANDRA-8099)
@@ -1009,7 +1207,7 @@ docker stop apc2
 -   [Cassandra pluggable storage
     engine](https://issues.apache.org/jira/browse/CASSANDRA-13474)
 
-## Deletion and Tombstones
+## (Section: TDG) - Deletion and Tombstones
 
 -   Nodes that was down when records deleted should have mechanism,
     hence tombstones
@@ -1017,7 +1215,7 @@ docker stop apc2
     collection grace seconds)
 -   gc_grace_seconds = 864000 seconds ( 10 days)
 
-## Bloom Filter
+## (Section: TDG) - Bloom Filter
 
 -   SSTable is not good when key that is not available in a table is
     queried
@@ -1032,7 +1230,7 @@ docker stop apc2
     avialble. But it might return 'may be available', it may not be
     available.
 
-## cluster topology of Cassandra
+## (Section: TDG) - cluster topology of Cassandra
 
 -   Cassandra cluster topology is the arrangement of the nodes (dcs,
     racs, etc.) and communication network between them.
@@ -1040,11 +1238,11 @@ docker stop apc2
 -   cassandra-topology.properties can be used to configure topology
     details
 
-## CQL - Primary key and Clustering key
+## (Section: TDG) - CQL - Primary key and Clustering key
 
     PRIMARY KEY (("k1", "k2"), "c1", "c2"), ) WITH CLUSTERING ORDER BY ("c1" DESC, "c2" DESC);
 
-## CQLSH - useful
+## (Section: TDG) - CQLSH - useful
 
 -   CQL would use Murmur3 partitioner
 
@@ -1061,7 +1259,7 @@ docker stop apc2
          select token(key), key, my_column from mytable where token(key) >= %s limit 10000;
     ```
 
-## How to remove node using nodetool
+## (Section: TDG) - How to remove node using nodetool
 
 -   Decommission - Streams data from the leaving node (prefered and
     guaranteed consistency as if it started)
@@ -1070,20 +1268,20 @@ docker stop apc2
 -   assassinate - Forcefully remove a dead node without re-replicating
     any data. Use as a last resort if you cannot removenode
 
-## Cassandra linux limits
+## (Section: TDG) - Cassandra linux limits
 
 -   if cassandra has 30 sstables, it would use 30 \* 6 - 180 file
     handles
 -   XX:MaxDirectMemorySize - we can set off-heap memory (outside JVM on
     OS)
 
-## Cassandra troubleshoot linux commands
+## (Section: TDG) - Cassandra troubleshoot linux commands
 
 ``` bash
 cat /proc/cass_proc_id/limits | grep files
 ```
 
-## How does cassandra-topolgoy.properties look alike
+## (Section: TDG) - How does cassandra-topolgoy.properties look alike
 
 ``` txt
 # datacenter One
@@ -1116,7 +1314,7 @@ cat /proc/cass_proc_id/limits | grep files
 default=DC3:RAC1
 ```
 
-## Cassandra Client - features (Datastax Driver 4.9.0)
+## (Section: TDG) - Cassandra Client - features (Datastax Driver 4.9.0)
 
 -   `xml          <groupId>com.datastax.oss</groupId>         <artifactId>java-driver-query-builder</artifactId>         <artifactId>java-driver-core</artifactId>         <artifactId>java-driver-mapper-processor</artifactId>         <artifactId>java-driver-mapper-runtime</artifactId>`
 -   CqlSession maintains TCP connections to multiple nodes, it is a
@@ -1138,13 +1336,13 @@ default=DC3:RAC1
 -   Deifferent profiles can be configured between invocation by the same
     client
 
-## Cassandra Client - Retry Failied Queries (if node failed)
+## (Section: TDG) - Cassandra Client - Retry Failied Queries (if node failed)
 
 -   ExponentialReconnectionPolicy vs ConstantReconnectionPolicy
 -   onReadTimeout(), onWriteTimeout(), and onUnavailable()
 -   The RetryPolicy operations return a RetryDecision
 
-## Cassandra Client side - SPECULATIVE EXECUTION
+## (Section: TDG) - Cassandra Client side - SPECULATIVE EXECUTION
 
 -   The driver can preemptively start an additional execution of the
     query against a different coordinator node.
@@ -1152,7 +1350,7 @@ default=DC3:RAC1
     and cancels any other outstanding queries.
 -   ConstantSpeculativeExecutionPolicy
 
-## Cassandra Client side - CONNECTION POOLING
+## (Section: TDG) - Cassandra Client side - CONNECTION POOLING
 
 -   Default single connection per node
 -   128 simultaneous requests in protocol - v2
@@ -1160,7 +1358,7 @@ default=DC3:RAC1
 -   1024 - Default maximum number of simultaneous requests per
     connection.
 
-## Cassandra Client side driver configuration
+## (Section: TDG) - Cassandra Client side driver configuration
 
 ``` json
 datastax-java-driver {
@@ -1171,7 +1369,7 @@ datastax-java-driver {
 }
 ```
 
-## Cassandra Client (Datastax Driver 4.9.0) - Java API
+## (Section: TDG) - Cassandra Client (Datastax Driver 4.9.0) - Java API
 
 ``` java
 CqlSession cqlSession = CqlSession.builder()
@@ -1181,7 +1379,7 @@ CqlSession cqlSession = CqlSession.builder()
     .build()
 ```
 
-## Cassandra Client Mapper/Entity Annotations
+## (Section: TDG) - Cassandra Client Mapper/Entity Annotations
 
 -   @Mapper
 -   @Select
@@ -1189,7 +1387,7 @@ CqlSession cqlSession = CqlSession.builder()
 -   @Delete
 -   @Query
 
-## Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
+## (Section: TDG) - Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
 
 ``` java
 Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmation")
@@ -1199,7 +1397,7 @@ Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmat
 SimpleStatement reseravationSelectStatement = reservationSelect.build()
 ```
 
-## Cassandra Client (Datastax Driver 5.0) - Async API
+## (Section: TDG) - Cassandra Client (Datastax Driver 5.0) - Async API
 
 -   CQL native protocol is asynchronous
 -   
@@ -1233,7 +1431,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
             }      
 ```
 
-## JDK 9 - Reactive style API
+## (Section: TDG) - JDK 9 - Reactive style API
 
 -   The CqlSession interface extends a new ReactiveSession interface.
     Which adds methods such as executeReactive() to process queries
@@ -1258,7 +1456,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
               }
     ```
 
-## Cassandra write path
+## (Section: TDG) - Cassandra write path
 
 -   Performance optimzied for write using append only
 -   Database commit log and hinted handoff design, the database is
@@ -1280,7 +1478,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   Flush and Compaction might be peformed if necessary
 -   Memtables are stored as SS-Table to disk
 
-## Cassandra write path - Materialized view
+## (Section: TDG) - Cassandra write path - Materialized view
 
 -   Partition must be locked while consensus negotiated between replicas
 -   Logged batches are used to maintain materialized views
@@ -1291,7 +1489,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   But one delete in a source table might create multiple tombstones in
     the materialized view
 
-## Cassandra write/read - consistency CQLS
+## (Section: TDG) - Cassandra write/read - consistency CQLS
 
 -   ``` bash
           cqlsh> CONSISTENCY;
@@ -1301,13 +1499,13 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
           ## statement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
     ```
 
-## Cassandra failures and solutions
+## (Section: TDG) - Cassandra failures and solutions
 
 -   java.lang.OutOfMemoryError: Map failed\` - Almost always incorrect
     user limits - check ulimit -a
     -   Check the values of max memory size and virtual memory
 
-## Scaling Quotes
+## (Section: TDG) - Scaling Quotes
 
 -   If you can't split it, you can't scale it. "Randy Shoup,
     Distinguished Architect, eBay"
@@ -1319,7 +1517,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   Management means measurement, and a failure to measure is a failure
     to manage.
 
-## Performance Quotes
+## (Section: TDG) - Performance Quotes
 
 1.  "The recommendation for speeding up .... is to add cache and more
     cache. And after that add a little more cache just in case."
@@ -1330,7 +1528,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
     answer, the data is made unavailable until it is absolutely certain
     that it is correct." (pitfall of strong consistency)
 
-## Nodetool
+## (Section: TDG) - Nodetool
 
 -   Adminstration tool uses JMX to interact with Cassandra
 -   TPstats (threadpoolstatus) and Tablestats are subcommands in
@@ -1338,7 +1536,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   nodetool help tpstats
 -   nodetool tpstats --
 
-## Building Cassandra
+## (Section: TDG) - Building Cassandra
 
 -   Cassandra is built using Ant & Maven (Ant in-turn uses Maven)
 -   [Apache Builds](https://builds.apache.org/)
@@ -1357,7 +1555,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
         org.apache.cassandra.db.compaction.LeveledCompactionStrategyTest
 -   Ant default target would produce apache-cassandra-x.x.x.jar
 
-## Resources
+## (Section: TDG) - Resources
 
 -   https://community.datastax.com/
 -   user\@cassandra.apache.org - provides a general discussion list for
@@ -1378,7 +1576,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
     -   <https://www.instaclustr.com/category/technical/cassandra/>
     -   <https://www.datastax.com/blog>
 
-## Follow-up questions for Cassandra
+## (Section: TDG) - Follow-up questions for Cassandra
 
 -   What are the other peer-to-peer databases?
     -   How clients are connecting to them?\
@@ -1389,7 +1587,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   MerkleTree (surprise usage in Cassandra)
 -   PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS (Surprise)
 
-## Definitive Guide References
+## (Section: TDG) - Definitive Guide References
 
 -   [Cassandra
     Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
@@ -1433,7 +1631,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
     4](https://thelastpickle.com/blog/2018/09/10/incremental-repair-improvements-in-cassandra-4.html)
 -   CassandraSummit
 
-## Code
+## (Section: TDG) - Code
 
 -   [jeffreyscarpenter/reservation-service](https://github.com/jeffreyscarpenter/reservation-service)
 -   [Datastax KillrVideo sample java
@@ -1441,17 +1639,17 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 -   [Datastax spring
     pet-clinic](https://github.com/DataStax-Examples/spring-petclinic-reactive#prerequisites)
 
-## How to create anki from this markdown file
+## (Section: TDG) - How to create anki from this markdown file
 
     mdanki Cassandra_Definitive_Guide_Anki.md Cassandra_Definitive_Guide.apkg --deck "Mohan::Cassandra::DefinitiveGuide"
 
-## Pre-requisite for this tutorial is docker
+## (Section: Installation) - Pre-requisite for this tutorial is docker
 
 -   [Docker
     cheatsheet](https://github.com/mohanmca/MohanLearningGround/blob/master/src/main/md/Tools/docker.md)
 -   [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 
-## Use Os-boxes as virtual machine to install cassandra
+## (Section: Installation) - Use Os-boxes as virtual machine to install cassandra
 
 -   Base installation location - /home/osboxes/node
 -   Base location for lab - /home/osboxes/Downloads/labwork/data-files
@@ -1475,7 +1673,7 @@ Status=Up/Down
 UN   127.0.0.1        180.95 KiB       100.00%              0                                            rack1        0.70         
 ```
 
-## Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
+## (Section: Installation) - Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
 
 ``` bash
 docker pull cassandra:3.11.10
@@ -1484,11 +1682,15 @@ docker run --name cass1 --network cassnet -d cassandra:3.11.10
 docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra:3.11.10
 docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra:3.11.10
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest 
+## (Section: Installation) -  Check log
+docker logs -f cass1
+## (Section: Installation) -  Loging using CQLSH
 docker exec -it cass2 cqlsh
+docker exec -it cass2 nodetool ring
 docker exec -it cass2 nodetool stopdaemon
 ```
 
-## Connect to cassandra docker cluster
+## (Section: Installation) - Connect to cassandra docker cluster
 
 ``` bash
 docker inspect cass2 | grep IPAddress
@@ -1497,31 +1699,29 @@ cqlsh 172.18.0.3 9042
 use cycling;
 ```
 
-## Run commands into cassandra docker node
+## (Section: Installation) - Run commands into cassandra docker node
 
 ``` bash
-docker exec -it cass2 bash
-docker exec -it cass2 cqlsh
 docker exec -it cass2 nodetool tpstats
 docker exec -it cass2 nodetool repair
 ```
 
-## [Via docker for DSE server](https://docs.datastax.com/en/landing_page/doc/landing_page/compatibility.html)
+## (Section: Installation) - [Via docker for DSE server](https://docs.datastax.com/en/landing_page/doc/landing_page/compatibility.html)
 
 ``` bash
-## Find Cassandra tag to practice -- choose ops-center and later dse server -- 6.0.16-1
+## (Section: Installation) -  Find Cassandra tag to practice -- choose ops-center and later dse server -- 6.0.16-1
 docker pull datastax/dse-server:6.0.16-1
 docker network create cassnet # docker network create --driver=bridge cassnet
-## OPS Center can manage cluser, it should run first
+## (Section: Installation) -  OPS Center can manage cluser, it should run first
 docker run -e DS_LICENSE=accept -d -p 8888:8888 -p 61620:61620 --name my-opscenter --network cassnet datastax/dse-opscenter:6.1.10
 docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra --network cassnet datastax/dse-server:6.0.16-1
 docker run -e DS_LICENSE=accept -p 9042:9042 -p 7000:7000 -d --name my-cassandra-2 --network -e CASSANDRA_SEEDS=my-cassandra cassnet datastax/dse-server:6.0.16-1
-## Running dse-studio
+## (Section: Installation) -  Running dse-studio
 docker run -e DS_LICENSE=accept --network cassnet  --link some-cassandra --name my-studio -d datastax/dse-studio
 docker exec -it my-cassandra cqlsh
 docker exec -it my-cassandra nodetool status
 
-## #172.19.0.2 #172.19.0.3
+## (Section: Installation) -  #172.19.0.2 #172.19.0.3
 
 docker exec -it my-studio cqlsh ip_address
 docker exec -it my-cassandra sh -c "/opt/dse/bin/cqlsh.sh"
@@ -1530,13 +1730,13 @@ docker exec -it my-cassandra sh -c "/opt/dse/bin/cqlsh.sh"
 docker cp  D:/git/cassandra_playground/labwork/data-files/videos.csv some-cassandra:/videos.csv
 ```
 
-## [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
+## (Section: Installation) - [Setting up application using DSE image -Running Cassandra in Docker](https://www.datastax.com/learn/apache-cassandra-operations-in-kubernetes/running-a-cassandra-application-in-docker#skill-building)
 
 -   `bash     docker pull cassandra     docker run -d --name nodeA --network cassnet cassandra     docker logs -f nodeA     docker pull datastaxdevs/petclinic-backend     docker run -d \         --name backend \         --network cass-cluster-network \         -p 9966:9966 \         -e CASSANDRA_USE_ASTRA=false \         -e CASSANDRA_USER=cassandra \         -e CASSANDRA_PASSWORD=cassandra \         -e CASSANDRA_LOCAL_DC=datacenter1 \         -e CASSANDRA_CONTACT_POINTS=nodeA:9042 \         -e CASSANDRA_KEYSPACE_CQL="CREATE KEYSPACE spring_petclinic WITH REPLICATION = {'class':'SimpleStrategy','replication_factor':1};" \         datastaxdevs/petclinic-backend     curl -X GET "http://localhost:9966/petclinic/api/pettypes" -H "accept: application/json" | jq     curl -X POST \     "http://localhost:9966/petclinic/api/pettypes" \     -H "accept: application/json" \     -H "Content-Type: application/json" \     -d "{ \"id\": \"unicorn\", \"name\": \"unicorn\"}" | jq     docker exec -it nodeA cqlsh;     USE spring_petclinic;     SELECT * FROM petclinic_reference_lists WHERE list_name='pet_type';     QUIT;     docker pull datastaxdevs/petclinic-frontend-nodejs     docker run -d --name frontend -p 8080:8080 -e URL=https://2886795274-9966-jago04.environments.katacoda.com datastaxdevs/petclinic-frontend-nodejs     clear     docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'     docker stop $(docker ps -aq)     docker rm $(docker ps -aq)     docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}'     ## Via docker compose     docker-compose up --scale db=3`
 
 -   [Swagger-API](http://localhost:9966/swagger-ui/)
 
-## Copy files into and out-of containers
+## (Section: Installation) - Copy files into and out-of containers
 
 ``` bash
 docker cp cass1:/etc/cassandra/cassandra.yaml /tmp
@@ -1545,7 +1745,7 @@ docker cp cass1:/var/log/cassandra/system.log D:/git/cassandra_playground/log
 docker cp cass1:/var/log/cassandra/debug.log D:/git/cassandra_playground/log
 ```
 
-## Some Cassandra commands
+## (Section: Installation) - Some Cassandra commands
 
 ``` bash
 nodetool status
@@ -1560,7 +1760,7 @@ nodtool flush
 cassandra-stress write n=50000 no-warmup -rate threads=1
 ```
 
-## Cassandra directory (Apache Cassandra)
+## (Section: Installation) - Cassandra directory (Apache Cassandra)
 
 -   /etc/cassandra
 -   -Dcom.sun.management.jmxremote.password.file=/etc/cassandra/jmxremote.password
@@ -1568,12 +1768,12 @@ cassandra-stress write n=50000 no-warmup -rate threads=1
 -   -Dcassandra.storagedir=/var/lib/cassandra
 -   /usr/share/cassandra/lib/HdrHistogram-2.1.9.jar
 
-## Cassandra stress-tool
+## (Section: Installation) - Cassandra stress-tool
 
 -   Creates keyspace1
 -   Reports maximum possible io-ops, partition-rate and latency mean
 
-## To start CQLSH
+## (Section: Installation) - To start CQLSH
 
 ``` bash
 set PATH=D:\Apps\Python\Python27;%PATH%;
@@ -1603,7 +1803,7 @@ TRUNCATE videos;
 COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/data-files/videos.csv' WITH HEADER=TRUE;
 ```
 
-## References
+## (Section: Installation) - References
 
 -   [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 
@@ -1642,14 +1842,14 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 
 -   
 
-### nodetool
+## (Section: Architecture) - nodetool
 
 -   help - help
 -   info - jvm statistics
 -   status - all the nodes status (how this node see other nodes in
     cluster)
 
-## Ring
+## (Section: Architecture) - Ring
 
 -   Apache cassandra cluster - Collection of nodes
 -   Node that we connect is co-ordinator node
@@ -1666,7 +1866,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
     -   Murmur3 as a partitioner
     -   MD5 partitioner (random and even)
 
-## When a new node joins the ring
+## (Section: Architecture) - When a new node joins the ring
 
 -   Gossips out to seed-node (seed-nodes are configured in
     cassandra.yaml)
@@ -1676,7 +1876,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 -   State of the nodes
     -   Joining, Leaving, UP and Down
 
-## Driver
+## (Section: Architecture) - Driver
 
 -   Client could intelligently use node status and clutser
 -   Client would use different policies
@@ -1689,7 +1889,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
     that is responsbile for the data, internally it would avoid one more
     hop (co-ordinator-node === data-node)
 
-## Peer-to-Peer
+## (Section: Architecture) - Peer-to-Peer
 
 -   We should understand the reason by behind peer-to-peer
 -   Relation databases scales in one of the following way
@@ -1708,7 +1908,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
             request
         -   Last write wins
 
-## VNode
+## (Section: Architecture) - VNode
 
 -   If token is distributed in contiguous-range to a physical node, it
     won't help when new-node joins
@@ -1730,7 +1930,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 -   If all nodes have equal hardware capability, each node should have
     the same num_tokens value.
 
-### Why Vnode?
+## (Section: Architecture) - Why Vnode?
 
 -   If we have 30 node (with RF=3), effectively we have 10 nodes of
     original data, 20 nodes of replicated. If every node holds data for
@@ -1742,7 +1942,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 -   When using vnodes, Cassandra automatically assigns the token ranges
     for you. Without vnode, manual assignment is required.
 
-## Gossip protocol
+## (Section: Architecture) - Gossip protocol
 
 -   Gossip is a peer-to-peer communication protocol in which nodes
     periodically exchange state information about themselves and about
@@ -1761,7 +1961,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 6.  Reliably and efficiently spreads node metadata through the cluster
 7.  Fault tolerant---​continues to spread when nodes fail
 
-### What is gossiped?
+## (Section: Architecture) - What is gossiped?
 
 -   SYN, ACK, ACK2
     -   SYN - sender node details
@@ -1774,7 +1974,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 -   JSON is only for analogy
 
 ``` json
-## Json analogy
+## (Section: Architecture) -  Json analogy
 {
   "endPointState": {
     "endPoint": "192.168.0.1",
@@ -1792,7 +1992,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 }
 ```
 
-## Snitch
+## (Section: Architecture) - Snitch
 
 -   Snitch - means informer (with criminal background or approver)
 -   Rerports DC, Rack information to each other
@@ -1816,7 +2016,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
         sequential repair and clean-up on each node.
 -   All node must use same snitch
 
-### Property File Snitch
+## (Section: Architecture) - Property File Snitch
 
 -   Reads datacenter and rack information for all nodes from a file You
     must keep files in sync with all nodes in the cluster
@@ -1834,7 +2034,7 @@ cassandra-topology.properties file
 120.57.18.177=DC2:RAC2
 ```
 
-### Gossiping Property File Snitch
+## (Section: Architecture) - Gossiping Property File Snitch
 
 -   Relieves the pain of the property file snitch
 -   Declare the current node's DC/rack information in a file
@@ -1848,7 +2048,7 @@ dc=DC1
 rack=RAC
 ```
 
-## Cassandra replication
+## (Section: Architecture) - Cassandra replication
 
 -   When co-ordinator responsible for token range 15-25 receives data to
     save, it finds its token range and copies data to target node
@@ -1870,7 +2070,7 @@ rack=RAC
     -   Causes overlap in the token ranges amongst nodes.
     -   Requires more storage in your cluster.
 
-## Consistency
+## (Section: Architecture) - Consistency
 
 -   Cassandra fits into AP system (CAP), Csonsistency is tunable
     parameter in Cassandra.
@@ -1895,7 +2095,7 @@ rack=RAC
     -   Choose for local-quorum
 -   Higher consistency === higher latency (higher latency -- poor)
 
-### Consistency level in Cassandra
+## (Section: Architecture) - Consistency level in Cassandra
 
 **Consistency Settings In order of weakest to strongest** 1. ANY -
 Storing a hint at minimum is satisfactory 1. ALL - Every node must
@@ -1914,7 +2114,7 @@ only
 -   [x] - write quorum, read quorum
 -   \[-\] - ~~write one, read all~~
 
-## Hinted hand-off
+## (Section: Architecture) - Hinted hand-off
 
 -   Write request can be served, even when nodes are down. Co-ordinator
     caches using hints file, later handoever the data to target node
@@ -1930,7 +2130,7 @@ only
 -   Consistency-level-Any is not practical due to hinted-hand-off
 -   We can disable hinted-hand-off
 
-## Read repair (Assume RF=3)
+## (Section: Architecture) - Read repair (Assume RF=3)
 
 -   Nodes goes out-of-sync for many reasons
     -   Network partition, node failures, storage failure
@@ -1945,7 +2145,7 @@ only
     3.  Sends the latest data to client
     4.  Replicates the latest data to the nodes that has stale copy
 
-### Read Repair Chance
+## (Section: Architecture) - Read Repair Chance
 
 -   Performed when read is at a consistency level less than ALL
 -   Request reads only a subset of the replicas
@@ -1955,14 +2155,14 @@ only
 -   Read repair done asynchronously in the background
 -   10% by default
 
-## Node-repai
+## (Section: Architecture) - Node-repai
 
-### Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
+## (Section: Architecture) - Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
 
 -   nodetool repair --full
 -   Extra load on the network, IO also might spike
 
-## Datastax Node-sync
+## (Section: Architecture) - Datastax Node-sync
 
 -   It uses the same mechnism what read-repair mechnism does
 -   Datastax Node-sync (should be enabled on per-table-basis)
@@ -1985,7 +2185,7 @@ only
         -   uncompleted
         -   failed
 
-## Write path
+## (Section: Architecture) - Write path
 
 1.  Data reaches to node to write
 2.  Cassandra writes data to mem-table & commit-log
@@ -2011,7 +2211,7 @@ only
     -   Ans: After the commit log and MemTable are written
 -   SSTable and MemTable are stored sorted by clustering columns
 
-## Read path
+## (Section: Architecture) - Read path
 
 -   Data could be spread across multiple SS-Table (and in-memory), Hence
     read is bit more complex than write
@@ -2043,7 +2243,7 @@ only
 -   Read > Bloom-Filter > Key-Cache > Partition Summary > Partition
     Index > SSTable
 
-## Data-stax
+## (Section: Architecture) - Data-stax
 
 -   No partition-index, instead trie based data-structure used as index
     -   SS-Table lookup is much faster than OSS version
@@ -2053,9 +2253,9 @@ only
         easier to find the parition-index offset for pk0024
         (https://stackoverflow.com/questions/26244456/internals-of-partition-summary-in-cassandra)
 
-## Compaction
+## (Section: Architecture) - Compaction
 
-### Compacting partition
+## (Section: Architecture) - Compacting partition
 
 -   Two SS-Table paritions can be merged using merge-sort
     -   If keys are matching, take one with latest timestamp
@@ -2075,14 +2275,14 @@ only
     -   Faster reads
     -   Less memory pressure
 
-### Compacting SSTables
+## (Section: Architecture) - Compacting SSTables
 
 -   Two SS-Table merged using merge-sorted
 -   Merge might reduce the partition as all the stale values inside the
     parition are evicted
 -   Once new SS-Table is created, old SS-Table is dropped
 
-### Types of compaction
+## (Section: Architecture) - Types of compaction
 
 -   SizeTiered Compaction (default for write heavy-load)
 
@@ -2093,7 +2293,7 @@ only
 -   Alter table ks.myTable WITH compaction = { 'class':
     'LeveledCompactionStrategy'}
 
-## Datastax ES6
+## (Section: Architecture) - Datastax ES6
 
 -   Only one core per CPU and Non-blocking-IO
     -   Claims to be more performant than OSS version
@@ -2104,33 +2304,28 @@ only
         Hints, Streaming
 -   OSS - Executor thread-pool
 
-## Reference
+## (Section: Architecture) - Reference
 
 -   [Vnodes](https://www.datastax.com/blog/2012/12/virtual-nodes-cassandra-12)
-    ## Partition
+
+## (Section: Partition) - Partition
 
 -   The most important concept in Cassandra is patition.
-
 -   Primary Key (state, (id))
-
     -   First part of the primary is always partition keys, in the above
         primary key state is used as partition key
     -   In 1000 node ring, state is used to find the ring-number using
         consistent hashing algorithm
     -   It's complexity is - o(1)
-
 -   Partition key should be analogus to "GROUP BY" related column in
     typical rdbms table, Here we pre-compute whereas in RDBMS it might
     do full-table-scan
-
 -   Group rows physically together on disk based on the partition key.
-
 -   It hashes the partition key values to create a partition token.
-
 -   We can choose partition after table were constructed and data
     inserted
 
-## Clustering Columns
+## (Section: Partition) - Clustering Columns
 
 -   This constitutes part of Primary Key along with partition key
 -   We can have one or more clustering column
@@ -2147,7 +2342,7 @@ only
         added_date timestamp, title text, PRIMARY KEY(tag, added_date) )
         WITH CLUSTERING ORDER BY (added_date DESC);"
 
-## Primary Key
+## (Section: Partition) - Primary Key
 
 -   Primary Key = Partition Key + Clustering Column
 -   Decides uniqueness and date order (sorted and stored)
@@ -2160,7 +2355,7 @@ only
         (this is often called a composite partition key) and c is the
         clustering column.
 
-## Impact of partition key on query (CQL)
+## (Section: Partition) - Impact of partition key on query (CQL)
 
 -   All equality comparision comes before inequality (\<, >)
 -   Inequality comparision or range queries on clustering columns are
@@ -2176,7 +2371,7 @@ only
         partition key
     -   Don't use it
 
-## Querying
+## (Section: Partition) - Querying
 
 -   Always provide partition key
 -   Follow the equality similar to the way it is defined
@@ -2186,7 +2381,7 @@ only
         follow the order of table definition
 -   
 
-## CQL
+## (Section: Partition) - CQL
 
 ``` bash
 cqlsh:killrvideo> desc table video;
@@ -2249,10 +2444,11 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.c
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```
 
-## Datastax slides
+## (Section: Partition) - Datastax slides
 
 -   (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)\[DataStax:
-    A deep look at the CQL WHERE clause \] ## Reference
+    A deep look at the CQL WHERE clause \] ## (Section: Partition) -
+    Reference
 
 -   [Primary Key, Partition Key and Data
     Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
@@ -2437,13 +2633,13 @@ Address     Rack        Status State   Load            Owns                Token
 #
 ```
 
-## Peformance could be degraded for many reasons
+## (Section: Performance) - Performance could be degraded for many reasons
 
 -   nodetool status - check all nodes are up
 -   nodetool tpstats - for dropped messages
     -   Usage statistics of thread-pool
 
-### Dropped Mutataions
+## (Section: Performance) - Dropped Mutataions
 
 -   Cassandra uses SEDA architecture
     -   If messages inside the are not processed with certain timeout
@@ -2461,7 +2657,7 @@ Address     Rack        Status State   Load            Owns                Token
         ms
 -   
 
-### Configuration that affects dropped mutations
+## (Section: Performance) - Configuration that affects dropped mutations
 
 -   write_request_timeout_in_ms - How long the coordinator waits for
     write requests to complete with at least one node in the local
@@ -2475,14 +2671,19 @@ Address     Rack        Status State   Load            Owns                Token
     requests that involve only nodes in a remote datacenter. This
     setting is intended to reduce hint pressure.
 
-## When does Cassandra end up having useless data
+## (Section: Performance) - When does Cassandra end up having useless data
 
 -   If we reduce the replication factor, additional un-necessary data
     may be sitting till the actual compaction happens
 -   Once we add new node to reduce the token range, Cassandray may
     contain data from portions of token ranges it no longer owns
 
-## Usage statistics of thread-pool - output
+## (Section: Performance) - How to find the largest SSTable (or largest partition) in the cluster
+
+-   nodetool tablehistograms keyspaces.table
+-   find the max value
+
+## (Section: Performance) - Usage statistics of thread-pool - output
 
 ``` txt
 root@15a092649e23:/# nodetool tpstats
@@ -2524,7 +2725,7 @@ PAGED_RANGE                  0
 READ_REPAIR                  0
 ```
 
-## What is D210 Course about
+## (Section: DS210) - What is D210 Course about
 
 -   Operations for Apache Cassandra™ and DataStax Enterprise
 -   Installation
@@ -2535,7 +2736,7 @@ READ_REPAIR                  0
     -   sudo apt-get update
     -   sudo apt-get install dse-full
 
-## What are basic parameter required for Cassandra quickstart
+## (Section: DS210) - What are basic parameter required for Cassandra quickstart
 
 -   Four parameters
     -   cluster-name
@@ -2545,13 +2746,13 @@ READ_REPAIR                  0
         -   Seeds should be comma seperated inside double quote -
             "ip1,ip2,ip3"
 
-## What is the location of default Cassandra.yaml?
+## (Section: DS210) - What is the location of default Cassandra.yaml?
 
 -   /etc/dse/cassandra.yaml (package installer)
 -   /cassandra-home/resources/cassandra/conf/cassandra.yaml
 
-## What are directories related settings, and level-2 settings (right
-after quickstart)
+## (Section: DS210) - What are directories related settings, and level-2
+settings (right after quickstart)
 ```{=html}
 <default>
 ```
@@ -2565,18 +2766,18 @@ after quickstart)
 -   saved_caches_directory
 -   endpoint_snitch
 
-## What are two file-systedm that should be separated
+## (Section: DS210) - What are two file-systedm that should be separated
 
 -   /var/lib/cassandra/data and /var/lib/cassandra/commitlog
 
-## Cluster Sizing
+## (Section: DS210) - Cluster Sizing
 
 -   Figure out cluster size parameters
     1.  (Write)-Throughput - How much data per second?
     2.  Growth Rate - How fast does capacity increase?
     3.  Latency (Read) - How quickly must the cluster respond?
 
-## Cluster Sizing - Writethrough put example
+## (Section: DS210) - Cluster Sizing - Writethrough put example
 
 -   2m user commenting 5 comments a day, where a comment is 1000 byte
 
@@ -2585,7 +2786,7 @@ after quickstart)
 -   100 \* 1000 bytes = 100KB per-second (multiply into number of
     replication-factor)
 
-## Cluster Sizing - Read throughput example
+## (Section: DS210) - Cluster Sizing - Read throughput example
 
 -   2m user viewing 10 video summaries a day, where a video has 4
     comments
@@ -2595,7 +2796,7 @@ after quickstart)
 -   925 \* 1000 bytes = 1MB per-second (should multiply into number of
     replication-factor?)
 
-## Cluster-sizing - Monthly calculate
+## (Section: DS210) - Cluster-sizing - Monthly calculate
 
 -   Data should cover only 50% of disk space at any-time to allow repair
     and compaction to work
@@ -2606,7 +2807,7 @@ after quickstart)
     -   1MB \* 86400 \* 30 = 2.531 TB (here 1MB inclusive of
         anti-entropy)
 
-## Cluster-sizing - Latency calculate
+## (Section: DS210) - Cluster-sizing - Latency calculate
 
 -   Relevant Factors
     -   IO Rate
@@ -2617,13 +2818,13 @@ after quickstart)
 -   What is required SLA
 -   Do the benchmarking initially before launching
 
-## Cluster Sizing - Probing Questions
+## (Section: DS210) - Cluster Sizing - Probing Questions
 
 1.  What is the new/update ratio?
 2.  What is the replication factor?
 3.  Additional headroom for operations - Anti-entropy repair?
 
-## [Cassandra stress tool](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
+## (Section: DS210) - [Cassandra stress tool](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
 
 -   Define your shcema, and schema performance
 -   Understand how your database scales
@@ -2658,7 +2859,7 @@ profile=TestProfile.yaml ops(insert=100000,user_by_email=100000) -node
 ds210-node1 There was a problem parsing the table cql: line 0:-1
 mismatched input '`<EOF>`{=html}' expecting ')'
 
-## Linux top command
+## (Section: DS210) - Linux top command
 
 -   Comes with every linux distribution - (How much Cassandra is using)
 -   Brief summary of Linux system resources + Per process details
@@ -2680,13 +2881,13 @@ mismatched input '`<EOF>`{=html}' expecting ')'
 -   Process State
     -   Zombie, Sleeping, Running
 
-## Linux top command - Cassandra
+## (Section: DS210) - Linux top command - Cassandra
 
 -   Swap should be zero (Cassandra discourages swap)
     -   Disable the swap, zero should be allocated
 -   Zombie should be zero
 
-## Linux dstat command (alternative to top)
+## (Section: DS210) - Linux dstat command (alternative to top)
 
 -   dstat = cpustat + iostat + vmstat + ifstat (cpy/io/network)
 
@@ -2727,7 +2928,7 @@ mismatched input '`<EOF>`{=html}' expecting ')'
 -   System stats can be an indication of process contention (CSW -
     context switch)
 
-## Nodetool (Performance Analysis inside cluster node)
+## (Section: DS210) - Nodetool (Performance Analysis inside cluster node)
 
 -   dstat, top - can investigate inside linux
 -   nodetool - can investigate inside Cassandra JVM
@@ -2758,7 +2959,7 @@ mismatched input '`<EOF>`{=html}' expecting ')'
     Percent Repaired       : 100.0%
     Token                  : (invoke with -T/--tokens to see all 256 tokens)
 
-## Nodetool compaction-history - what are all the fields and output?
+## (Section: DS210) - Nodetool compaction-history - what are all the fields and output?
 
     root@c1bf4c2d5378:/# nodetool compactionhistory
     Compaction History:
@@ -2768,11 +2969,11 @@ mismatched input '`<EOF>`{=html}' expecting ')'
     bacb1140-dbeb-11eb-bef5-537733e6a124 system        size_estimates    2021-07-03T10:45:06.260 169604   41922     {4:4}
     bac8ee60-dbeb-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T10:45:06.246 968      224       {1:8, 3:1, 4:3}
 
-## To figure out the name of a node's datacenter and rack, which nodetool sub-command should you use?
+## (Section: DS210) - To figure out the name of a node's datacenter and rack, which nodetool sub-command should you use?
 
 -   Nodetool info
 
-## Nodetool gcstats
+## (Section: DS210) - Nodetool gcstats
 
 -   Higher the GC Elapsed time is worst performance of the cluster
 -   Higher StdDev, cluster performance would be erratic
@@ -2789,14 +2990,14 @@ root@c1bf4c2d5378:/# nodetool gcstats
                 1307                   0                   0                 NaN                   0                   0                       -1
 ```
 
-## Nodetool Gossipinfo
+## (Section: DS210) - Nodetool Gossipinfo
 
 -   What is the status of the node according its peer node
 -   Peer node knows the detaila about another node using 'gossipe-info'
 -   Schema-Version mismatch can be noted from this output. Rare but
     crucial information.
 
-## Nodetool Ring command
+## (Section: DS210) - Nodetool Ring command
 
 -   "nodetool ring" is used to output all the tokens of a node.
 
@@ -2818,7 +3019,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 
 -   
 
-## Nodetool Tableinfo (tablestats) - Quite useful for data-modelling information
+## (Section: DS210) - Nodetool Tableinfo (tablestats) - Quite useful for data-modelling information
 
 -   nodetool tablestats -- ks_killr_video
 -   nodetool tablestats -- ks_killr_video user_by_email
@@ -2838,14 +3039,14 @@ Min             0.00              0.00              0.00                61      
 Max             0.00              0.00              0.00                86                 2
 ```
 
-## How to find large partition?
+## (Section: DS210) - How to find large partition?
 
 -   nodetool tablehistograms ks_killr_video table -- would give
     multi-millions cell-count
 -   nodetool tablehistograms ks_killr_video table -- would give large
     partition-size
 
-## Nodetool Threadpoolinfo (tpstats)
+## (Section: DS210) - Nodetool Threadpoolinfo (tpstats)
 
 -   Early versions of Cassandra were designed using SEDA architectures
     (now it actually moved away from it)
@@ -2854,7 +3055,7 @@ Max             0.00              0.00              0.00                86      
     -   If blocked, lots of data is sitting in memory, sooner Long-GC
         might kick-in
 
-## Cassandra logging
+## (Section: DS210) - Cassandra logging
 
 -   It is ususally known as system.log (and debug.log only if enabled in
     logback.xml or using nodetool setlogginglevel )
@@ -2869,7 +3070,7 @@ Max             0.00              0.00              0.00                86      
         org.apache.cassandra.service.StorageProxy DEBUG
     -   nodetool getlogginglevel
 
-## Cassandra JVM GC logging
+## (Section: DS210) - Cassandra JVM GC logging
 
 -   GC logging answeres 3 questions
     -   When GC occured
@@ -2878,7 +3079,7 @@ Max             0.00              0.00              0.00                86      
 -   GC logging details are configured /etc/cassandra/jvm.options
 -   Cassandra doesn't use G1 garbage collection
 
-## How Cassandra JVM GC logging can be configured
+## (Section: DS210) - How Cassandra JVM GC logging can be configured
 
 -   How it was turn it on
     -   -Xloggc:/var/log/cassandra/gc.log (in the cassandra start
@@ -2887,13 +3088,13 @@ Max             0.00              0.00              0.00                86      
 -   Dynamically alter JVM process GC.log
     -   info -flag +PrintGC `<process-id>`{=html}
 
-## How to read GC.log?
+## (Section: DS210) - How to read GC.log?
 
 -   GC pause in a second or two is big trouble, it should have been in
     sub-milli-seconds
 -   Ensure after GC, heap consumption is reduced (number should reduce)
 
-## Adding a node
+## (Section: DS210) - Adding a node
 
 -   Why to add node?
     -   To increase capacity for operational head-room
@@ -2916,7 +3117,7 @@ Max             0.00              0.00              0.00                86      
 -   Seed - nodes, Any node that is running while adding other nodes.
     They are not special in any way
 
-## Bootstrapping (Adding a note)
+## (Section: DS210) - Bootstrapping (Adding a note)
 
 -   We need any existing running nodes as seed-nodes (they are not
     special nodes)
@@ -2924,7 +3125,7 @@ Max             0.00              0.00              0.00                86      
     recommended when there is a repair process alive in your cluster
 -   Cluster-name has to match to join existing cluster
 
-## What are the steps followed by a boostrapping node when joining?
+## (Section: DS210) - What are the steps followed by a boostrapping node when joining?
 
 1.  Contact the seed nodes to learn about gossip state.
 2.  Transition to Up and Joining state (to indicate it is joining the
@@ -2937,14 +3138,14 @@ Max             0.00              0.00              0.00                86      
     indicate it is now part of the cluster; represented by UN in the
     nodetool status).
 
-## What are the help rendered by a existing node to a joining?
+## (Section: DS210) - What are the help rendered by a existing node to a joining?
 
 -   Cluster nodes has to prepare to stream necessary SSTables
 -   Existing Cluster nodes continue to satisfy read and write, but also
     forward write to joining node
 -   Monitor the bootstrap process using 'nodetool netstas'
 
-## Issues during bootstrap
+## (Section: DS210) - Issues during bootstrap
 
 -   New node will certainly have a lot of compactions to deal
     with(especially if it is LCS).
@@ -2957,14 +3158,14 @@ Max             0.00              0.00              0.00                86      
 -   We should unthrottle during bootstrap as the node won't receive read
     queries until it finishes streaming and joins the cluster.
 
-## If Bootstrap fails
+## (Section: DS210) - If Bootstrap fails
 
 -   Read the log and find the reason
 -   If it Up and failed with 50% data, try to restart.. mostly it would
     fix itself
 -   if it further doesn't work, investigate further
 
-## After Boostrap (Cleanup)
+## (Section: DS210) - After Boostrap (Cleanup)
 
 -   Nodetool cleanup should be peformed to the other cluster nodes (not
     to the node that joined)
@@ -2979,7 +3180,7 @@ Max             0.00              0.00              0.00                86      
     <table>
     ```
 
-## Removing node
+## (Section: DS210) - Removing node
 
 -   Why to remove a node?
     -   For some event, we ramped-up, need to scale down for legitimate
@@ -3003,12 +3204,12 @@ Max             0.00              0.00              0.00                86      
             the rest of the ndoes to fix)
         -   Try when it is not trying to go away
 
-## Where is the data coming from when a node is removed?
+## (Section: DS210) - Where is the data coming from when a node is removed?
 
 -   Decommision - Data comes from the node leaving
 -   RemoveNode - Data comes from the rest of the cluster nodes
 
-## How to replace a down-node
+## (Section: DS210) - How to replace a down-node
 
 -   Replace vs Remove-and-Add
 -   Backup for a node will work a replaced node, because same tokens are
@@ -3023,13 +3224,13 @@ Max             0.00              0.00              0.00                86      
 -   We should update seed-node (remove old node, and update with latest
     IP), to fix GossipInfo
 
-## Why replace a node than removing-and-adding?
+## (Section: DS210) - Why replace a node than removing-and-adding?
 
 1.  Don't need to move data twice
 2.  Backup would work for th replaced node (if the token range is same)
 3.  It is faster and lesser impact on the cluster
 
-## STCS - Size Tieres Compaction Strategy
+## (Section: DS210) - STCS - Size Tieres Compaction Strategy
 
 -   STCS Organizes SSTables into Tiers based on sizes
     -   On an exponential scale
@@ -3041,7 +3242,7 @@ Max             0.00              0.00              0.00                86      
 -   Higher-tier means larger SStables
 -   min_threshold and max_thrshold (number of files within the tier)
 
-## STCS Pros and Disadvantage
+## (Section: DS210) - STCS Pros and Disadvantage
 
 -   STCS doesn't compact 1 GB and 1MB file together
 
@@ -3059,17 +3260,18 @@ Max             0.00              0.00              0.00                86      
 -   Concurrent_Compactors - Failed more often than helping.
 
 -   STCS - Major compaction was not recommended for producton (one big
-    large compacted file) - Never do 'nodetool compact' ## STCS Hotness
+    large compacted file) - Never do 'nodetool compact' ## (Section:
+    DS210) - STCS Hotness
 
 -   STCS compaction chooses hottest tier first to compact
 
 -   SSTable hotness determined by number of reads per second per
-    partition key ## Wht STCS is slower for read
+    partition key ## (Section: DS210) - Wht STCS is slower for read
 
 -   If new write is in lower tier, and old values are in higher tier,
     they can't be compacted together (immediately)
 
-## What triggers a STCS Compaction
+## (Section: DS210) - What triggers a STCS Compaction
 
 -   More write --> More Compaction
 -   Compaction starts every time a memtable flushes to an SSTable
@@ -3080,7 +3282,7 @@ Max             0.00              0.00              0.00                86      
 -   Compaction continues until there are no more tiers with at least
     min_threshold tables in it
 
-## STCS - Tombstones
+## (Section: DS210) - STCS - Tombstones
 
 -   If no eligible buckets, STCS compacts a single SSTable
 -   tombstone_compaction_interval - At-least one day old before
@@ -3089,7 +3291,7 @@ Max             0.00              0.00              0.00                86      
     other SSTables
 -   The number of expired tombstones must be above 20%
 
-## LCS - Leveled Compaction Strategy
+## (Section: DS210) - LCS - Leveled Compaction Strategy
 
 -   sstable_size_in_mb - Max size of SSTable
     -   'Max SSTable Size' - would be considered like unit size for
@@ -3101,7 +3303,7 @@ Max             0.00              0.00              0.00                86      
     amplification
 -   L0 - is landing place
 
-## LCS Pros and Cons
+## (Section: DS210) - LCS Pros and Cons
 
 -   LCS is best for reads
     -   90% of the data resides in the lowest level
@@ -3111,19 +3313,19 @@ Max             0.00              0.00              0.00                86      
 -   Reads are handled only by few SSTable make it faster
 -   LCS - doesn't require 50% space, it wastes less disk space
 
-## LCS - Lagging behind
+## (Section: DS210) - LCS - Lagging behind
 
 -   If lower levels are two big, LCS falls back to STCS for L0
     compaction
 -   Falling to STCS would helps to create larger SSTable, and compacting
     two larger SSTable is optimum
 
-## LeveledCompactionStrategy
+## (Section: DS210) - LeveledCompactionStrategy
 
 -   [LCS
     Cassandra](https://issues.apache.org/jira/browse/CASSANDRA-14605?jql=labels%20%3D%20lcs%20AND%20project%20in%20(Cassandra))
 
-## TWCS - Time-window compaction strategies
+## (Section: DS210) - TWCS - Time-window compaction strategies
 
 -   Best suited for Time-series data
 -   Windowf of time can be chosen while creating Table
@@ -3131,7 +3333,7 @@ Max             0.00              0.00              0.00                86      
 -   Any SSTable that spans two window will be considered for next window
 -   Not suited for data that is being updated
 
-## Nodesync (Datastax Enterprise 6.0)
+## (Section: DS210) - Nodesync (Datastax Enterprise 6.0)
 
 -   Continuous background repair
     -   only for DSE-6.0 and above
@@ -3156,7 +3358,7 @@ Max             0.00              0.00              0.00                86      
 -   nodetool nodesync vs dse/bin/nodesync (second binary is cluster-wide
     tool)
 
-## What are all the possible reason for large SSTable
+## (Section: DS210) - What are all the possible reason for large SSTable
 
 -   nodetool compact (somebody run it)
     -   Major compaction using STCS would create large SSTable
@@ -3172,7 +3374,7 @@ Max             0.00              0.00              0.00                86      
     sstablesplit -s 40 /user/share/data/cssandra/killr_video/users/*
     ```
 
-## Multi-Datacenter
+## (Section: DS210) - Multi-Datacenter
 
 -   We can add datacenter using `alter keyspace` even before datacenter
     is available
@@ -3202,13 +3404,13 @@ Max             0.00              0.00              0.00                86      
 -   Without above, request with LOCAL_ONE or ONE consistency level may
     fail if the existing DC are not completely in sync
 
-## Multi-Datacenter Consistency Level
+## (Section: DS210) - Multi-Datacenter Consistency Level
 
 -   Local_Quorum - TO reduce latency
 -   Each - Very heavy operation
 -   Snitch should be specified
 
-## What if one datacenter goes down?
+## (Section: DS210) - What if one datacenter goes down?
 
 -   Gossip will find that DC is down
 -   Reocvery can be accomplished with a rolling repair to all nodes in
@@ -3217,13 +3419,13 @@ Max             0.00              0.00              0.00                86      
     updates)
 -   We should run-repair if we go beyond GC_Grace_seconds
 
-## Why we need additional DC?
+## (Section: DS210) - Why we need additional DC?
 
 -   Live Backup
 -   Improved Performance
 -   Analytics vs Transaction workload
 
-## SSTableDump
+## (Section: DS210) - SSTableDump
 
 1.  Old tool, quite useful
 2.  Only way to dump SSTable into json (for investigation purpose)
@@ -3232,7 +3434,7 @@ Max             0.00              0.00              0.00                86      
     1.  tools/bin/sstable data/ks/table/sstable-data.db
     2.  -d to view as key-value (withtout JSON)
 
-## SSTableloader
+## (Section: DS210) - SSTableloader
 
 1.  sstableloader -d co-ordinator-ip
     /var/lib/cassandra/data/killrvideo/users/
@@ -3248,7 +3450,7 @@ Max             0.00              0.00              0.00                86      
 9.  sample dump
     `json     [       {         "partition" : {           "key" : [ "36111c91-4744-47ad-9874-79c2ecb36ea7" ],           "position" : 0         },         "rows" : [           {             "type" : "row",             "position" : 30,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:20.642757Z" },             "cells" : [               { "name" : "v", "value" : 1 }             ]           }         ]       },       {         "partition" : {           "key" : [ "ec07b617-1348-42b8-afb1-913ff531a24c" ],           "position" : 43         },         "rows" : [           {             "type" : "row",             "position" : 73,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:39:12.173004Z" }             ]           }         ]       },       {         "partition" : {           "key" : [ "91d7d620-de0b-11eb-ad2f-537733e6a124" ],           "position" : 86         },         "rows" : [           {             "type" : "row",             "position" : 116,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:03.777666Z" },             "cells" : [               { "name" : "v", "deletion_info" : { "local_delete_time" : "2021-07-06T09:06:57Z" },                 "tstamp" : "2021-07-06T09:06:57.504609Z"               }             ]           }         ]       },       {         "partition" : {           "key" : [ "7164f397-f1cb-4341-bc83-ac10088d5bfd" ],           "position" : 128         },         "rows" : [           {             "type" : "row",             "position" : 158,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:38:56.888661Z" }             ]           }         ]       }     ]`
 
-## Loading different formats of data into Cassandra
+## (Section: DS210) - Loading different formats of data into Cassandra
 
 1.  Apache Spark for Dataloading
 
@@ -3288,7 +3490,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
   println ("Errors or upserts - further validation required")
 ```
 
-## Datstax - DSE Bulk (configuration should be in HOCON format)
+## (Section: DS210) - Datstax - DSE Bulk (configuration should be in HOCON format)
 
 1.  CLI import tool (from csv or json)
 2.  Can move to and from files in the file-system
@@ -3300,7 +3502,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 7.  Unload and reformat as different data-model
 8.  Usage: dsbulk -f dsbulk.conf -c csv/json -k keyspace -t tablename
 
-## Backup and Snapshots
+## (Section: DS210) - Backup and Snapshots
 
 1.  Why do we need your backup for distributed data?
 2.  Human error caused data wipe
@@ -3311,19 +3513,20 @@ if (loadCount - (afterCount - beforeCount) > 0)
 6.  SSTables are immutable, we can just copy them for backup purpose
 7.  usage - nodetool -h localhost -p 7199 snapshot mykeyspace
 
-## What is Cassandra snapshots?
+## (Section: DS210) - What is Cassandra snapshots?
 
 1.  The DDL to create the table is stored as well.
 2.  A snapshot is a copy of a table's SSTable files at a given time,
     created via hard links.
-3.  Hardlink snapshots are acting as Point-in-Time backup ## Why
-    Snapshots are fast in Cassandra? How to snapshot at the same time?
+3.  Hardlink snapshots are acting as Point-in-Time backup ## (Section:
+    DS210) - Why Snapshots are fast in Cassandra? How to snapshot at the
+    same time?
 
 -   It just creates hard-links to underlying SSTable (immutable files)
 -   Actual files are not copied, hence less (zero) data-movement
 -   A parallel SSH tool can be used to snapshot at the same time.
 
-## How do incrementa backup works
+## (Section: DS210) - How do incrementa backup works
 
 -   Every flush to disk should be added to snapshots
     -   incremental_backup: true --##cassandra.yaml
@@ -3335,31 +3538,31 @@ if (loadCount - (afterCount - beforeCount) > 0)
     pile-up)
     -   These should be manually removed before creating new snapshot
 
-## Where to store snapshots?
+## (Section: DS210) - Where to store snapshots?
 
 -   Snapshots and incremental backups are stored on each cassandra-node
 -   Files should be copied to remote place (not on node)
     -   [tablesnap can store to AWS
         S3](https://github.com/JeremyGrosser/tablesnap)
 
-## How Truncate works?
+## (Section: DS210) - How Truncate works?
 
 -   auto_snapshot is critical, don't disable it
 -   Helps to take Snapshots, just before table truncation.
 
-## How to snapshot?
+## (Section: DS210) - How to snapshot?
 
 -   bin/nodetool snapshot -cf table - t `<tag>`{=html} -- keyspace
     keyspace2
 -   [How to snapshot and
     restore](https://docs.rackspace.com/blog/apache-casandra-backup-and-recovery/)
 
-## Restore (We get 1 point for backup, 99 point for restore)
+## (Section: DS210) - Restore (We get 1 point for backup, 99 point for restore)
 
 -   Backup that doesn't help to restore is useless
 -   Restore should be tested many times and documented properly
 
-## [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
+## (Section: DS210) - [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
 
 1.  Delete the current data files
 2.  Copy the snapshot and incremental files to the appropriate data
@@ -3370,14 +3573,14 @@ if (loadCount - (afterCount - beforeCount) > 0)
         directory
 5.  Restart and repair the node after the file copying is done Honorable
     mention -- tablesnap and tablerestore • Used when backing up
-    Cassandra to AWS S3 ## How to remove snapshots?
+    Cassandra to AWS S3 ## (Section: DS210) - How to remove snapshots?
 
 -   nodetool clearsnapshot `<snapshot_name>`{=html}
     -   Not specifying a snapshot name removes all snapshots
 -   Remember to remove old snapshots before taking new ones, not
     automatic
 
-## JVM settings
+## (Section: DS210) - JVM settings
 
 1.  jvm.options can be used to modify jvm settings
 2.  cassandra-env.sh is a shell that launches cassandra server, that
@@ -3386,7 +3589,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 4.  HEAP_NEW_SIZE : -XX:NewSize=100m
 5.  Java 9 by default uses G1 Collector
 
-## Garbage Collections (Apache Cassandra)
+## (Section: DS210) - Garbage Collections (Apache Cassandra)
 
 -   Cassandra on JDK-8 was using CMS
 -   Decrease Pause-Time, But increase Through-Put
@@ -3398,13 +3601,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   After many young gc, S1/S2 -\> Old GC
 -   CMS kicks in when OldGen is 75% full
 
-## Why does full GC runs?
+## (Section: DS210) - Why does full GC runs?
 
 -   If the old gen fills up before the CMS collector can finish
 -   Full GC, stop the world collctor checks new-gen, old-gen and
     perm-gen
 
-## How to troubleshoot OutOfMemoryError issues in Casssandra?
+## (Section: DS210) - How to troubleshoot OutOfMemoryError issues in Casssandra?
 
 -   -XX:+HeapDumpOnOutOfMemoryError - would dump the entire memory
 -   Use Eclipse Memory Analyzer tool to analyze the content of memory
@@ -3413,13 +3616,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   Ensure Cassandra has access to the directory where dump directory
     was configured, disk should have space to hold this file
 
-## What is TSC?
+## (Section: DS210) - What is TSC?
 
 -   It is a register inside CPU
 -   Time Stamp Counter (counts the number of cycles), but won't match
     between processors
 
-## Tuning the Linux Kernel
+## (Section: DS210) - Tuning the Linux Kernel
 
 -   NTP should be in place for Cassandra to agree time within the
     clusters
@@ -3440,7 +3643,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     10. -msgqueue unlimited
     11. -sigpending unlimited
 
-## What should be removed/disabled from Linux for Cassandra to work? How to remove
+## (Section: DS210) - What should be removed/disabled from Linux for Cassandra to work? How to remove
 
 -   swapping should be removed in linux from two places
 -   swapoff -a (not permanently)
@@ -3449,7 +3652,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     -   sysctl -p should reload /etc/sysctl.conf
 -   Refer datastax for other recommended linux settings
 
-## Hardware resources to consider
+## (Section: DS210) - Hardware resources to consider
 
 1.  Parameters
 
@@ -3470,7 +3673,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   TWCS - can use HDD
 -   HDD should be backed with more memory
 
-## Datastax on Cloud
+## (Section: DS210) - Datastax on Cloud
 
 -   Templates and scripts to install DSE on cloud
 -   OPSCenter LCM 6.0+ (Lifecycle manager)
@@ -3487,7 +3690,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     1.  Elastic volume always have the same tight latencies
     2.  pd-ssd seems faster than local-ssd
 
-## Cassandra on Cloud Challenges
+## (Section: DS210) - Cassandra on Cloud Challenges
 
 -   Hyeperthreads - you don't get a real CPU
 -   Noisy neighbors - if you see CPU steal, terminate your box and get a
@@ -3499,13 +3702,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
         slow but works for small workloads
     -   Google - Flat network - No config, it's great
 
-## Cassandra on cloud security
+## (Section: DS210) - Cassandra on cloud security
 
 -   AWS - volume encryption for EBS
 -   Google - largely secure by default. Should go through multifactor
     auth
 
-## Cassandra Security Considerations
+## (Section: DS210) - Cassandra Security Considerations
 
 -   Authentication and Authorization (Covered in DS410)
 -   Authentication in disabled by default
@@ -3519,7 +3722,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     -   ALTER change cassandra WITH PASSWORD 'newpassword'
 -   Cassandra stores all the credentials in the sys_auth keyspace
 
-## What is the default security configuration
+## (Section: DS210) - What is the default security configuration
 
 ``` yaml
 authentication_options:
@@ -3529,13 +3732,13 @@ authentication_options:
   plain_text_without_ssl: warn
 ```
 
-## Where is roles are stored in internal-scheme? (in default scheme)
+## (Section: DS210) - Where is roles are stored in internal-scheme? (in default scheme)
 
 -   ALTER keyspace system_auth with replication {'class' :
     'NetworkTopologyStrategy', 'dc': 1 , 'dc': 3}
 -   All the roles are stored in system_auth.roles table
 
-## Cassandra Authentication table (system_auth.roles - in default scheme)
+## (Section: DS210) - Cassandra Authentication table (system_auth.roles - in default scheme)
 
 -   ``` sql
       CREATE table system_auth.roles (role text primary key, can_login boolean, is_superuser boolean, number_of set<text>, salted_hash text)
@@ -3548,7 +3751,7 @@ authentication_options:
 
 -   salted_hash is password
 
-## What are best practices for Cassandra security
+## (Section: DS210) - What are best practices for Cassandra security
 
 1.  Create one more superuer_role and delete the default cassandra
     super-user
@@ -3557,7 +3760,7 @@ authentication_options:
 4.  Ensure system_auth keyspace should be replicated to multiple
     datacenter
 
-## Cassandra Role/Authorization management
+## (Section: DS210) - Cassandra Role/Authorization management
 
 ``` sql
     Grant Select ON killr_video.user_by_email TO user/role;
@@ -3574,7 +3777,7 @@ authentication_options:
     * Authorize - 
 ```
 
-## Cassandra encryption SSL
+## (Section: DS210) - Cassandra encryption SSL
 
 -   node-to-node
 -   client-to-node
@@ -3589,13 +3792,13 @@ authentication_options:
     -   Other nodes validate the certicate using their trust-store RCA
         details
 
-## What are two artifacts required for Cassandra to enable SSL
+## (Section: DS210) - What are two artifacts required for Cassandra to enable SSL
 
 1.  TrustStore (all the trusted certificate- ROOT CA)
     1.  This is common among all the Cassandra nodes
 2.  Keystore (key-pair, its own signed certificate)
 
-## 8 Steps for SSL setup (node-to-node)
+## (Section: DS210) - 8 Steps for SSL setup (node-to-node)
 
 1.  Create Root Cert (Root of entire SSL communication)
     1.  Root Cert = "CA_KEY" + "Root Cert"
@@ -3617,7 +3820,7 @@ authentication_options:
     1.  [Credit: SSL
         Configuration](https://www.slideshare.net/BrajaDas/cassandra-security-configuration?from_action=save)
 
-## How to harden Cassandra security
+## (Section: DS210) - How to harden Cassandra security
 
 1.  Secure the keystore - since this contains private key
 2.  Setup firewasll so that only nodes can talk to each other on the
@@ -3626,7 +3829,7 @@ authentication_options:
 4.  Enable require_client_auth, otherwise program could spoof being a
     node
 
-## Datastax OpsCenter
+## (Section: DS210) - Datastax OpsCenter
 
 1.  Two Products
 2.  Configure and deploy cluster
@@ -3634,7 +3837,7 @@ authentication_options:
 4.  Perform software upgrades
 5.  Load Certificate
 
-## Datastax OpsCenter (Cluster Monitoring/Alert)
+## (Section: DS210) - Datastax OpsCenter (Cluster Monitoring/Alert)
 
 1.  Monitoring and management (Operation)
 2.  Broswer -\> OpsCenter Service -\> Agent running inside DataStax
@@ -3647,7 +3850,7 @@ authentication_options:
     5.  Performance service
 4.  Comprehensive Grafana like dashboard
 
-## Datastax OpsCenter (Management Service)
+## (Section: DS210) - Datastax OpsCenter (Management Service)
 
 1.  Backup & Restore Service
 2.  NodeSync Service
@@ -3655,7 +3858,7 @@ authentication_options:
 4.  Best Practices Service
 5.  Capacity Service
 
-## Datastax OpsCenter (Backup and restore Service)
+## (Section: DS210) - Datastax OpsCenter (Backup and restore Service)
 
 1.  Visual backup management
 2.  Backup & Restore on distributed system is hard
@@ -3670,7 +3873,7 @@ authentication_options:
 7.  Configurable retention polcies
 8.  Includes alerts and reporting
 
-## Datastax OpsCenter LifeCycle Manager (Provisioning)
+## (Section: DS210) - Datastax OpsCenter LifeCycle Manager (Provisioning)
 
 1.  Configuration and deployment (Onboarding)
 2.  UI Menu has option for
@@ -3680,12 +3883,12 @@ authentication_options:
 6.  Add DC/Nodes/Clusters
 7.  Point in time backup & restore
 
-## Datastax OpsCenter NodeSync
+## (Section: DS210) - Datastax OpsCenter NodeSync
 
 1.  Prefered over repair service
 2.  Low intensity continuous repair
 
-## Datastax OpsCenter other features
+## (Section: DS210) - Datastax OpsCenter other features
 
 1.  Best Practice service - periodically audits, alerts and suggests
     solution
@@ -3700,21 +3903,21 @@ authentication_options:
     2.  Mail
     3.  SNMP - to an enterprise monitoring system
 
-## Follow-up course
+## (Section: DS210) - Follow-up course
 
 1.  DS-220 - Practical application modelling with Apache Casssandra
 2.  DS-310 - DataStax Enterprise Search
 3.  DS-320 - DataStax Enterprise Apache Sparx
 4.  DS-330 - DataStax Enterprise Graph
 
-## Lab notes
+## (Section: DS210) - Lab notes
 
 -   172.18.0.2
 -   /usr/share/dse/data
 -   /var/lib/cassandra/data
 -   DS-220
 
-## Cassandra people
+## (Section: DS210) - Cassandra people
 
 -   [Jamie King](https://twitter.com/mrcompscience)
 
@@ -3722,7 +3925,7 @@ authentication_options:
 
 -   [Patrick McFadin](https://twitter.com/patrickmcfadin?lang=en)
 
--   ## How to create anki from this markdown file
+-   ## (Section: DS210) - How to create anki from this markdown file
 
 ```{=html}
 <!-- -->
@@ -3837,7 +4040,7 @@ for val in session.execute("select * from videos_by_tag"):
 
 ## Node Status
 
-## Nodetool usage
+## (Section: Nodetool) - Nodetool usage
 
 -   
 
@@ -3848,7 +4051,7 @@ for val in session.execute("select * from videos_by_tag"):
           [(-p <port> | --port <port>)] <command> [<args>]
 ```
 
-## Nodetool commands
+## (Section: Nodetool) - Nodetool commands
 
 ``` bash
      The most commonly used nodetool commands are:
@@ -3956,8 +4159,8 @@ for val in session.execute("select * from videos_by_tag"):
     Instaclustr](https://www.youtube.com/watch?v=v1zkqHfSSUE)
 
 -   [Best Practices of Cassandra in
-    Production](https://www.youtube.com/watch?v=P6UkQJrEQyU) ## What is
-    repair?
+    Production](https://www.youtube.com/watch?v=P6UkQJrEQyU) ##
+    (Section: Repair) - What is repair?
 
 -   Repair ensures that all replicas have identical copies of a given
     partition
@@ -3980,7 +4183,7 @@ for val in session.execute("select * from videos_by_tag"):
     -   datacenter_aware
         -   It is like sequential but one node per each DC
 
-## Repair Service (on OpsCenter)
+## (Section: Repair) - Repair Service (on OpsCenter)
 
 1.  Runs in the background
 2.  Works on small chunks to limit performance impact
@@ -3988,7 +4191,7 @@ for val in session.execute("select * from videos_by_tag"):
 4.  Can run in parallel
 5.  Can work on sub-ranges or incremental
 
-## Repair command
+## (Section: Repair) - Repair command
 
 -   ``` bash
     nodetool <options> repair
@@ -3998,19 +4201,19 @@ for val in session.execute("select * from videos_by_tag"):
     --et <end_token> used when repairing a subrange
     ```
 
-## Why repairs are necessary?
+## (Section: Repair) - Why repairs are necessary?
 
 -   Nodes may go down for a period of time and miss writes
     -   Especially if down for more than max_hint_window_in_ms
 -   If nodes become overloaded and drop writes
 -   if dropped mutation is high repair was missing in its place
 
-## Repair guideline
+## (Section: Repair) - Repair guideline
 
 -   Make sure repair completes within gc_grace_seconds window
 -   Repair should be scheduled once before every gc_grace_seconds
 
-## What is Primary Range Repair?
+## (Section: Repair) - What is Primary Range Repair?
 
 -   The primary range is the set of tokens the node is assigned
 -   Repairing only the node's primary range will make sure that data is
@@ -4018,7 +4221,7 @@ for val in session.execute("select * from videos_by_tag"):
 -   Repairing only the node's primary range will eliminate reduandant
     repairs
 
-## How does repair work?
+## (Section: Repair) - How does repair work?
 
 1.  Nodes build merkel-trees from partitions to represent how current
     data values are
@@ -4027,7 +4230,7 @@ for val in session.execute("select * from videos_by_tag"):
     synchronization
 4.  Nodes exchange data values and update their data
 
-## Events that trigger Repair
+## (Section: Repair) - Events that trigger Repair
 
 -   'CL=Quorum' - Read would trigger the repair
 -   Random repair (even for non-quorum read)
@@ -4035,9 +4238,9 @@ for val in session.execute("select * from videos_by_tag"):
     -   dclocal_read-repair_chance
 -   Nodetool repair - externally triggered
 
-## Dropped Mutation vs Repair
+## (Section: Repair) - Dropped Mutation vs Repair
 
-## If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
+## (Section: Repair) - If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
 
 -   5 nodes.
 -   Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4
@@ -4045,24 +4248,24 @@ for val in session.execute("select * from videos_by_tag"):
 -   Node-1 would use N3 for copy-2
 -   Node-2 would use N3 for copy-1
 
-## How to specifically use only one node to repair itself
+## (Section: Repair) - How to specifically use only one node to repair itself
 
 -   nodetool -pr node-3 --But we have to run in all the nodes
     immediately
 -   runing nodetool -pr on only one node is **not-recommended**
 
-## If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
+## (Section: Repair) - If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
 
 -   We repair thrice.
 
-## Developer who maintains/presented about Reaper
+## (Section: Repair) - Developer who maintains/presented about Reaper
 
 -   [Alexander Dejanovski](Alexandar%20Dejanvoski)
 -   [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle)
     \| Cassandra Summit
     2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 
-## Repair documentation
+## (Section: Repair) - Repair documentation
 
 -   [All the options of
     nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
@@ -4071,7 +4274,7 @@ for val in session.execute("select * from videos_by_tag"):
 -   [Datastax
     documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
 
-## Repair and some number related to time
+## (Section: Repair) - Repair and some number related to time
 
 -   First scheduled repair would always take more time
 -   Repair scheduled often generally completes faster, since there are
@@ -4081,7 +4284,7 @@ for val in session.execute("select * from videos_by_tag"):
 -   With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to
     repair it.
 
-## What are Reaper settings
+## (Section: Repair) - What are Reaper settings
 
 -   Segments per node
 -   Tables
@@ -4091,7 +4294,7 @@ for val in session.execute("select * from videos_by_tag"):
 -   Threads
 -   Repair intensity
 
-## Reaper is predominantly used for repair tasks
+## (Section: Repair) - Reaper is predominantly used for repair tasks
 
 -   Reaper uses concept called segments (despite in Cassandra world
     Segment means CommitLog)
@@ -4099,14 +4302,14 @@ for val in session.execute("select * from videos_by_tag"):
     for every 1 TB
 -   Smaller the segement, let reaper to repair it faster
 
-## Repair related commands
+## (Section: Repair) - Repair related commands
 
 ``` bash
 nodetool repair -dc DC ## is the command to repair using nodetool
 nodetool -h 1.1.1.1 status
 ```
 
-## Reference
+## (Section: Repair) - Reference
 
 -   [Repair Improvements in Apache Cassandra 4.0 \|
     DataStax](https://www.youtube.com/watch?v=kl2ea0Cxmi0)
@@ -4119,21 +4322,29 @@ nodetool -h 1.1.1.1 status
     2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 -   [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
 
-## How to create anki from this markdown file
+## (Section: Repair) - How to create anki from this markdown file
 
     mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
 
-## Create Keyspace (and use it)
+## (Section: Cqls) - Create KeySpace (and use it)
 
 ``` sql
-## Only when cluster replication exercise
+## (Section: Cqls) - Only when cluster replication exercise
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy','east-side': 1,'west-side': 1};
 
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 ```
 
-## Create TABLE and load/export data in and out-of-tables
+## (Section: Cqls) - Partition Key vs Primary Key
+
+-   Partition key uniquiely identifies partition inside a table
+-   Primary key uniquely identifies row inside partition
+-   PartitionKey == Primary-Key, every partition has single-row
+-   PrimaryKey = Partition_Key + Clustering Key
+    -   Partition has multiple rows
+
+## (Section: Cqls) - Create TABLE and load/export data in and out-of-tables
 
 ``` sql
 CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
@@ -4154,7 +4365,7 @@ UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag
 COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
 
-## How to select token values of primary-key
+## (Section: Cqls) - How to select token values of primary-key
 
 ``` sql
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
@@ -4168,7 +4379,30 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
 ```
 
-## CQL Copy and rules
+## (Section: Cqls) - IS CQL Case-sensitive
+
+-   By default, names are case-insensitive, but case sensitivity can be
+    forced by using double quotation marks around a name.
+
+## (Section: Cqls) - Create Keyspace/Table Syntax
+
+``` sql
+CREATE KEYSPACE [ IF NOT EXISTS ] keyspace_name  WITH REPLICATION = { replication_map };
+
+CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
+( 
+  column_name data_type [ , ... ] 
+  PRIMARY KEY ( 
+   ( partition_key_column_name  [ , ... ] )
+   [ clustering_key_column_name [ , ... ] ]
+  )     
+)
+[ WITH CLUSTERING ORDER BY 
+   ( clustering_key_column_name ASC|DESC [ , ... ] )
+];
+```
+
+## (Section: Cqls) - CQL Copy and rules
 
 -   Cassandra expects same number of columns in every row (in delimited
     file)
@@ -4179,14 +4413,14 @@ system.token(tag)    | tag
 -   For importing larger datasets, use DSBulk
 -   Can be piped with standar-input and standrd-outpu
 
-## CQL Copy options
+## (Section: Cqls) - CQL Copy options
 
 1.  DELIMITER
 2.  HEADER
 3.  CHUNKSIZE - 1000 (default)
 4.  SKIPROW - number of rows to skip (for testing)
 
-## How to list partition_key (or the actual token) along with other columns
+## (Section: Cqls) - How to list partition_key (or the actual token) along with other columns
 
 -   USe token fucntion and pass all the parameter of the partition_key
 -   select tag, title, video_added_date, token(tag) from videos_by_tag;
@@ -4195,17 +4429,17 @@ system.token(tag)    | tag
     -   When you pass clustering column that are not part of
         partition_key, CQL throws this error
 
-## Gosspinfo
+## (Section: Cqls) - Gosspinfo
 
 ``` sql
   SELECT peer, data_center, host_id, preferred_ip, rach, release_version, rpc_address, schema_version FROM system.peers;
 ```
 
-## nodetool getendpoints killrvideo videos_by_tag cassandra
+## (Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag cassandra
 
 172.19.0.2
 
-## What are all the System Schema
+## (Section: Cqls) - What are all the System Schema
 
 ``` bash
 system
@@ -4215,11 +4449,11 @@ system_schema
 system_traces
 ```
 
-## See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
+## (Section: Cqls) - See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
 
 -   SELECT COUNT (\*) FROM user;
 
-## Write a couple of rows, populate different columns for each, and view the results
+## (Section: Cqls) - Write a couple of rows, populate different columns for each, and view the results
 
 1.  INSERT INTO user (first_name, last_name, title) VALUES ('Bill',
     'Nguyen', 'Mr.');
@@ -4227,64 +4461,77 @@ system_traces
     'Rodriguez');
 3.  SELECT \* FROM user;
 
-## View the timestamps generated for previous writes
+## (Section: Cqls) - View the timestamps generated for previous writes
 
 -   SELECT first_name, last_name, writetime(last_name) FROM user;
 
-## Note that we're not allowed to ask for the timestamp on primary key columns
+## (Section: Cqls) - Note that we're not allowed to ask for the timestamp on primary key columns
 
 -   SELECT WRITETIME(first_name) FROM user;
 
-## Set the timestamp on a write
+## (Section: Cqls) - Set the timestamp on a write
 
 -   UPDATE user USING TIMESTAMP 1434373756626000 SET last_name =
     'Boateng' WHERE first_name = 'Mary' ;
 
-## Verify the timestamp used
+## (Section: Cqls) - Verify the timestamp used
 
 -   SELECT first_name, last_name, WRITETIME(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## View the time to live value for a column
+## (Section: Cqls) - View the time to live value for a column
 
 -   SELECT first_name, last_name, TTL(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## Set the TTL on the last name column to one hour
+## (Section: Cqls) - Set the TTL on the last name column to one hour
 
 -   UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE
     first_name = 'Mary' ;
 
-## View the TTL of the last_name - (counting down)
+## (Section: Cqls) - View the TTL of the last_name - (counting down)
 
 -   SELECT first_name, last_name, TTL(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## Find the token
+## (Section: Cqls) - Find the token
 
 -   SELECT last_name, first_name, token(last_name) FROM user;
 
-## Clear the screen of output from previous commands
+## (Section: Cqls) - Clear the screen of output from previous commands
 
 -   CLEAR
 
-## Cassandra Dual equivalent table and SQL
+## (Section: Cqls) - Cassandra Dual equivalent table and SQL
 
 ``` sql
 1. select now() from system.local;
 ```
 
-## Exit cqlsh
+## (Section: Cqls) - How to add column to a table?
+
+-   ALTER TABLE movies ADD country TEXT;
+
+## (Section: Cqls) - Exit cqlsh
 
 -   EXIT
 -   Quit
 
-## Reference
+## (Section: Cqls) - What would happen if we use Clustering Column where STATIC columns are updated
+
+``` sql
+cqlsh:killr_video> update rating_by_user set name='bkj' where email='akj@je.com' and year=2021;
+InvalidRequest: Error from server: 
+code=2200 [Invalid query] 
+message="Invalid restrictions on clustering columns since the UPDATE statement modifies only static columns"
+```
+
+## (Section: Cqls) - Reference
 
 -   [A deep look at the CQL WHERE
     clause](https://www.datastax.com/blog/deep-look-cql-where-clause)
 
-## Storage Architecture
+## (Section: SSTable) - Storage Architecture
 
 -   Only one commit log per cluster
 -   Commit-logs are flused to (via MemTable) sstables
@@ -4295,7 +4542,7 @@ system_traces
 -   SSTable very poor to find absence of key (hence we need
     bloom-filter)
 
-## SStable - settings in cassandra.yaml
+## (Section: SSTable) - SStable - settings in cassandra.yaml
 
 1.  flush_compression: fast
 2.  file_cache_enabled: false
@@ -4311,7 +4558,7 @@ system_traces
 7.  stream_entire_sstables: true
 8.  max_value_size_in_mb: 256
 
-## What are the files part of SSTable
+## (Section: SSTable) - What are the files part of SSTable
 
 -   mb-1-big-Summary.db
 -   mb-1-big-Index.db
@@ -4323,25 +4570,25 @@ system_traces
     -   mb-1-big-CRC.db
     -   mb-1-big-Toc.txt -- list of the above files
 
-## What is the role of index file
+## (Section: SSTable) - What is the role of index file
 
 -   It lists the partition-keys/cluster-keys that are available inside
     the SSTable with offset information. Disk seek can directly locate
     few keys
 
-## What is the role of statitics file
+## (Section: SSTable) - What is the role of statitics file
 
 -   It has the column definition
 -   It has almost all the details about DDL of a table
 
-## Why SQLite4 didn't use LSM?
+## (Section: SSTable) - Why SQLite4 didn't use LSM?
 
 -   Every insert needs to check constraint, and it requires reads. In
     simple, every write operation also ends up with read operation.
 -   LSM is great for blind writes, but doesn't work work as well when
     constraints must be checked prior to each write
 
-## LSM Pros and Cons
+## (Section: SSTable) - LSM Pros and Cons
 
 -   Pros
     -   Faster writes
@@ -4354,7 +4601,7 @@ system_traces
     -   More space on disk
     -   Greater Complexity
 
-## SSTable references
+## (Section: SSTable) - SSTable references
 
 -   [What is in All of Those SSTable Files Not Just the Data One but All
     the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit
@@ -4363,7 +4610,7 @@ system_traces
     file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
 -   [C23: Lessons from SQLite4 by SQLite.org - Richard
     Hipp](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
-    ## DSE Cassandra Course topics
+    ## (Section: Administration) - DSE Cassandra Course topics
 
 1.  Install and Start Apache Cassandra™
 2.  CQL
@@ -4385,7 +4632,7 @@ system_traces
 18. Compaction
 19. Advanced Performance
 
-## Course DSE installation
+## (Section: Administration) - Course DSE installation
 
 ``` bash
 ubuntu@ds201-node1:~$ tar -xf dse-6.0.0-bin.tar.gz
@@ -4396,30 +4643,30 @@ cd node/bin
 ./dsetool status
 ```
 
-## Nodetool vs DSEtool
+## (Section: Administration) - Nodetool vs DSEtool
 
 -   nodetool -- only Apache Cassandra
 -   dsetool -- Apache Cassandra™, Apache Spark™, Apache Solr™, Graph
 
-## Nodetool Gauge the server performance
+## (Section: Administration) - Nodetool Gauge the server performance
 
 ``` sql
 ./nodetool describecluster
 ./nodetool getlogginglevels
 ./nodetool setlogginglevels org.apache.cassandra TRACE
-## Create and populate garbage to stress the cluster
+## (Section: Administration) -  Create and populate garbage to stress the cluster
 /home/ubuntu/node/resources/cassandra/tools/bin/cassandra-stress write n=50000 no-warmup -rate threads=2
 ./nodetool flush
 ./nodetool status
 ```
 
-## Find all the material view of a keyspace
+## (Section: Administration) - Find all the material view of a keyspace
 
 ``` bash
 SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 ```
 
-## How to find number of partitions/node-of partition in a table
+## (Section: Administration) - How to find number of partitions/node-of partition in a table
 
 -   ./nodetool tablestats -H keyspace.tablename;
 -   select token(tag) from killrvideo.videos_by_tag;
@@ -4430,7 +4677,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   ./nodetool getendpoints killrvideo videos_by_tag 'cassandra'
     -   ./nodetool getendpoints killrvideo videos_by_tag 'datastax'
 
-## Cassandra Node (Server/VM/H/W)
+## (Section: Administration) - Cassandra Node (Server/VM/H/W)
 
 -   Runs a java process (JVM)
 -   Only supported on local storage or direct attached storage
@@ -4442,7 +4689,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   How do you manage node?
     -   Use nodetool utilitiy
 
-## Cassandra Ring (The cluster)
+## (Section: Administration) - Cassandra Ring (The cluster)
 
 -   Any node can act as a co-ordinator to incoming data
 -   How does co-ordinator knows the node that handles the data?
@@ -4451,7 +4698,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   (2\^\^63)-1 --> (-2\^\^63) - ranges of tokents are available
     -   20 digit number - 18,446,744,073,709,551,616
 
-## How new nodes join the ring
+## (Section: Administration) - How new nodes join the ring
 
 -   Uses seed-nodes configured in new-nodes Cassandra.yaml
     -   SeedNode provider could be rest-api
@@ -4461,7 +4708,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Node status could be - Leaving/Joining/Up/Running - UN (Up and
         Normal)
 
-## Peer-to-Peer
+## (Section: Administration) - Peer-to-Peer
 
 -   Leader-Follower fails when we do sharding
     -   Leader-Follower model is just client-server model on the service
@@ -4474,7 +4721,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   No node is superior than other
     -   Everyone is peer
 
-## Why do we need VNode?
+## (Section: Administration) - Why do we need VNode?
 
 -   When adding a new physical node, how to equally distribute data from
     existing nodes into new node?
@@ -4488,12 +4735,12 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   Adding/removing nodes with vnodes helps keep the cluster balanced
 -   By default each node has 128 vnodes
 
-## How to enable VNode?
+## (Section: Administration) - How to enable VNode?
 
 -   num_tokens value should greather than 1 in Cassandra.yaml
 -   num_tokens = 1 ## Disable vnode
 
-## Gossip protocol (nodemeta data is the subject)
+## (Section: Administration) - Gossip protocol (nodemeta data is the subject)
 
 -   No centralized service to spread the information - How do we share
     information?
@@ -4502,7 +4749,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   It might pick same node successive time, they don't keep track
         of the node that they gossped with
 
-## What do nodes Gossip about?
+## (Section: Administration) - What do nodes Gossip about?
 
 -   They gossip about node-meta-data
     -   Heartbeat, generation, version and load
@@ -4510,7 +4757,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Generation - timestamp of when the node-bootstraps
     -   version - counter incremented every-second
 
-## What is Gossip data structure look like?
+## (Section: Administration) - What is Gossip data structure look like?
 
 -   EP: 127.0.0.1, HB:100:20, LOAD:86
 
@@ -4532,19 +4779,19 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     }
     ```
 
-## What is Gossip protocol?
+## (Section: Administration) - What is Gossip protocol?
 
 -   Initiator - Sends SYN
 -   Receiver - Receives SYN and Constructs and replies with ACK message
 -   Initiator - Gets ACK reponse from receiver\
 -   Initiator - ACKs the ACK (from receiver) using ACK2 reponse
 
-## How to find more details about Gossip
+## (Section: Administration) - How to find more details about Gossip
 
 -   project = CASSANDRA AND component = "Cluster/Gossip"
 -   https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
-## Sample Gossipinfo
+## (Section: Administration) - Sample Gossipinfo
 
 ``` json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -4590,14 +4837,14 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
   TOKENS:60:<hidden>
 ```
 
-## Node failure detector
+## (Section: Administration) - Node failure detector
 
 -   Every node declares their own status.
 -   Every node detects failure of peer-node
 -   They don't send their assumptions/evaluations during gossip (nodes
     don't send their judgement about other nodes)
 
-## Snitch (meaning informer)
+## (Section: Administration) - Snitch (meaning informer)
 
 -   Snitch - toplogy of cluster
 -   Informs each IP and its physical location
@@ -4621,21 +4868,21 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
         -   105 - node octet
     -   cassandra-rackdc.properties can contain the data
 
-## What is the role of DynamicSnitch
+## (Section: Administration) - What is the role of DynamicSnitch
 
 -   It uses underlying snitch
 -   Maintains pulse of each nodes performance
 -   Determines which node to query based on performance
 -   Turned on by default for all snitches
 
-## Mandatory operational practice
+## (Section: Administration) - Mandatory operational practice
 
 -   All nodes should use same snitch
 -   Changing network topology requires restarting all the nodes with
     latest snitch
 -   Run sequential repair and cleanup on each node
 
-## Replication with RF=1
+## (Section: Administration) - Replication with RF=1
 
 -   Every node is responsible for certain token range
 -   Partitioner finds the token from the data (MurMurPartitioner)
@@ -4645,7 +4892,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns token higher than 59 is (here 63 is choosen)
     -   Node that owns 50 and above.. but below 63 would store the data
 
-## Replication with RF>=2
+## (Section: Administration) - Replication with RF>=2
 
 -   Data would be stored in node that supposed to own token range
 -   For every RF>1, Node who is neighbour (token range higher) also gets
@@ -4654,7 +4901,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns 50-63 would get a copy
     -   Node that owns 63-75 would also get a copy
 
-## Replication with RF>=2 and Cross DataCenter
+## (Section: Administration) - Replication with RF>=2 and Cross DataCenter
 
 -   Cross DC replication is hard
 -   We can have different RF for each DC
@@ -4662,7 +4909,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 -   Remote Co-ordinator would act as a local-cordinator to replicate
     data within remote DC
 
-## Consistency in CQL
+## (Section: Administration) - Consistency in CQL
 
 ``` sql
 consistency ANY;
@@ -4676,7 +4923,7 @@ INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra'
 select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
-## Reference
+## (Section: Administration) - Reference
 
 -   [Datastax
     videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
@@ -4695,35 +4942,35 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 8.  (https://www.youtube.com/watch?v=AZB5DX9m7Hc)
 9.  (https://www.youtube.com/watch?v=3pPser3MYEE)
 10. (https://www.youtube.com/watch?v=ovMo5pIMj8M)
-11. (https://www.youtube.com/watch?v=iQBtkhvaOBM) ## What are
-    Tombstones?
+11. (https://www.youtube.com/watch?v=iQBtkhvaOBM) ## (Section:
+    Tombstone) - What are Tombstones?
 
 -   Dead cells (columns/rows) are kept it memory and disk, for other
     other nodes to aware about dead cells for 10-days.
 -   When rows are queried, query has to scan over multiple expired
     cells/rows to get to the live cells
 
-## What are all the majore issues due to Tombstones
+## (Section: Tombstone) - What are all the majore issues due to Tombstones
 
 -   Often query read ends up in timesout
 -   Memory is occupied by dead-cells
 -   Rarely TombstoneOverwhelmException happens
 
-## How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
+## (Section: Tombstone) - How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
 
 1.  tombstone_threshold ratio to 0.1
 2.  unchecked_tombstone_compaction: true
 3.  min_threshold: 2 (Compaction would be triggered for just 2 similar
     sized SSTables)
 
-## Where is Tombstones are handled?
+## (Section: Tombstone) - Where is Tombstones are handled?
 
 -   Tombstones are handled part of Compaction
 -   [AbstractCompactionStrategy](https://github.com/apache/cassandra/blob/cassandra-3.11/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)
     -   protected boolean worthDroppingTombstones(SSTableReader sstable,
         int gcBefore)
     -   `java           System.currentTimeMillis() > sstable.getCreationTimeFor(Component.DATA) + tombstoneCompactionInterval * 1000           AND           double droppableRatio = sstable.getEstimatedDroppableTombstoneRatio(gcBefore);           if (droppableRatio > tombstoneThreshold=0.2f)`
-        ## Hinted Handoff
+        ## (Section: WriteRead) - Hinted Handoff
 -   Simple sticky note on co-ordinator
 -   Once actual node is available, Co-ordinator would deliver the
     message
@@ -4738,13 +4985,13 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   COnsistency level of ANY - Hinted handoff is considered as valid
     transaction
 
-## How read works?
+## (Section: WriteRead) - How read works?
 
 -   Co-ordinator reads data from fastest machine
 -   Co-ordinator reads checksum form other two machine
 -   if 1 and 2, matches, then we co-ordinator responds to client queries
 
-## Read Repair (Happens only when CL=All)
+## (Section: WriteRead) - Read Repair (Happens only when CL=All)
 
 -   Over-time nodes goes out-of-sync
 -   Every write chooses between availablity and consistency
@@ -4760,7 +5007,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
         (their obsolete data is repaired)
     4.  Responds to client with latest result
 
-## Read Repair Chance (when CL \< ALL) (less than ALL consistency read)
+## (Section: WriteRead) - Read Repair Chance (when CL \< ALL) (less than ALL consistency read)
 
 -   Cassandra does read-repair even for request less than ALL, But not
     100% but probablistically
@@ -4770,7 +5017,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   Client can't be sure if data is latest or replicas are in sync
 -   Read repair done asynchronously in the background
 
-## Nodetool repair
+## (Section: WriteRead) - Nodetool repair
 
 -   It is the last line of defence for us to improve consistency within
     stored data
@@ -4781,7 +5028,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   Must run to synchronize a failed node coming back online
 -   Run on nodes not read from very often
 
-## Nodetool Sync (only datastax)
+## (Section: WriteRead) - Nodetool Sync (only datastax)
 
 -   Peforming full-repair is costly
 -   Full-repair should be run before gc_grace_seconds
@@ -4789,7 +5036,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   Repairs in small chunks as we go rather than full repair
     -   Create table myTable (...) WITH nodesync = {'enabled': 'true'};
 
-## Nodetool Sync Save points (only datastax)
+## (Section: WriteRead) - Nodetool Sync Save points (only datastax)
 
 -   Each node splits its local range into segments
     -   Small token range of a table
@@ -4800,14 +5047,14 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -   Save-point is the place where progress is stored
 -   NodeSync priorities segments to meet deadline target
 
-## Nodetool Sync - Segments Sizes
+## (Section: WriteRead) - Nodetool Sync - Segments Sizes
 
 -   Eache segment is less than 200MB
 -   If a partition is great than 200MB win over segments less than 200MB
 -   Each segment cannot be less than its partition size, hence if
     segments are larger .. it means partition was larger
 
-## Nodetool Sync - Segments failures
+## (Section: WriteRead) - Nodetool Sync - Segments failures
 
 -   Node fails during segment validation, node drops all work for that
     segment and starts over
@@ -4824,14 +5071,14 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
         occurred
     -   failed: unexpected error happened; check logs.
 
-## Nodetool Sync - Segments Validation
+## (Section: WriteRead) - Nodetool Sync - Segments Validation
 
 -   NodeSync - simply performs a read repair on the segment
 -   read-data from all replicas
 -   Check for inconsistencies
 -   Repair stale nodes
 
-## Cassandra Write Path (inside the node, and for *a* partition)
+## (Section: WriteRead) - Cassandra Write Path (inside the node, and for *a* partition)
 
 -   Two atomic operation makes a write successfull (Both commit-log +
     mem-table)
@@ -4849,7 +5096,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     immutable)
 -   No inplace update performed on SS-Table
 
-## Cassandra Read Path (inside the node, and for particular a partition)
+## (Section: WriteRead) - Cassandra Read Path (inside the node, and for particular a partition)
 
 -   Read is easy if records are in mem-table
     -   Based on token, just to binary-search on mem-table and return
@@ -4867,7 +5114,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   Partition-summary is an another index used by Cassandra
     -   Partition-summary resides in memory
 
-## Cassandra Read Path workflow
+## (Section: WriteRead) - Cassandra Read Path workflow
 
 -   ReadRequest --> Bloomfilter --> Key Cache --> Partition Summary -->
     Partition Index --> SS-Table
@@ -4884,7 +5131,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
             in partition-index about ss-table byte-offset)
 -   Finally... bloom filter can optimize all the above
 
-## Bloom filter
+## (Section: WriteRead) - Bloom filter
 
 -   It might stop the entire process if the data is not present
 -   It might produce false positives, but never ends in false negative
@@ -4893,7 +5140,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   If Bloom-filter says "possible-data", there may or may not present
     data in that node
 
-## Datastax
+## (Section: WriteRead) - Datastax
 
 -   Trie based partition-summary is being used
 -   SSTable lookups are extreemly fast
@@ -4903,7 +5150,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
         partition-index
     -   Tried based partition index is extreemly faster
 
-## Compaction (merging ss-tables)
+## (Section: WriteRead) - Compaction (merging ss-tables)
 
 -   Compaction
     -   Removes old un-necessary immutable data
@@ -4927,7 +5174,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -   Stale data removed and compacted (reduced and combined into
         fewer ss-tables)
 
-## Compaction Strategies (based on use-case)
+## (Section: WriteRead) - Compaction Strategies (based on use-case)
 
 -   Choose proper strategy based on use-case
     -   SizeTieredCompaction - For write heavy
@@ -4935,13 +5182,13 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -   TimeWindowCompaction - For timeseries
 -   We can change compaction strategy
 
-## Advanced Peformance Gains in (DSE)
+## (Section: WriteRead) - Advanced Peformance Gains in (DSE)
 
 -   OSS uses thread-pools, might cause thread contention
 -   DSE - uses only one thread per core
 -   DSE - Uses asynchronous a lot and non-blocking
 
-## Before and after flush
+## (Section: WriteRead) - Before and after flush
 
     Total number of tables: 47                  Total number of tables: 47
     ----------------                        ----------------
@@ -4988,7 +5235,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
             Dropped Mutations: 0 bytes                  Dropped Mutations: 0 bytes
             Failed Replication Count: null                  Failed Replication Count: null
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
+## (Section: WriteRead) - Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
 
     ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
     total 36296
@@ -5004,7 +5251,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -rw-rw-r-- 1 ubuntu ubuntu       82 Jun 12 04:41 aa-9-bti-TOC.txt
     drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:41 .
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
+## (Section: WriteRead) - Sample data directory wiht WITH bloom_filter_fp_chance = 0.0001;
 
     ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
     total 36488
@@ -5020,7 +5267,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -rw-rw-r-- 1 ubuntu ubuntu    10271 Jun 12 04:47 aa-10-bti-Statistics.db
     drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:47 .
 
-## Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
+## (Section: WriteRead) - Sample data directory wiht WITH bloom_filter_fp_chance = 1.0; (100% false positive allowed... No filter file)
 
     ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-000692d1cb3811eb8b932752b509e266$ ls -ltar
     total 36104
@@ -5036,7 +5283,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     drwxrwxr-x 3 ubuntu ubuntu     4096 Jun 12 04:53 .
     ubuntu@ds201-node1:~/node1/data/data/keyspace1/standard1-0
 
-## Nodetool CFStats
+## (Section: WriteRead) - Nodetool CFStats
 
     ubuntu@ds201-node1:~/node/bin$ ./nodetool cfstats keyspace1
     Total number of tables: 47
@@ -5127,7 +5374,7 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     ./cassandra-stress read CL=ONE no-warmup n=1000000 -rate threads=1
     ./nodetool cfstats
 
-## Followup questions
+## (Section: WriteRead) - Followup questions
 
 -   we could not find /var/log/system.log
     -   During single-node check console output or nohup.out or terminal

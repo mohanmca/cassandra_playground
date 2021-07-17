@@ -1,4 +1,4 @@
-## What is D210 Course about
+## (Section: DS210) - What is D210 Course about
 
 * Operations for Apache Cassandra™ and DataStax Enterprise
 * Installation
@@ -7,7 +7,7 @@
   * sudo apt-get update
   * sudo apt-get install dse-full
 
-## What are basic parameter required for Cassandra quickstart
+## (Section: DS210) -  What are basic parameter required for Cassandra quickstart
 
 * Four parameters
     * cluster-name
@@ -16,12 +16,12 @@
     * seeds
       * Seeds should be comma seperated inside double quote - "ip1,ip2,ip3"
 
-## What is the location of default Cassandra.yaml?
+## (Section: DS210) -  What is the location of default Cassandra.yaml?
 
 * /etc/dse/cassandra.yaml (package installer)
 * /cassandra-home/resources/cassandra/conf/cassandra.yaml
 
-## What are directories related settings, and level-2 settings (right after quickstart)<default>
+## (Section: DS210) -  What are directories related settings, and level-2 settings (right after quickstart)<default>
 
 * initial_token: <128>
 * commitlog_directory
@@ -33,30 +33,30 @@
 * saved_caches_directory
 * endpoint_snitch
 
-## What are two file-systedm that should be separated
+## (Section: DS210) -  What are two file-systedm that should be separated
 
 *  /var/lib/cassandra/data and /var/lib/cassandra/commitlog
 
-## Cluster Sizing
+## (Section: DS210) -  Cluster Sizing
 
 * Figure out cluster size parameters
     1. (Write)-Throughput  - How much data per second?
     1. Growth Rate  -   How fast does capacity increase?
     1. Latency (Read) -   How quickly must the cluster respond?
 
-## Cluster Sizing - Writethrough put example
+## (Section: DS210) -  Cluster Sizing - Writethrough put example
 
 * 2m user commenting 5 comments a day, where a comment is 1000 byte
 * # comments per second = (2m * 5)/(24*60*60)  = 10m/86400 = 100 comments per second
 * 100 * 1000 bytes = 100KB per-second (multiply into number of replication-factor)
 
-## Cluster Sizing - Read throughput example
+## (Section: DS210) -  Cluster Sizing - Read throughput example
 
 * 2m user viewing 10 video summaries a day, where a video has 4 comments
 * # comments per second = (2m * 10 * 4)/(24*60*60)  = 80m/86400 = 925 comments per second
 * 925 * 1000 bytes = 1MB per-second (should multiply into number of replication-factor?)
 
-## Cluster-sizing - Monthly calculate
+## (Section: DS210) -  Cluster-sizing - Monthly calculate
 
 * Data should cover only 50% of disk space at any-time to allow repair and compaction to work
 * Few they estimate just by doubling the need for 60-seconds and extra-polate to 30 days
@@ -65,7 +65,7 @@
     * 1MB * 86400 * 30 = 2.531 TB (here 1MB inclusive of anti-entropy)
 
 
-## Cluster-sizing - Latency calculate
+## (Section: DS210) -  Cluster-sizing - Latency calculate
 
 * Relevant Factors
     * IO Rate
@@ -77,14 +77,14 @@
 * Do the benchmarking initially before launching
 
 
-## Cluster Sizing - Probing Questions
+## (Section: DS210) -  Cluster Sizing - Probing Questions
 
 1. What is the new/update ratio?
 1. What is the replication factor?
 1. Additional headroom for operations - Anti-entropy repair?
 
 
-## [Cassandra stress tool](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
+## (Section: DS210) -  [Cassandra stress tool](https://cassandra.apache.org/doc/latest/tools/cassandra_stress.html)
 
 * Define your shcema, and schema performance
 * Understand how your database scales
@@ -111,7 +111,7 @@
 ubuntu@ds210-node1:~/labwork$ cassandra-stress user profile=TestProfile.yaml ops\(insert=100000,user_by_email=100000\) -node ds210-node1
 There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' expecting ')'
 
-## Linux top command
+## (Section: DS210) -  Linux top command
 
 * Comes with every linux distribution - (How much Cassandra is using)
 * Brief summary of Linux system resources + Per process details
@@ -131,14 +131,14 @@ There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' ex
 * Process State
   * Zombie, Sleeping, Running  
 
-## Linux top command - Cassandra
+## (Section: DS210) -  Linux top command - Cassandra
 
 * Swap should be zero (Cassandra discourages swap)
   * Disable the swap, zero should be allocated
 * Zombie should be zero
 
 
-## Linux dstat command (alternative to top)
+## (Section: DS210) -  Linux dstat command (alternative to top)
 
 * dstat = cpustat + iostat + vmstat + ifstat (cpy/io/network)
 * cpu-core specific information can be listed
@@ -165,7 +165,7 @@ There was a problem parsing the table cql: line 0:-1 mismatched input '<EOF>' ex
 * Paging should be usually be near zero (lots of paging is bad to performance)
 * System stats can be an indication of process contention (CSW - context switch)
 
-## Nodetool (Performance Analysis inside cluster node)
+## (Section: DS210) -  Nodetool (Performance Analysis inside cluster node)
 
 * dstat, top - can investigate inside linux
 * nodetool - can investigate inside Cassandra JVM
@@ -195,7 +195,7 @@ Percent Repaired       : 100.0%
 Token                  : (invoke with -T/--tokens to see all 256 tokens)
 ```
 
-## Nodetool compaction-history - what are all the fields and output?
+## (Section: DS210) -  Nodetool compaction-history - what are all the fields and output?
 
 ```
 root@c1bf4c2d5378:/# nodetool compactionhistory
@@ -208,11 +208,11 @@ bac8ee60-dbeb-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T
 ```
 
 
-## To figure out the name of a node’s datacenter and rack, which nodetool sub-command should you use? 
+## (Section: DS210) -  To figure out the name of a node’s datacenter and rack, which nodetool sub-command should you use? 
 
 * Nodetool info
 
-## Nodetool gcstats
+## (Section: DS210) -  Nodetool gcstats
 
 * Higher the GC Elapsed time is worst performance of the cluster
 * Higher StdDev, cluster performance would be erratic
@@ -229,13 +229,13 @@ root@c1bf4c2d5378:/# nodetool gcstats
                 1307                   0                   0                 NaN                   0                   0                       -1
 ```
 
-## Nodetool Gossipinfo
+## (Section: DS210) -  Nodetool Gossipinfo
 
 * What is the status of the node according its peer node
 * Peer node knows the detaila about another node using 'gossipe-info'
 * Schema-Version mismatch can be noted from this output. Rare but crucial information.
 
-## Nodetool Ring command
+## (Section: DS210) -  Nodetool Ring command
 
 * "nodetool ring" is used to output all the tokens of a node.
 * nodetool ring -- ks_killr_vide -- for specific keyspace
@@ -254,7 +254,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
   ```
 * 
 
-## Nodetool Tableinfo (tablestats) - Quite useful for data-modelling information
+## (Section: DS210) -  Nodetool Tableinfo (tablestats) - Quite useful for data-modelling information
 
 * nodetool tablestats -- ks_killr_video
 * nodetool tablestats -- ks_killr_video user_by_email
@@ -314,13 +314,13 @@ Percentile  SSTables     Write Latency      Read Latency    Partition Size      
 Min             0.00              0.00              0.00                61                 2
 Max             0.00              0.00              0.00                86                 2
 ```
-## How to find large partition?
+## (Section: DS210) -  How to find large partition?
 
 * nodetool tablehistograms ks_killr_video  table -- would give multi-millions cell-count
 * nodetool tablehistograms ks_killr_video  table -- would give large partition-size
 
 
-## Nodetool Threadpoolinfo (tpstats)
+## (Section: DS210) -  Nodetool Threadpoolinfo (tpstats)
 
 * Early versions of Cassandra were designed using SEDA architectures (now it actually moved away from it)
 * If queue is blocked, the request is blocked
@@ -328,7 +328,7 @@ Max             0.00              0.00              0.00                86      
   * If blocked, lots of data is sitting in memory, sooner Long-GC might kick-in
 
 
-## Cassandra logging
+## (Section: DS210) -  Cassandra logging
 
 * It is ususally known as system.log (and debug.log only if enabled in logback.xml or using nodetool setlogginglevel )
 * java gc.log is also available to investigate gc (garbage collection)
@@ -340,7 +340,7 @@ Max             0.00              0.00              0.00                86      
   * nodetool setlogginglevel org.apache.cassandra.service.StorageProxy DEBUG
   * nodetool getlogginglevel
 
-## Cassandra JVM GC logging
+## (Section: DS210) -  Cassandra JVM GC logging
 
 * GC logging answeres 3 questions
   * When GC occured
@@ -349,7 +349,7 @@ Max             0.00              0.00              0.00                86      
 * GC logging details are configured /etc/cassandra/jvm.options
 * Cassandra doesn't use G1 garbage collection
 
-## How Cassandra JVM GC logging can be configured
+## (Section: DS210) -  How Cassandra JVM GC logging can be configured
 
 * How it was turn it on
   * -Xloggc:/var/log/cassandra/gc.log  (in the cassandra start script)
@@ -357,12 +357,12 @@ Max             0.00              0.00              0.00                86      
 * Dynamically alter JVM process GC.log
   * info -flag +PrintGC <process-id>
 
-## How to read GC.log?
+## (Section: DS210) -  How to read GC.log?
 
 * GC pause in a second or two is big trouble, it should have been in sub-milli-seconds
 * Ensure after GC, heap consumption is reduced (number should reduce)
 
-## Adding a node
+## (Section: DS210) -  Adding a node
 
 * Why to add node? 
   * To increase capacity for operational head-room
@@ -385,14 +385,14 @@ Max             0.00              0.00              0.00                86      
 * Seed - nodes, Any node that is running while adding other nodes. They are not special in any way
 
 
-## Bootstrapping (Adding a note)
+## (Section: DS210) -  Bootstrapping (Adding a note)
 
 * We need any existing running nodes as seed-nodes (they are not special nodes)
 * (Adding cluster) Topology changes (adding/removing nodes) are not recommended when there is a repair process alive in your cluster
 * Cluster-name has to match to join existing cluster
 
 
-## What are the steps followed by a boostrapping node when joining?
+## (Section: DS210) -  What are the steps followed by a boostrapping node when joining?
 
 1. Contact the seed nodes to learn about gossip state.
 1. Transition to Up and Joining state (to indicate it is joining the cluster; represented by UJ in the nodetool status).
@@ -401,13 +401,13 @@ Max             0.00              0.00              0.00                86      
 1. Stream replica data associated with the tokens it is responsible for from the former owners.
 1. Transition to Up and Normal state once streaming is complete (to indicate it is now part of the cluster; represented by UN in the nodetool status).
 
-## What are the help rendered by a existing node to a joining?
+## (Section: DS210) -  What are the help rendered by a existing node to a joining?
 
 * Cluster nodes has to prepare to stream necessary SSTables
 * Existing Cluster nodes continue to satisfy read and write, but also forward write to joining node
 * Monitor the bootstrap process using 'nodetool netstas'
 
-## Issues during bootstrap
+## (Section: DS210) -  Issues during bootstrap
 
 * New node will certainly have a lot of compactions to deal with(especially  if it is LCS).
 * New node should compact as much as before accepting read requests
@@ -415,14 +415,14 @@ Max             0.00              0.00              0.00                86      
     * Above will disconnect Cassandra from the cluster, but not stop Cassandra itself. At this point you can unthrottle compactions and let it compact away.
 * We should unthrottle during bootstrap as the node won't receive read queries until it finishes streaming and joins the cluster.
 
-## If Bootstrap fails
+## (Section: DS210) -  If Bootstrap fails
 
 * Read the log and find the reason
 * If it Up and failed with 50% data, try to restart.. mostly it would fix itself
 * if it further doesn't work, investigate further
 
 
-## After Boostrap (Cleanup)
+## (Section: DS210) -  After Boostrap (Cleanup)
 
 * Nodetool cleanup should be peformed to the other cluster nodes (not to the node that joined)
 * Cleans up keyspaces and partition keys no longer belonging to a node. (bootstrapped node would have taken some keys and reduced burden on this node)
@@ -431,7 +431,7 @@ Max             0.00              0.00              0.00                86      
 * nodetool [options] cleanup -- keyspace <table>
 
 
-## Removing node
+## (Section: DS210) -  Removing node
 
 * Why to remove a node?
   * For some event, we ramped-up, need to scale down for legitimate reason
@@ -449,12 +449,12 @@ Max             0.00              0.00              0.00                86      
      * nodetool assasinate  (like kill -9) && nodetool repair (on the rest of the ndoes to fix)
      * Try when it is not trying to go away
 
-## Where is the data coming from when a node is removed?
+## (Section: DS210) -  Where is the data coming from when a node is removed?
 
 * Decommision - Data comes from the node leaving
 * RemoveNode - Data comes from the rest of the cluster nodes
 
-## How to replace a down-node
+## (Section: DS210) -  How to replace a down-node
 
 * Replace vs Remove-and-Add
 * Backup for a node will work a replaced node, because same tokens are used to bring replaced node into cluster
@@ -465,13 +465,13 @@ Max             0.00              0.00              0.00                86      
 * We should update seed-node (remove old node, and update with latest IP), to fix GossipInfo
 
 
-## Why replace a node than removing-and-adding?
+## (Section: DS210) -  Why replace a node than removing-and-adding?
 
 1. Don't need to move data twice
 1. Backup would work for th replaced node (if the token range is same)
 1. It is faster and lesser impact on the cluster
 
-## STCS - Size Tieres Compaction Strategy
+## (Section: DS210) -  STCS - Size Tieres Compaction Strategy
 
 * STCS Organizes SSTables into Tiers based on sizes
   * On an exponential scale
@@ -482,7 +482,7 @@ Max             0.00              0.00              0.00                86      
 * Higher-tier means larger SStables
 * min_threshold and max_thrshold (number of files within the tier)
 
-## STCS Pros and Disadvantage
+## (Section: DS210) -  STCS Pros and Disadvantage
 
 * STCS doesn't compact 1 GB and 1MB file together
   * Avoids write amplification
@@ -492,15 +492,15 @@ Max             0.00              0.00              0.00                86      
 * Stale records in Larger SSTables take unnecessary space (old file would take time to catchup)
 * Concurrent_Compactors - Failed more often than helping.
 * STCS - Major compaction was not recommended for producton (one big large compacted file) - Never do 'nodetool compact'
-## STCS Hotness
+## (Section: DS210) -  STCS Hotness
 
 * STCS compaction chooses hottest tier first to compact
 * SSTable hotness determined by number of reads per second per partition key
-## Wht STCS is slower for read
+## (Section: DS210) -  Wht STCS is slower for read
 
 * If new write is in lower tier, and old values are in higher tier, they can't be compacted together (immediately)
 
-## What triggers a STCS Compaction
+## (Section: DS210) -  What triggers a STCS Compaction
 
 * More write --> More Compaction
 * Compaction starts every time a memtable flushes to an SSTable
@@ -509,14 +509,14 @@ Max             0.00              0.00              0.00                86      
   * Bootstrap, rebuild, repair
 * Compaction continues until there are no more tiers with at least min_threshold tables in it  
 
-## STCS - Tombstones
+## (Section: DS210) -  STCS - Tombstones
 
 * If no eligible buckets, STCS compacts a single SSTable
 * tombstone_compaction_interval - At-least one day old before considered for Tombstone compaction
 * Compaction ensures that tombstones donot overlap old records in other SSTables
 * The number of expired tombstones must be above 20%
 
-## LCS - Leveled Compaction Strategy
+## (Section: DS210) -  LCS - Leveled Compaction Strategy
 
 * sstable_size_in_mb - Max size of SSTable
   * 'Max SSTable Size' - would be considered like unit size for compaction to trigger
@@ -525,7 +525,7 @@ Max             0.00              0.00              0.00                86      
 * LCS - limits space amplification, but it ends in higher write amplification
 * L0 - is landing place
 
-## LCS Pros and Cons
+## (Section: DS210) -  LCS Pros and Cons
 
 * LCS is best for reads
   * 90% of the data resides in the lowest level
@@ -534,17 +534,17 @@ Max             0.00              0.00              0.00                86      
 * Reads are handled only by few SSTable make it faster
 * LCS - doesn't require 50% space, it wastes less disk space  
 
-## LCS - Lagging behind
+## (Section: DS210) -  LCS - Lagging behind
 
 * If lower levels are two big, LCS falls back to STCS for L0 compaction
 * Falling to STCS would helps to create larger SSTable, and compacting two larger SSTable is optimum
 
 
-## LeveledCompactionStrategy
+## (Section: DS210) -  LeveledCompactionStrategy
 
 * [LCS Cassandra](https://issues.apache.org/jira/browse/CASSANDRA-14605?jql=labels%20%3D%20lcs%20AND%20project%20in%20(Cassandra))
 
-## TWCS - Time-window compaction strategies
+## (Section: DS210) -  TWCS - Time-window compaction strategies
 
 * Best suited for Time-series data
 * Windowf of time can be chosen while creating Table
@@ -552,7 +552,7 @@ Max             0.00              0.00              0.00                86      
 * Any SSTable that spans two window will be considered for next window
 * Not suited for data that is being updated
 
-## Nodesync (Datastax Enterprise 6.0)
+## (Section: DS210) -  Nodesync (Datastax Enterprise 6.0)
 
 * Continuous background repair
   * only for DSE-6.0 and above
@@ -570,7 +570,7 @@ Max             0.00              0.00              0.00                86      
   * Target -- (lesser than gc_grace_seconds)
 * nodetool nodesync vs dse/bin/nodesync (second binary is cluster-wide tool)
 
-## What are all the possible reason for large SSTable
+## (Section: DS210) -  What are all the possible reason for large SSTable
 
 * nodetool compact (somebody run it)
   * Major compaction using STCS would create large SSTable
@@ -583,7 +583,7 @@ Max             0.00              0.00              0.00                86      
   sstablesplit -s 40 /user/share/data/cssandra/killr_video/users/*
   ```
 
-## Multi-Datacenter
+## (Section: DS210) -  Multi-Datacenter
 
 * We can add datacenter using `alter keyspace` even before datacenter is available
 * Cassandra allows to add datacenter to live system
@@ -600,26 +600,26 @@ Max             0.00              0.00              0.00                86      
 * Run 'nodetool rebuild' specifying the existing datacenter on all the nodes in the new DC
 * Without above, request with LOCAL_ONE or ONE consistency level may fail if the existing DC are not completely in sync
 
-## Multi-Datacenter Consistency Level
+## (Section: DS210) -  Multi-Datacenter Consistency Level
 
 * Local_Quorum - TO reduce latency
 * Each - Very heavy operation
 * Snitch should be specified
 
-## What if one datacenter goes down?
+## (Section: DS210) -  What if one datacenter goes down?
 
 * Gossip will find that DC is down
 * Reocvery can be accomplished with a rolling repair to all nodes in failed datacenter
 * Hints would be piling up in other datacenters (that is receiving updates)
 * We should run-repair if we go beyond GC_Grace_seconds
 
-## Why we need additional DC?
+## (Section: DS210) -  Why we need additional DC?
 
 * Live Backup
 * Improved Performance
 * Analytics vs Transaction workload 
 
-## SSTableDump
+## (Section: DS210) -  SSTableDump
 
 1. Old tool, quite useful
 1. Only way to dump SSTable into json (for investigation purpose)
@@ -628,7 +628,7 @@ Max             0.00              0.00              0.00                86      
    1. tools/bin/sstable data/ks/table/sstable-data.db
    1. -d to view as key-value (withtout JSON)
 
-## SSTableloader
+## (Section: DS210) -  SSTableloader
 
 1. sstableloader -d co-ordinator-ip /var/lib/cassandra/data/killrvideo/users/
 1. Load existing data in SSTable format into another cluster (production to test)
@@ -708,7 +708,7 @@ Max             0.00              0.00              0.00                86      
     ]
     ```
 
-## Loading different formats of data into Cassandra
+## (Section: DS210) -  Loading different formats of data into Cassandra
 
 1. Apache Spark for Dataloading
 1. 
@@ -746,7 +746,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
   println ("Errors or upserts - further validation required")
 ```
 
-## Datstax - DSE Bulk (configuration should be in HOCON format)
+## (Section: DS210) -  Datstax - DSE Bulk (configuration should be in HOCON format)
 
 1. CLI import tool (from csv or json)
 1. Can move to and from files in the file-system
@@ -757,7 +757,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
   1. Unload and reformat as different data-model
 1. Usage: dsbulk -f dsbulk.conf -c csv/json -k keyspace -t tablename
 
-## Backup and Snapshots
+## (Section: DS210) -  Backup and Snapshots
 
 1. Why do we need your backup for distributed data?
   1. Human error caused data wipe
@@ -768,17 +768,17 @@ if (loadCount - (afterCount - beforeCount) > 0)
 1. usage - nodetool -h localhost -p 7199 snapshot mykeyspace
 
 
-## What is Cassandra snapshots?
+## (Section: DS210) -  What is Cassandra snapshots?
 1. The DDL to create the table is stored as well.
 1. A snapshot is a copy of a table’s SSTable files at a given time, created via hard links.
 1. Hardlink snapshots are acting as Point-in-Time backup 
-## Why Snapshots are fast in Cassandra? How to snapshot at the same time?
+## (Section: DS210) -  Why Snapshots are fast in Cassandra? How to snapshot at the same time?
 
 * It just creates hard-links to underlying SSTable (immutable files)
 * Actual files are not copied, hence less (zero) data-movement
 * A parallel SSH tool can be used to snapshot at the same time.
 
-## How do incrementa backup works
+## (Section: DS210) -  How do incrementa backup works
 
 * Every flush to disk should be added to snapshots
   * incremental_backup: true --##cassandra.yaml
@@ -788,28 +788,28 @@ if (loadCount - (afterCount - beforeCount) > 0)
 * incremental backups - are not automatically removed (warning would pile-up)
   * These should be manually removed before creating new snapshot
 
-## Where to store snapshots?
+## (Section: DS210) -  Where to store snapshots?
 
 * Snapshots and incremental backups are stored on each cassandra-node
 * Files should be copied to remote place (not on node)
   * [tablesnap can store to AWS S3](https://github.com/JeremyGrosser/tablesnap)
 
-## How Truncate works?
+## (Section: DS210) -  How Truncate works?
 
 * auto_snapshot is critical, don't disable it
 * Helps to take Snapshots, just before table truncation.
 
-## How to snapshot?
+## (Section: DS210) -  How to snapshot?
 
 * bin/nodetool snapshot -cf table - t <tag> -- keyspace keyspace2
 * [How to snapshot and restore](https://docs.rackspace.com/blog/apache-casandra-backup-and-recovery/)
 
-## Restore (We get 1 point for backup, 99 point for restore)
+## (Section: DS210) -  Restore (We get 1 point for backup, 99 point for restore)
 
 * Backup that doesn't help to restore is useless
 * Restore should be tested many times and documented properly
 
-## [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
+## (Section: DS210) -  [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
 
 1. Delete the current data files 
 1. Copy the snapshot and incremental files to the appropriate data directories
@@ -819,13 +819,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
 1. Restart and repair the node after the file copying is done
 Honorable mention – tablesnap and tablerestore
 • Used when backing up Cassandra to AWS S3
-## How to remove snapshots?
+## (Section: DS210) -  How to remove snapshots?
 
 * nodetool clearsnapshot <snapshot_name>
   * Not specifying a snapshot name removes all snapshots
 * Remember to remove old snapshots before taking new ones, not automatic
 
-## JVM settings
+## (Section: DS210) -  JVM settings
 
 1. jvm.options can be used to modify jvm settings
 1. cassandra-env.sh is a shell that launches cassandra server, that uses jvm.options
@@ -834,7 +834,7 @@ Honorable mention – tablesnap and tablerestore
 1. Java 9 by default uses G1 Collector
 
 
-## Garbage Collections (Apache Cassandra)
+## (Section: DS210) -  Garbage Collections (Apache Cassandra)
 
 * Cassandra on JDK-8 was using CMS
 * Decrease Pause-Time, But increase Through-Put
@@ -844,24 +844,24 @@ Honorable mention – tablesnap and tablerestore
 * After many young gc, S1/S2 -> Old GC
 * CMS kicks in when OldGen is 75% full
 
-## Why does full GC runs?
+## (Section: DS210) -  Why does full GC runs?
 
 * If the old gen fills up before the CMS collector can finish
 * Full GC, stop the world collctor checks new-gen, old-gen and perm-gen
 
-## How to troubleshoot OutOfMemoryError issues in Casssandra?
+## (Section: DS210) -  How to troubleshoot OutOfMemoryError issues in Casssandra?
 
 * -XX:+HeapDumpOnOutOfMemoryError - would dump the entire memory
 * Use Eclipse Memory Analyzer tool to analyze the content of memory
 * Cassandra puts the file in a subdirectory of the working, root directory when running as a service
 * Ensure Cassandra has access to the directory where dump directory was configured, disk should have space to hold this file
 
-## What is TSC?
+## (Section: DS210) -  What is TSC?
 
 * It is a register inside CPU
 * Time Stamp Counter (counts the number of cycles), but won't match between processors
 
-## Tuning the Linux Kernel
+## (Section: DS210) -  Tuning the Linux Kernel
 
 * NTP should be in place for Cassandra to agree time within the clusters
   * NTP would adjust from hierarchy of time servers every 1-20 minutes
@@ -880,7 +880,7 @@ Honorable mention – tablesnap and tablerestore
   1.  -msgqueue  unlimited
   1.  -sigpending unlimited
 
-## What should be removed/disabled from Linux for Cassandra to work? How to remove
+## (Section: DS210) -  What should be removed/disabled from Linux for Cassandra to work? How to remove
 
 * swapping should be removed in linux from two places
 * swapoff -a (not permanently)
@@ -889,7 +889,7 @@ Honorable mention – tablesnap and tablerestore
   * sysctl -p should reload /etc/sysctl.conf
 * Refer datastax for other recommended linux settings  
 
-## Hardware resources to consider
+## (Section: DS210) -  Hardware resources to consider
 
 1. Parameters
   * Peristent type
@@ -905,7 +905,7 @@ Honorable mention – tablesnap and tablerestore
   * TWCS - can use HDD
   * HDD should be backed with more memory
 
-## Datastax on Cloud
+## (Section: DS210) -  Datastax on Cloud
 
 * Templates and scripts to install DSE on cloud
 * OPSCenter LCM 6.0+ (Lifecycle manager)
@@ -922,7 +922,7 @@ Honorable mention – tablesnap and tablerestore
   1. Elastic volume always have the same tight latencies
   1. pd-ssd seems faster than local-ssd  
 
-## Cassandra on Cloud Challenges
+## (Section: DS210) -  Cassandra on Cloud Challenges
 
 * Hyeperthreads - you don't get a real CPU
 * Noisy neighbors - if you see CPU steal, terminate your box and get a new one
@@ -932,12 +932,12 @@ Honorable mention – tablesnap and tablerestore
   * Azure - Do not use VPN gateways, use public IPs, Vnet2Vnet is slow but works for small workloads
   * Google - Flat network - No config, it's great
 
-## Cassandra on cloud security
+## (Section: DS210) -  Cassandra on cloud security
 
 * AWS - volume encryption for EBS
 * Google - largely secure by default. Should go through multifactor auth
 
-## Cassandra Security Considerations
+## (Section: DS210) -  Cassandra Security Considerations
 
 * Authentication and Authorization (Covered in DS410)
 * Authentication in disabled by default
@@ -950,7 +950,7 @@ Honorable mention – tablesnap and tablerestore
   * ALTER change cassandra WITH PASSWORD 'newpassword'
 * Cassandra stores all the credentials in the sys_auth keyspace
 
-## What is the default security configuration
+## (Section: DS210) -  What is the default security configuration
 
 ```yaml
 authentication_options:
@@ -960,12 +960,12 @@ authentication_options:
   plain_text_without_ssl: warn
 ```
 
-## Where is roles are stored in internal-scheme? (in default scheme)
+## (Section: DS210) -  Where is roles are stored in internal-scheme? (in default scheme)
 
 * ALTER keyspace system_auth with replication {'class' : 'NetworkTopologyStrategy', 'dc': 1 , 'dc': 3} 
 * All the roles are stored in system_auth.roles table
 
-## Cassandra Authentication table (system_auth.roles - in default scheme)
+## (Section: DS210) -  Cassandra Authentication table (system_auth.roles - in default scheme)
 
 * 
   ```sql
@@ -978,14 +978,14 @@ authentication_options:
   ```
 * salted_hash is password
 
-## What are best practices for Cassandra security
+## (Section: DS210) -  What are best practices for Cassandra security
 
 1. Create one more superuer_role and delete the default cassandra super-user
   1. At least change the password for default super-user 'cassandra'
   1. ALTER USER cassandra WITH password 'newpassword'
 1. Ensure system_auth keyspace should be replicated to multiple datacenter
 
-## Cassandra Role/Authorization management
+## (Section: DS210) -  Cassandra Role/Authorization management
 
 ```sql
     Grant Select ON killr_video.user_by_email TO user/role;
@@ -1002,7 +1002,7 @@ authentication_options:
     * Authorize - 
 ```
 
-## Cassandra encryption SSL
+## (Section: DS210) -  Cassandra encryption SSL
 
 * node-to-node
 * client-to-node
@@ -1014,14 +1014,14 @@ authentication_options:
   * Nodes present their certificate from keystore to other nodes
   * Other nodes validate the certicate using their trust-store RCA details
 
-## What are two artifacts required for Cassandra to enable SSL
+## (Section: DS210) -  What are two artifacts required for Cassandra to enable SSL
 
 1. TrustStore (all the trusted certificate- ROOT CA)
    1. This is common among all the Cassandra nodes
 1. Keystore (key-pair, its own signed certificate)
 
 
-## 8 Steps for SSL setup (node-to-node)
+## (Section: DS210) -  8 Steps for SSL setup (node-to-node)
 
 1. Create Root Cert  (Root of entire SSL communication)
    1. Root Cert = "CA_KEY" + "Root Cert"
@@ -1038,14 +1038,14 @@ authentication_options:
 * [Cassandra Security Configuration](./cassandra_security_configuration.pdf)
    1. [Credit: SSL Configuration](https://www.slideshare.net/BrajaDas/cassandra-security-configuration?from_action=save)
 
-## How to harden Cassandra security
+## (Section: DS210) -  How to harden Cassandra security
 
 1. Secure the keystore - since this contains private key
 1. Setup firewasll so that only nodes can talk to each other on the listen_port
 1. Protect the root CA private key - this Not be disbuted to the nodes
 1. Enable require_client_auth, otherwise program could spoof being a node
 
-## Datastax OpsCenter
+## (Section: DS210) -  Datastax OpsCenter
 
 1. Two Products
 1. Configure and deploy cluster
@@ -1053,7 +1053,7 @@ authentication_options:
 1. Perform software upgrades
 1. Load Certificate
 
-## Datastax OpsCenter (Cluster Monitoring/Alert)
+## (Section: DS210) -  Datastax OpsCenter (Cluster Monitoring/Alert)
 1. Monitoring and management (Operation)
 1. Broswer -> OpsCenter Service -> Agent running inside DataStax Cassandra JVM (exposed via JMX)
 1. UI features
@@ -1064,7 +1064,7 @@ authentication_options:
    1. Performance service
 1. Comprehensive Grafana like dashboard
 
-## Datastax OpsCenter (Management Service)
+## (Section: DS210) -  Datastax OpsCenter (Management Service)
 
 1. Backup & Restore Service
 1. NodeSync Service
@@ -1072,7 +1072,7 @@ authentication_options:
 1. Best Practices Service
 1. Capacity Service
 
-## Datastax OpsCenter (Backup and restore Service)
+## (Section: DS210) -  Datastax OpsCenter (Backup and restore Service)
 
 1. Visual backup management
 1. Backup & Restore on distributed system is hard
@@ -1087,7 +1087,7 @@ authentication_options:
 1. Includes alerts and reporting
 
 
-## Datastax OpsCenter LifeCycle Manager (Provisioning)
+## (Section: DS210) -  Datastax OpsCenter LifeCycle Manager (Provisioning)
 
 1. Configuration and deployment (Onboarding)
 1. UI Menu has option for
@@ -1097,12 +1097,12 @@ authentication_options:
   1. Add DC/Nodes/Clusters
 1. Point in time backup & restore
 
-## Datastax OpsCenter NodeSync
+## (Section: DS210) -  Datastax OpsCenter NodeSync
 
 1. Prefered over repair service
 1. Low intensity continuous repair
 
-## Datastax OpsCenter other features
+## (Section: DS210) -  Datastax OpsCenter other features
 
 1. Best Practice service - periodically audits, alerts and suggests solution
 1. Capacity service - Used to forecast metrics, configurable for multiple parameters
@@ -1113,14 +1113,14 @@ authentication_options:
     1. Mail
     1. SNMP - to an enterprise monitoring system
 
-## Follow-up course
+## (Section: DS210) -  Follow-up course
 
 1. DS-220 - Practical application modelling with Apache Casssandra
 1. DS-310 - DataStax Enterprise Search
 1. DS-320 - DataStax Enterprise Apache Sparx
 1. DS-330 - DataStax Enterprise Graph
 
-## Lab notes
+## (Section: DS210) -  Lab notes
 
 * 172.18.0.2
 * /usr/share/dse/data
@@ -1128,13 +1128,13 @@ authentication_options:
 * DS-220 
 
 
-## Cassandra people
+## (Section: DS210) -  Cassandra people
 
 * [Jamie King](https://twitter.com/mrcompscience)
 * [Jonathan Ellis](https://twitter.com/spyced)
 * [Patrick McFadin](https://twitter.com/patrickmcfadin?lang=en)
 * 
-## How to create anki from this markdown file
+## (Section: DS210) -  How to create anki from this markdown file
 
 ```
 mdanki Cassandra_Datastax_210_Anki.md Cassandra_Datastax_210_Anki.apkg --deck "Mohan::Cassandra::DS210::Operations"

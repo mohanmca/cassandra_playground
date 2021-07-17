@@ -1,4 +1,4 @@
-## Nodetool usage
+## (Section: Nodetool) - Nodetool usage
 
 * 
 ```bash
@@ -8,7 +8,7 @@
           [(-p <port> | --port <port>)] <command> [<args>]
 ```
 
-## Nodetool commands
+## (Section: Nodetool) -  Nodetool commands
 
 ```bash
      The most commonly used nodetool commands are:

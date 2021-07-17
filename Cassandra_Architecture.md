@@ -8,14 +8,14 @@
 * Cassandra can lineraly scale with new nodes
 *
 
-### nodetool
+## (Section: Architecture) -  nodetool
 
 * help - help
 * info - jvm statistics
 * status  - all the nodes status (how this node see other nodes in cluster)
 
 
-## Ring
+## (Section: Architecture) -  Ring
 
 * Apache cassandra cluster - Collection of nodes
 * Node that we connect is co-ordinator node
@@ -31,7 +31,7 @@
   * Murmur3 as a partitioner
   * MD5 partitioner (random and even)
 
-## When a new node joins the ring
+## (Section: Architecture) -  When a new node joins the ring
 
 * Gossips out to seed-node (seed-nodes are configured in cassandra.yaml)
 * Other node finds where could new node could fit (could be manual or automatic)
@@ -40,7 +40,7 @@
   * Joining, Leaving, UP and Down
 
 
-## Driver
+## (Section: Architecture) -  Driver
 
 * Client could intelligently use node status and clutser
 * Client would use different policies
@@ -50,7 +50,7 @@
 * Driver knowing token range would make it intelligent, It would directly talk to data node when data is required
 * Driver can use the  TokenAwarePolicy and directly deal with the node that is responsbile for the data, internally it would avoid one more hop (co-ordinator-node === data-node)
 
-## Peer-to-Peer
+## (Section: Architecture) -  Peer-to-Peer
 
 * We should understand the reason by behind peer-to-peer
 * Relation databases scales in one of the following way
@@ -69,7 +69,7 @@
     * Last write wins
 
 
-## VNode
+## (Section: Architecture) -  VNode
 
 
 * If token is distributed in contiguous-range to a physical node, it won't help when new-node joins
@@ -85,14 +85,14 @@
 * num_tokens@cassandra.yaml > 1, enables the vnode (1 means disable vnode)
 * If all nodes have equal hardware capability, each node should have the same num_tokens value.
 
-### Why Vnode?
+## (Section: Architecture) -  Why Vnode?
 
 * If we have 30 node (with RF=3), effectively we have 10 nodes of original data, 20 nodes of replicated. If every node holds data for 3 ranges of token, and when a node goes down, logically we have RF=2 for set of data, and we can stream from 6 nodes of data
 * If you started your older machines with 64 vnodes per node and the new machines are twice as powerful, simply give them 128 vnodes each and the cluster remains balanced even during transition.
 * When using vnodes, Cassandra automatically assigns the token ranges for you. Without vnode, manual assignment is required.
 
 
-## Gossip protocol
+## (Section: Architecture) -  Gossip protocol
 
 * Gossip is a peer-to-peer communication protocol in which nodes periodically exchange state information about themselves and about other nodes they know about.
 * if a first gossips with second node, and later 1st node gossips with 3 other nodes and second nodes gossips with 3 other node, and each node successively gossips with randomly with other node.. information is quickly spread
@@ -106,7 +106,7 @@
 1. Reliably and efficiently spreads node metadata through the cluster
 1. Fault tolerant—​continues to spread when nodes fail
 
-### What is gossiped?
+## (Section: Architecture) -  What is gossiped?
 
 * SYN, ACK, ACK2
   * SYN - sender node details
@@ -115,7 +115,7 @@
 * Gossip message is tiny, won't cause significant impact to network bandwidth (network spikes won't be caused)
 * JSON is only for analogy
 ```json
-## Json analogy
+## (Section: Architecture) -  Json analogy
 {
   "endPointState": {
     "endPoint": "192.168.0.1",
@@ -133,7 +133,7 @@
 }
 ```
 
-## Snitch
+## (Section: Architecture) -  Snitch
 
 * Snitch - means informer (with criminal background or approver)
 * Rerports DC, Rack information to each other
@@ -150,7 +150,7 @@
   * After changing, need to restart all the nodes and run the sequential repair and clean-up on each node.
 * All node must use same snitch
 
-### Property File Snitch
+## (Section: Architecture) -  Property File Snitch
 
 * Reads datacenter and rack information for all nodes from a file You must keep files in sync with all nodes in the cluster
 
@@ -167,7 +167,7 @@ cassandra-topology.properties file
 120.57.18.177=DC2:RAC2
 ```
 
-### Gossiping Property File Snitch
+## (Section: Architecture) -  Gossiping Property File Snitch
 
 * Relieves the pain of the property file snitch
 * Declare the current node’s DC/rack information in a file
@@ -181,7 +181,7 @@ dc=DC1
 rack=RAC
 ```
 
-## Cassandra replication
+## (Section: Architecture) -  Cassandra replication
 
 * When co-ordinator responsible for token range 15-25 receives data to save, it finds its token range and copies data to target node
 * Co-ordinator needs to write data to the node where hash-range belongs
@@ -197,7 +197,7 @@ rack=RAC
   * Requires more storage in your cluster.
 
 
-## Consistency
+## (Section: Architecture) -  Consistency
 
 * Cassandra fits into AP system (CAP), Csonsistency is tunable parameter in Cassandra.
 * Cassandra by default optimized for Availablity and Partiton, But can be tuned little to accomadate consistency
@@ -219,7 +219,7 @@ rack=RAC
 * Higher consistency === higher latency  (higher latency -- poor)
 
 
-### Consistency level in Cassandra
+## (Section: Architecture) -  Consistency level in Cassandra
 
 **Consistency Settings In order of weakest to strongest**
 1. ANY - Storing a hint at minimum is satisfactory
@@ -240,7 +240,7 @@ rack=RAC
 * [-] - ~~write one, read all~~
 
 
-## Hinted hand-off
+## (Section: Architecture) -  Hinted hand-off
 
 * Write request can be served, even when nodes are down. Co-ordinator caches using hints file, later handoever the data to target node
 * Hints file will be deleted after expiry (default 3 hours), hence data write is not guarantee to the node it was down
@@ -251,7 +251,7 @@ rack=RAC
 * Consistency-level-Any is not practical due to hinted-hand-off
 * We can disable hinted-hand-off
 
-## Read repair (Assume RF=3)
+## (Section: Architecture) -  Read repair (Assume RF=3)
 
 * Nodes goes out-of-sync for many reasons
   * Network partition, node failures, storage failure
@@ -263,7 +263,7 @@ rack=RAC
   1. Sends the latest data to client
   1. Replicates the latest data to the nodes that has stale copy
 
-### Read Repair Chance
+## (Section: Architecture) -  Read Repair Chance
 
 * Performed when read is at a consistency level less than ALL
 * Request reads only a subset of the replicas
@@ -274,15 +274,15 @@ rack=RAC
 * 10% by default
 
 
-## Node-repai
+## (Section: Architecture) -  Node-repai
 
-### Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
+## (Section: Architecture) -  Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
 * nodetool repair --full
 * Extra load on the network, IO also might spike
 
 
 
-## Datastax Node-sync
+## (Section: Architecture) -  Datastax Node-sync
 
 * It uses the same mechnism what read-repair mechnism does
 * Datastax Node-sync (should be enabled on per-table-basis)
@@ -302,7 +302,7 @@ rack=RAC
     * failed
 
 
-## Write path
+## (Section: Architecture) -  Write path
 
 1. Data reaches to node to write
 1. Cassandra writes data to mem-table & commit-log
@@ -320,7 +320,7 @@ rack=RAC
   * Ans: After the commit log and MemTable are written
 * SSTable and MemTable are stored sorted by clustering columns
 
-## Read path
+## (Section: Architecture) -  Read path
 
 * Data could be spread across multiple SS-Table (and in-memory), Hence read is bit more complex than write
 * Data is partioned and partion-token is found, if partion-token is available in mem-table then data is returned (Simple)
@@ -346,7 +346,7 @@ rack=RAC
 
 * Read > Bloom-Filter > Key-Cache > Partition Summary > Partition Index > SSTable
 
-## Data-stax
+## (Section: Architecture) -  Data-stax
 
 * No partition-index, instead trie based data-structure used as index
   * SS-Table lookup is much faster than OSS version
@@ -354,9 +354,9 @@ rack=RAC
   * If we know pk0020 location inside the partition-index, it is easier to find the parition-index offset for pk0024 (https://stackoverflow.com/questions/26244456/internals-of-partition-summary-in-cassandra)
 
 
-## Compaction
+## (Section: Architecture) -  Compaction
 
-### Compacting partition
+## (Section: Architecture) -  Compacting partition
 
 * Two SS-Table paritions can be merged using merge-sort
   * If keys are matching, take one with latest timestamp
@@ -370,13 +370,13 @@ rack=RAC
   * Faster reads
   * Less memory pressure
 
-### Compacting SSTables
+## (Section: Architecture) -  Compacting SSTables
 
 * Two SS-Table merged using merge-sorted
 * Merge might reduce the partition as all the stale values inside the parition are evicted
 * Once new SS-Table is created, old SS-Table is dropped
 
-### Types of compaction
+## (Section: Architecture) -  Types of compaction
 
 * SizeTiered Compaction (default for write heavy-load)
 * Leveled Compaction (read optimized compaction)
@@ -384,7 +384,7 @@ rack=RAC
 
 * Alter table ks.myTable  WITH compaction = { 'class': 'LeveledCompactionStrategy'}
 
-## Datastax ES6
+## (Section: Architecture) -  Datastax ES6
 
 * Only one core per CPU and Non-blocking-IO
   * Claims to be more performant than OSS version
@@ -396,6 +396,6 @@ rack=RAC
 
 
 
-## Reference
+## (Section: Architecture) -  Reference
 
 * [Vnodes](https://www.datastax.com/blog/2012/12/virtual-nodes-cassandra-12)

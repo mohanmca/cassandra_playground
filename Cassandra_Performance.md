@@ -1,10 +1,10 @@
-## Peformance could be degraded for many reasons
+## (Section: Performance) -  Performance could be degraded for many reasons
 
 * nodetool status  - check all nodes are up
 * nodetool tpstats - for dropped messages
   * Usage statistics of thread-pool
 
-### Dropped Mutataions
+## (Section: Performance) -  Dropped Mutataions
 
 * Cassandra uses SEDA architecture
   * If messages inside the are not processed with certain timeout under heavy load, they are dropped
@@ -16,19 +16,25 @@
    * INFO  [ScheduledTasks:1] 2019-07-21 11:44:46,150  MessagingService.java:1281 - MUTATION messages were dropped in last 5000 ms: 0 internal and 65 cross node. Mean internal dropped latency: 0 ms and Mean cross-node dropped latency: 4966 ms
 *  
 
-### Configuration that affects dropped mutations
+## (Section: Performance) -  Configuration that affects dropped mutations
 
 * write_request_timeout_in_ms - How long the coordinator waits for write requests to complete with at least one node in the local datacenter. Lowest acceptable value is 10 ms.
 * it is milli-seconds, hence every 1000 ms - should be considered as 1 second
 
 * cross_dc_rtt_in_ms - How much to increase the cross-datacenter timeout (write_request_timeout_in_ms + cross_dc_rtt_in_ms) for requests that involve only nodes in a remote datacenter. This setting is intended to reduce hint pressure.
 
-## When does Cassandra end up having useless data
+## (Section: Performance) -  When does Cassandra end up having useless data
 
 * If we reduce the replication factor, additional un-necessary data may be sitting till the actual compaction happens
 * Once we add new node to reduce the token range, Cassandray may contain data from portions of token ranges it no longer owns
 
-## Usage statistics of thread-pool - output
+## (Section: Performance) -  How to find the largest SSTable (or largest partition) in the cluster
+
+* nodetool tablehistograms keyspaces.table
+* find the max value
+
+
+## (Section: Performance) -  Usage statistics of thread-pool - output
 
 ```txt
 root@15a092649e23:/# nodetool tpstats

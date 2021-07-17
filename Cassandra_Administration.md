@@ -1,4 +1,4 @@
-## DSE Cassandra Course topics
+## (Section: Administration) -  DSE Cassandra Course topics
 
 1. Install and Start Apache Cassandra™
 1. CQL
@@ -20,7 +20,7 @@
 1. Compaction
 1. Advanced Performance
 
-## Course DSE installation
+## (Section: Administration) -  Course DSE installation
 
 ```bash
 ubuntu@ds201-node1:~$ tar -xf dse-6.0.0-bin.tar.gz
@@ -31,30 +31,30 @@ cd node/bin
 ./dsetool status
 ```
 
-## Nodetool vs DSEtool
+## (Section: Administration) -  Nodetool vs DSEtool
 
 * nodetool -- only Apache Cassandra
 * dsetool -- Apache Cassandra™, Apache Spark™, Apache Solr™, Graph
 
-## Nodetool  Gauge the server performance
+## (Section: Administration) -  Nodetool  Gauge the server performance
 
 ```SQL
 ./nodetool describecluster
 ./nodetool getlogginglevels
 ./nodetool setlogginglevels org.apache.cassandra TRACE
-## Create and populate garbage to stress the cluster
+## (Section: Administration) -  Create and populate garbage to stress the cluster
 /home/ubuntu/node/resources/cassandra/tools/bin/cassandra-stress write n=50000 no-warmup -rate threads=2
 ./nodetool flush
 ./nodetool status
 ```
 
-## Find all the material view of a keyspace
+## (Section: Administration) -  Find all the material view of a keyspace
 
 ```bash
 SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 ```
 
-## How to find number of partitions/node-of partition in a table
+## (Section: Administration) -  How to find number of partitions/node-of partition in a table
 
 * ./nodetool tablestats -H keyspace.tablename;
 * select token(tag) from killrvideo.videos_by_tag;
@@ -64,7 +64,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
   * ./nodetool getendpoints killrvideo videos_by_tag 'cassandra'
   * ./nodetool getendpoints killrvideo videos_by_tag 'datastax'
 
-## Cassandra Node (Server/VM/H/W)
+## (Section: Administration) -  Cassandra Node (Server/VM/H/W)
 
 * Runs a java process (JVM)
 * Only supported on local storage or direct attached storage
@@ -76,7 +76,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 * How do you manage node?
   * Use nodetool utilitiy  
 
-## Cassandra Ring (The cluster)
+## (Section: Administration) -  Cassandra Ring (The cluster)
 
 * Any node can act as a co-ordinator to incoming data
 * How does co-ordinator knows the node that handles the data?
@@ -84,7 +84,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
   * (2^^63)-1 --> (-2^^63) - ranges of tokents are available
   * 20 digit number - 18,446,744,073,709,551,616
 
-## How new nodes join the ring
+## (Section: Administration) -  How new nodes join the ring
 
 * Uses seed-nodes configured in new-nodes Cassandra.yaml
   * SeedNode provider could be rest-api
@@ -93,7 +93,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 * Once the new-node joins the cluster, all the nodes are peers
   * Node status could be - Leaving/Joining/Up/Running - UN (Up and Normal)
 
-## Peer-to-Peer
+## (Section: Administration) -  Peer-to-Peer
 
 * Leader-Follower fails when we do sharding
   * Leader-Follower model is just client-server model on the service side
@@ -103,7 +103,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
   * No node is superior than other
   * Everyone is peer
 
-## Why do we need VNode?
+## (Section: Administration) -  Why do we need VNode?
 
 * When adding a new physical node, how to equally distribute data from existing nodes into new node?
 * If overloaded node, is distributing data to new node, it would become additional burden for existing overloaded node
@@ -115,19 +115,19 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 * By default each node has 128 vnodes
 
 
-## How to enable VNode?
+## (Section: Administration) -  How to enable VNode?
 
 * num_tokens value should greather than 1 in Cassandra.yaml
 * num_tokens = 1 ## Disable vnode
 
-## Gossip protocol (nodemeta data is the subject)
+## (Section: Administration) -  Gossip protocol (nodemeta data is the subject)
 
 * No centralized service to spread the information - How do we share information?
 * Gossip protocol helps to spread information (despite peer-to-peer)
 * Every second a node pick one-to-three other nodes to gossip with
   * It might pick same node successive time, they don't keep track of the node that they gossped with
 
-## What do nodes Gossip about?
+## (Section: Administration) -  What do nodes Gossip about?
 
 * They gossip about node-meta-data
   * Heartbeat, generation, version and load
@@ -135,7 +135,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
   * Generation - timestamp of when the node-bootstraps
   * version - counter incremented every-second
 
-## What is Gossip data structure look like?
+## (Section: Administration) -  What is Gossip data structure look like?
 
 * EP: 127.0.0.1, HB:100:20, LOAD:86
 * Endpoint, HeartBeat:generation:version, Load
@@ -156,20 +156,20 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
   }
   ```
 
-## What is Gossip protocol?
+## (Section: Administration) -  What is Gossip protocol?
 
 * Initiator - Sends SYN
 * Receiver - Receives SYN and Constructs and replies with ACK message
 * Initiator - Gets ACK reponse from receiver  
 * Initiator - ACKs the ACK (from receiver) using ACK2 reponse
 
-## How to find more details about Gossip
+## (Section: Administration) -  How to find more details about Gossip
 
 * project = CASSANDRA AND component = "Cluster/Gossip"
 * https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
 
-## Sample Gossipinfo
+## (Section: Administration) -  Sample Gossipinfo
 
 ```json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -216,13 +216,13 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 ```
 
 
-## Node failure detector
+## (Section: Administration) -  Node failure detector
 
 * Every node declares their own status.
 * Every node detects failure of peer-node
 * They don't send their assumptions/evaluations during gossip (nodes don't send their judgement about other nodes)
 
-## Snitch (meaning informer)
+## (Section: Administration) -  Snitch (meaning informer)
 
 * Snitch - toplogy of cluster
 * Informs each IP and its physical location
@@ -246,20 +246,20 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     * 105 - node octet
   * cassandra-rackdc.properties can contain the data  
 
-## What is the role of DynamicSnitch
+## (Section: Administration) -  What is the role of DynamicSnitch
 
 * It uses underlying snitch
 * Maintains pulse of each nodes performance
 * Determines which node to query based on performance
 * Turned on by default for all snitches
 
-## Mandatory operational practice
+## (Section: Administration) -  Mandatory operational practice
 
 * All nodes should use same snitch
 * Changing network topology requires restarting all the nodes with latest snitch
 * Run sequential repair and cleanup on each node
 
-## Replication with RF=1
+## (Section: Administration) -  Replication with RF=1
 
 * Every node is responsible for certain token range
 * Partitioner finds the token from the data (MurMurPartitioner)
@@ -269,7 +269,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
   * Node that owns token higher than 59 is (here 63 is choosen)
   * Node that owns 50 and above.. but below 63 would store the data
 
-## Replication with RF>=2
+## (Section: Administration) -  Replication with RF>=2
 
 * Data would be stored in node that supposed to own token range
 * For every RF>1, Node who is neighbour (token range higher) also gets copy of the data
@@ -278,14 +278,14 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
   * Node that owns 63-75 would also get a copy
 
 
-## Replication with RF>=2 and Cross DataCenter
+## (Section: Administration) -  Replication with RF>=2 and Cross DataCenter
 
 * Cross DC replication is hard
 * We can have different RF for each DC
 * Country specific replication can be controlled at the keyspace level
 * Remote Co-ordinator would act as a local-cordinator to replicate data within remote DC
 
-## Consistency in CQL
+## (Section: Administration) -  Consistency in CQL
 
 ```sql
 consistency ANY;
@@ -299,7 +299,7 @@ INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra'
 select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
-## Reference
+## (Section: Administration) -  Reference
 
 * [Datastax videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
 * [Datastax Virtual-box VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
