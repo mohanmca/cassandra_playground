@@ -508,6 +508,8 @@
     out-of-tables](#section-cqls---create-table-and-loadexport-data-in-and-out-of-tables)
 -   [(Section: Cqls) - How to select token values of
     primary-key](#section-cqls---how-to-select-token-values-of-primary-key)
+-   [(Section: Cqls) - What is Conditional
+    Insert?](#section-cqls---what-is-conditional-insert)
 -   [(Section: Cqls) - IS CQL
     Case-sensitive](#section-cqls---is-cql-case-sensitive)
 -   [(Section: Cqls) - Create Keyspace/Table
@@ -550,8 +552,8 @@
     commands](#section-cqls---clear-the-screen-of-output-from-previous-commands)
 -   [(Section: Cqls) - Cassandra Dual equivalent table and
     SQL](#section-cqls---cassandra-dual-equivalent-table-and-sql)
--   [(Section: Cqls) - How to add column to a
-    table?](#section-cqls---how-to-add-column-to-a-table)
+-   [(Section: Cqls) - How to add/delete column to a
+    table?](#section-cqls---how-to-adddelete-column-to-a-table)
 -   [(Section: Cqls) - Exit cqlsh](#section-cqls---exit-cqlsh)
 -   [(Section: Cqls) - What would happen if we use Clustering Column
     where STATIC columns are
@@ -693,6 +695,8 @@
     up?](#we-have-problem-with-two-nodes-with-large-number-of-compaction-pending-how-to-speed-up)
 -   [Reference](#reference)
 -   [Anti-patterns in the Cassandra](#anti-patterns-in-the-cassandra)
+-   [What is the URL of hands-on
+    workshop?](#what-is-the-url-of-hands-on-workshop)
 -   [Important Spring Java project](#important-spring-java-project)
 -   [JIRA based on labels](#jira-based-on-labels)
 -   [JIRA Features in Cassandra](#jira-features-in-cassandra)
@@ -4379,6 +4383,19 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
 ```
 
+## (Section: Cqls) - What is Conditional Insert?
+
+1.  ``` bash
+    A conditional INSERT can be used to prevent an upsert when it matters, such as when two users try to register using the same email. Only the first INSERT should succeed:
+
+    INSERT INTO users (email, name, age, date_joined) VALUES ('art@datastax.com', 'Art', 33, '2020-05-04') IF NOT EXISTS;
+    INSERT INTO users (email, name, age, date_joined) VALUES ('art@datastax.com', 'Arthur', 44, '2020-05-04') IF NOT EXISTS;
+
+    SELECT * FROM users WHERE email = 'art@datastax.com';
+
+    UPDATE users SET name = 'Arthur' WHERE email = 'art@datastax.com' IF name = 'Art';
+    ```
+
 ## (Section: Cqls) - IS CQL Case-sensitive
 
 -   By default, names are case-insensitive, but case sensitivity can be
@@ -4508,9 +4525,10 @@ system_traces
 1. select now() from system.local;
 ```
 
-## (Section: Cqls) - How to add column to a table?
+## (Section: Cqls) - How to add/delete column to a table?
 
 -   ALTER TABLE movies ADD country TEXT;
+-   ALTER TABLE movies drop country;
 
 ## (Section: Cqls) - Exit cqlsh
 
@@ -5459,6 +5477,12 @@ anti-pattern
 
         Given what we have covered about how Cassandra handles things, such as in-place updates (obsoleted data) and deletes (tombstones), it should be obvious that this is not a good idea. Remember, a data model built to accommodate a small amount of in-place updates or deletes is fine. A data model that relies on in-place updates and deletes isn’t going to make anyone happy in the end.
     ```
+
+## What is the URL of hands-on workshop?
+
+-   [Cassandra
+    Fundamental](https://www.datastax.com/learn/cassandra-fundamentals)
+-   [Scenarios](https://www.datastax.com/try-it-out/scenarios)
 
 ## Important Spring Java project
 

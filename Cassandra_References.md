@@ -1,5 +1,6 @@
 ## What is the URL of hands-on workshop?
 
+* [Cassandra Fundamental](https://www.datastax.com/learn/cassandra-fundamentals)
 * [Scenarios](https://www.datastax.com/try-it-out/scenarios)
 
 ## Important Spring Java project
