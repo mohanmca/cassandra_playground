@@ -185,6 +185,43 @@ system_traces
 1. select now() from system.local;
 ```
 
+## (Section: Cqls) - How to find avg, sum, min, max within Partition (use ratings_by_movie) as example??
+
+```
+How to analize ratings for the movie:
+
+SELECT COUNT(rating) AS count,
+       SUM(rating) AS sum,
+       AVG(CAST(rating AS FLOAT)) AS avg,
+       MIN(rating) AS min,
+       MAX(rating) AS max
+FROM   ratings_by_movie
+WHERE  title = 'Alice in Wonderland'
+  AND  year  = 2010;
+```  
+
+## (Section: Cqls) - Sample function to find days between two date?
+
+```sql
+  CREATE FUNCTION IF NOT EXISTS DAYS_BETWEEN_DATES(date1 TEXT, date2 TEXT)     
+    RETURNS NULL ON NULL INPUT     
+    RETURNS BIGINT     
+    LANGUAGE Java AS 
+        'return java.lang.Math.abs(
+          java.time.temporal.ChronoUnit.DAYS.between(
+            java.time.LocalDate.parse(date1), 
+            java.time.LocalDate.parse(date2)
+          )
+        );';
+
+        SELECT name, 
+              DAYS_BETWEEN_DATES( 
+                CAST(date_joined   AS TEXT), 
+                CAST(TODATE(NOW()) AS TEXT) ) AS days
+        FROM   users
+        WHERE  email = 'joe@datastax.com';
+```
+
 ## (Section: Cqls) - How to add/delete column to a table?
 
 * ALTER TABLE movies ADD country TEXT;

@@ -197,8 +197,9 @@ rack=RAC
   * Requires more storage in your cluster.
 
 
-## (Section: Architecture) -  Consistency
+## (Section: Architecture) -  Consistency Level
 
+* **Request-Coordinator to Client** Defines how many replicas that are writing or reading data must respond to a **request coordinator** before the coordinator responds to the client. 
 * Cassandra fits into AP system (CAP), Csonsistency is tunable parameter in Cassandra.
 * Cassandra by default optimized for Availablity and Partiton, But can be tuned little to accomadate consistency
 * Client writes data into Cassandra, it can choose any of the below

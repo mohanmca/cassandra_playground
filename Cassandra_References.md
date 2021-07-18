@@ -62,7 +62,7 @@
 
 ## Analyze Cassandra code
 
-```
+````
 cat test/unit/org/apache/cassandra/db/compaction/LeveledCompactionStrategyTest.java | tr ' ' '\r\n' | tr A-Z a-z | sort| tr -d '[\\}\\{}]' | sort  
 ```
 

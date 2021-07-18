@@ -1,7 +1,13 @@
-## (Section: Cqls) - Exit cqlsh
+## (Section: Tools) - How to load json/csv in fastest way into Cassandra:
 
-* EXIT
-* Quit
+1. DSKBulk or Apache Spark (faster works for json and CSV)
+1. CQL-Copy (slow and only for CSV) 
+
+## (Section: Tools) - What are all DSBulk commands
+
+1. load
+2. unload
+3. count - statistics
 
 ## (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
 
@@ -15,3 +21,5 @@ dsbulk load -url users.csv       \
                 age=age"         \
             -logDir /tmp/logs
 ```
+
+
