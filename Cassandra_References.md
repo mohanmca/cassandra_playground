@@ -1,3 +1,7 @@
+## What is the URL of hands-on workshop?
+
+* [Scenarios](https://www.datastax.com/try-it-out/scenarios)
+
 ## Important Spring Java project
 
 * [Cassandra Datastax PetClinic](https://github.com/spring-petclinic/spring-petclinic-reactive)

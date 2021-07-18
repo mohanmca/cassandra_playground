@@ -51,6 +51,20 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
 ```
 
+## (Section: Cqls) - What is Conditional Insert?
+
+1. 
+    ```bash
+    A conditional INSERT can be used to prevent an upsert when it matters, such as when two users try to register using the same email. Only the first INSERT should succeed:
+
+    INSERT INTO users (email, name, age, date_joined) VALUES ('art@datastax.com', 'Art', 33, '2020-05-04') IF NOT EXISTS;
+    INSERT INTO users (email, name, age, date_joined) VALUES ('art@datastax.com', 'Arthur', 44, '2020-05-04') IF NOT EXISTS;
+
+    SELECT * FROM users WHERE email = 'art@datastax.com';
+
+    UPDATE users SET name = 'Arthur' WHERE email = 'art@datastax.com' IF name = 'Art';
+    ```
+
 ## (Section: Cqls) - IS CQL Case-sensitive
 
 * By default, names are case-insensitive, but case sensitivity can be forced by using double quotation marks around a name.
@@ -171,9 +185,10 @@ system_traces
 1. select now() from system.local;
 ```
 
-## (Section: Cqls) - How to add column to a table?
+## (Section: Cqls) - How to add/delete column to a table?
 
 * ALTER TABLE movies ADD country TEXT;
+* ALTER TABLE movies drop country;
 
 ## (Section: Cqls) - Exit cqlsh
 

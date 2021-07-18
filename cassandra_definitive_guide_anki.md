@@ -1,4 +1,4 @@
-## RDBMS history
+## (Section: TDG) - RDBMS history
 
 * IBM DB1 - IMS Hierarchical dbms - DBI/DB1 - Released in 1968 
 * IBM DB2 - 1970 - "A Relational Model of Data for Large Shared Data Banks - Dr. Edgar F. Codd"
@@ -8,7 +8,7 @@
 * Codd provided a list of 12 rules (0-12, actually 13 :-)) in ComputerWorld Magazine in 1985 (15 years later from original paper)
 * ANSI SQL - 1986
 
-## RDBMS Pros and cons
+## (Section: TDG) -  RDBMS Pros and cons
 
 * Pros : It works for most of the cases
   * SQL - Support
@@ -19,14 +19,14 @@
     * Durable - Never lost
 * Cons : Won't work for massively web scale db
 
-## Why RDBMS is successful?
+## (Section: TDG) -  Why RDBMS is successful?
 
 * SQL
 * Atomic Transaction with ACID properties
 * Two-phase commit was marketted well (Co-ordinated txn)
 * Rich schema
 
-## How RDBMS is tuned
+## (Section: TDG) -  How RDBMS is tuned
 
 * Introduce Index
 * Master(write), Slave (many times only used for read)
@@ -36,7 +36,7 @@
 * Partitioning/Sharding
 * Disable journaling  
 
-## Two-phase commit vs Compensation
+## (Section: TDG) -  Two-phase commit vs Compensation
 
 * Compensation
   * Writing off the transaction if it fails, deciding to discard erroneous transactions and reconciling later. 
@@ -47,7 +47,7 @@
   * https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
 
 
-## Sharding (Share nothing)
+## (Section: TDG) -  Sharding (Share nothing)
 
 * Rather keeping all customer in one table, divide up that single customer table so that each database has only some of the records, with their order preserved? Then, when clients execute queries, they put load only on the machine that has the record they’re looking for, with no load on the other machines.
 * How to shard?
@@ -58,7 +58,7 @@
   * Key-based sharding - one-way hash on a key data element and distribute data across machines according to the hash.
   * Lookup Table
 
-## [List of NoSQL databases](http://nosql-database.org/)
+## (Section: TDG) -  [List of NoSQL databases](http://nosql-database.org/)
 
 * Key-Value stores - Oracle Coherence, Redis, and MemcacheD, Amazon’s Dynamo DB, Riak, and Voldemort.
 * Column stores - Cassandra, Hypertable, and Apache Hadoop’s HBase.
@@ -68,13 +68,13 @@
 * XML databases - Tamino from Software AG and eXist.
 
 
-## Apache Cassandra - Official definition
+## (Section: TDG) -  Apache Cassandra - Official definition
 
 * “Apache Cassandra is an open source, distributed, decentralized, elastically scalable, highly available, fault-tolerant, tuneably consistent, row-oriented database. Cassandra bases its distribution design on Amazon’s Dynamo and its data model on Google’s Bigtable, with a query language similar to SQL"
 * Tuneably consistent (not Eventual Consisten as majority believes)
 
 
-## Cassandra Features
+## (Section: TDG) -  Cassandra Features
 
 * CQL (Thrift API is completely removed in 3.x)
   * CQL also known as native-transport
@@ -86,7 +86,7 @@
 * Cassandra is not column-oriented (it is row oriented)
 * Column values are stored according to a consistent sort order, omitting columns that are not populated
 
-## What are all Consistency Forms?
+## (Section: TDG) -  What are all Consistency Forms?
 
 * Strict (or Serial) Consistency or Strong (sequential consistency)
   * Works on Single CPU
@@ -100,18 +100,18 @@
   * Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct
   * Eventual consisteny (matter of milli-seconds)
 
-## Strong consistency in Cassandra
+## (Section: TDG) -  Strong consistency in Cassandra
 
 * R + W > RF = Strong consistency
 * In this equation, R, W, and RF are the read replica count, the write replica count, and the replication factor, respectively;
 
-## Row-Oriented data store
+## (Section: TDG) -  Row-Oriented data store
 
 * Cassandra’s data model can be described as a partitioned row store, in which data is stored in sparse multidimensional hashtables.
 * “Sparse” means that for any given row you can have one or more columns, but each row doesn’t need to have all the same columns as other rows like it (as in a relational model).
 * “Partitioned” means that each row has a unique key which makes its data accessible, and the keys are used to distribute the rows across multiple data stores.
 
-## Always writeable
+## (Section: TDG) -  Always writeable
 
 * A design approach must decide whether to resolve these conflicts at one of two possible times: during reads or during writes. That is, a distributed database designer must choose to make the system either always readable or always writable. Dynamo and Cassandra choose to be always writable, opting to defer the complexity of reconciliation to read operations, and realize tremendous performance gains. The alternative is to reject updates amidst network and server failures.
 * CAP Theorem
@@ -127,7 +127,7 @@
       * To primarily support consistency and availability means that you’re likely using two-phase commit for distributed transactions. It means that the system will block when a network partition occurs, so it may be that your system is limited to a single data center cluster in an attempt to mitigate this. If your application needs only this level of scale, this is easy to manage and allows you to rely on familiar, simple structures.
 
 
-## Notable tools
+## (Section: TDG) -  Notable tools
 
 * Sstableloader - Bulk loader
 * Leveled compaction strategy - for faster reads
@@ -136,16 +136,16 @@
 * User-defined functions
 * Materialized views (sometimes also called global indexes) 
 
-## Few use cases
+## (Section: TDG) -  Few use cases
 
 * Cassandra has been used to create a variety of applications, including a windowed time-series store, an inverted index for document searching, and a distributed job priority queue.
 
-## Updated CAP - Brewer's Theorem
+## (Section: TDG) -  Updated CAP - Brewer's Theorem
 
 * Brewer now describes the “2 out of 3” axiom as somewhat misleading. 
 * He notes that designers only need sacrifice consistency or availability in the presence of partitions. And that advances in partition recovery techniques have made it possible for designers to achieve high levels of both consistency and availability.
 
-## What is the alternative for Two-phase commit
+## (Section: TDG) -  What is the alternative for Two-phase commit
 
 * Compensation or compensatory action
 * Writing off the tranaction if it fails, deciding to discard erroneous transactions and reconciling later
@@ -153,14 +153,14 @@
 * Retry failed operation later on notification
 * "Starbucks does not use Two-phase commit" - Gregor Hohpe
 
-## How to horizontally scale RDBMS (shard)
+## (Section: TDG) -  How to horizontally scale RDBMS (shard)
 
 * Shard the database, (key for sharding is important)
 * Split the customer based on name (few letter has less load)  or according to phone-number or dob
 * Host all the data that begins with certain letter in different database
 * Shard users in one database, items in another database
 
-## There are three basic strategies for determining shard structure:
+## (Section: TDG) -  There are three basic strategies for determining shard structure:
 
 * Feature-based shard or functional segmentation
   * Shard users in one database, items in another database
@@ -168,30 +168,30 @@
   * Hash based sharding
   * time-based on numeri-ckeys to hash on
 * Lookup table
-  * Make one of the noe as "Yellow-pages", look-up for information about where the data stored
+  * Make one of the node as "Yellow-pages", look-up for information about where the data stored
 
-## Shared nothing
+## (Section: TDG) -  Shared nothing
 
 * Sharding could be termed a kind of shared-nothing architecture that’s specific to databases
 * Shared-nothing - no primary or no-secondary
 * Every node is independent
 * No centralized shared state
-* Cassandra (key-based sharding) and MongoDB - Autho sharding database
+* Cassandra (key-based sharding) and MongoDB - Autn o sharding database
 
 
-## New SQL (Scalable ACID transactions)
+## (Section: TDG) -  New SQL (Scalable ACID transactions)
 
 * Calvin transaction protocol vs Google’s Spanner paper
 * FaunaDB is an example of a database that implements the approach on the Calvin paper
 
 
-## Cassandra features
+## (Section: TDG) -  Cassandra features
 
 * It uses gossip protcol (feature of peer-to-peer architecture) to maintain details of other nodes.
 * It allows tunable cosistency and client can decide for each write/read (how many RF?)
 * It is possible to remove one column value alone in Cassandra
 
-## Cap Theorem (Brewer's theorem)
+## (Section: TDG) -  Cap Theorem (Brewer's theorem)
 
 * CAP - Choose two (as of 2000)
 * Network issue would certainly happens, hence network partition failures is un-avoidable, And should be handled. Hence choose between compromise on A or C (Availablity or consistency)
@@ -199,7 +199,7 @@
 * CP -  Neo4j, MongoDB, HBase, BigTable
 * AP -  DNS, Cassandra, Amazon Dynamo
 
-## Cassandra Lightweight transaction (LWT) - Linearizable consistency
+## (Section: TDG) -  Cassandra Lightweight transaction (LWT) - Linearizable consistency
 
 * Ensure there are not operation between read and write
 * Example: Check if user exist, if not create user (don't overwrite in between)
@@ -207,7 +207,7 @@
 * LWT is based on Paxos algorithm (and it is better than two-phase commit)
 
 
-## Row-Oriented (Wide column store)
+## (Section: TDG) -  Row-Oriented (Wide column store)
 
 * Partitioned row store - sparse multidimensional hash tables
 * Partitioned - means that each row has a unique partition key used to distribute the rows across multiple data stores.
@@ -217,7 +217,7 @@
 * Column values are stored according to a consistent sort order, omitting columns that are not populated.
 
 
-## Cassandra - schema free?
+## (Section: TDG) -  Cassandra - schema free?
 
 * Started as schema free using Thrift API, later CQL was introduced
 * No! Till 2.0 CQL and Thrit API co-exist, It was known as "Schema Optional"
@@ -226,7 +226,7 @@
   * Now-a-days it is considered flexible-schema
 * Schema free -> "Optional Schema" -> "Flexible Schema"  
 
-## Cassandra - use-cases?
+## (Section: TDG) -  Cassandra - use-cases?
 
 * Storing user activity updates
 * Social network usage, recommendations/reviews, 
@@ -237,7 +237,7 @@
 
 
 
-## Cassandra directories
+## (Section: TDG) -  Cassandra directories
 
 * /opt/cassadra/bin
 * /opt/cassadra/bin/cassandra -f --run the process in foreground for debug print and learning..
@@ -249,7 +249,7 @@
 * /var/log/cassandra/system.log
 * /var/log/cassandra/debug.log
 
-## Cassandra directories and files
+## (Section: TDG) -  Cassandra directories and files
 
 * $CASSANDRA_HOME/data/commitlog
   * CommitLog-<version><timestamp>.log
@@ -257,7 +257,7 @@
 * 1-SSTable has multiple files
   * SSTable stored under - $CASSANDRA_HOME/data/data
 
-## Cassandra run-time properties
+## (Section: TDG) -  Cassandra run-time properties
 
 * -Dcassandra-foreground=yes
 * -Dcassandra.jmx.local.port=7199
@@ -275,7 +275,7 @@
 * /opt/java/openjdk/bin/java
 
 
-## Cassandra cqlsh
+## (Section: TDG) -  Cassandra cqlsh
 
 * Object names are in snake_case. Cassandra converts into lower_case by default, double quote to override
 * bin/cqlsh localhost 9042
@@ -299,7 +299,7 @@
     delete from user where last_name='Narayanaswamy' and first_name='Mohan';  --entire row deletion
   ```
 
-## How to run apache Cassandra using docker
+## (Section: TDG) -  How to run apache Cassandra using docker
 
 ```bash
 docker pull cassandra
@@ -311,7 +311,7 @@ docker exec -it apc2 cqlsh
 docker stop apc2
 ```
 
-## Datamodel quick checklist
+## (Section: TDG) -  Datamodel quick checklist
 
 * All the possible important query that needs to satisfied should be considered before design
 * Minimize the number of partitions that must be searched to satisfy a given query
@@ -322,12 +322,12 @@ docker stop apc2
 * NO REFERENTIAL INTEGRITY - supported in Cassandra (or any nosql)
 
 
-## THE WIDE PARTITION PATTERN
+## (Section: TDG) -  THE WIDE PARTITION PATTERN
 
 * group multiple related rows in a partition in order to support fast access to multiple rows within the partition in a single query.
 * Cassandra can put tremendous pressure on the java heap and garbage collector, impact read latencies, and can cause issues ranging from load shedding and dropped messages to crashed and downed nodes.
 
-## Cassandra Architecture - logical components (2+4+3+4+1)
+## (Section: TDG) -  Cassandra Architecture - logical components (2+4+3+4+1)
 
 * Network topology, Peer-to-peer
 * Gossip, repair, hinted handoff, and lightweight transactions
@@ -336,7 +336,7 @@ docker stop apc2
 * LWW-Element-Set (Last-Write-Wins-Element-Set) and no-reconciliation
 
 
-## Cassandra token ring
+## (Section: TDG) -  Cassandra token ring
 
 * Tokens range from -2^63 to 2^63 - 1
 * Every node owns multiple token (and it's token ranges)
@@ -349,13 +349,13 @@ docker stop apc2
 * Partitioner :: partition_key -> token (clustering key is not used by partitioner)
 * Partitioner can’t be changed after initializing a cluster. Cassandra uses MurMurPartitioner since 1.2
 
-## Hinted Handoff
+## (Section: TDG) -  Hinted Handoff
 
 * Acts like JMS MQ, till message is delivered
 * But message is deleted after 3 hours (should be consumed within that)
 
 
-## Conflict-free replicated data type
+## (Section: TDG) -  Conflict-free replicated data type
 
 * To resolve conflicts, system can use the Last-Writer-Wins Register
 * Which keeps only the last updated value when merging diverged data sets. 
@@ -363,21 +363,21 @@ docker stop apc2
 * We need to be very cautious when using this strategy because it drops changes that occurred in the meantime.
 
 
-## What is anti-entropy repair?
+## (Section: TDG) -  What is anti-entropy repair?
 
 * Replica synchronization mechanism for ensuring that data on different nodes is updated to the newest version.
 * Replica synchronization as well as hinted handoff.
 * Project Voldemort also uses read-repair similar to Cassandra (not anti-entropy repair)
 
 
-## MERKLE TREE usage in Cassandra?
+## (Section: TDG) -  MERKLE TREE usage in Cassandra?
 
 * The advantage MERKLE TREE usage is that it reduces network I/O.
 * Used to ensure that the peer-to-peer network of nodes receives data blocks unaltered and unharmed.
 * Each table has its own Merkle tree; the tree is created as a snapshot during a validation compaction, 
 * MerkleTree is kept only as long as is required to send it to the neighboring nodes on the ring.
 
-## Commit Log
+## (Section: TDG) -  Commit Log
 
 * Only one commit log for entire server
 * Commit log shares across multiple table
@@ -385,7 +385,7 @@ docker stop apc2
 * Ther is a bit for flush_bit for each table in commit log (1 - flush_required, 0 - flush-not-required)
 * Throw more memory to reduce false-positives
 
-## Comapaction stragies in Cassandra
+## (Section: TDG) -  Comapaction stragies in Cassandra
 
 * SizeTieredCompactionStrategy (STCS) is the default compaction strategy and is recommended for write-intensive tables.
 * LeveledCompactionStrategy (LCS) is recommended for read-intensive tables.
@@ -393,19 +393,19 @@ docker stop apc2
 * Anticompaction  - Split SSTable with one containing repaied data and other containing unrepaired data
 
 
-## Cassandra under the hood
+## (Section: TDG) -  Cassandra under the hood
 
 * [Refactor and modernize the storage engine](https://issues.apache.org/jira/browse/CASSANDRA-8099)
 * [Materialized Views (was: Global Indexes)](https://issues.apache.org/jira/browse/CASSANDRA-6477)
 * [Cassandra pluggable storage engine](https://issues.apache.org/jira/browse/CASSANDRA-13474)
 
-## Deletion and Tombstones
+## (Section: TDG) -  Deletion and Tombstones
 
 * Nodes that was down when records deleted should have mechanism, hence tombstones
 * Tombstones can be configured using gc_grace_seconds (garbage collection grace seconds)
 * gc_grace_seconds = 864000 seconds ( 10 days)
 
-## Bloom Filter
+## (Section: TDG) -  Bloom Filter
 
 * SSTable is not good when key that is not available in a table is queried
 * Without bloomfilter, Cassandra read-path would query multiple files (sgements) to confirm a key is absent. It queries latest to oldest before confirming lack of key.
@@ -414,20 +414,20 @@ docker stop apc2
 * False-negative is not possible, but falst-positive is possible
 * if bloom-filter conveys data is not available, if it is not avialble. But it might return 'may be available', it may not be available.
 
-## cluster topology of Cassandra
+## (Section: TDG) -  cluster topology of Cassandra
 
 * Cassandra cluster topology is the arrangement of the nodes (dcs, racs, etc.) and communication network between them.
 * Snitch teaches  Cassandra enough about your network topology
 * cassandra-topology.properties can be used to configure topology details
 
 
-## CQL - Primary key and Clustering key
+## (Section: TDG) -  CQL - Primary key and Clustering key
 
 ```
 PRIMARY KEY (("k1", "k2"), "c1", "c2"), ) WITH CLUSTERING ORDER BY ("c1" DESC, "c2" DESC);
 ```
 
-## CQLSH - useful
+## (Section: TDG) -  CQLSH - useful
 
 * CQL would use Murmur3 partitioner
 * Minimum token is -9223372036854775808 (and maximum token is 9223372036854775808).
@@ -441,26 +441,26 @@ PRIMARY KEY (("k1", "k2"), "c1", "c2"), ) WITH CLUSTERING ORDER BY ("c1" DESC, "
      select token(key), key, my_column from mytable where token(key) >= %s limit 10000;
 ```
 
-## How to remove node using nodetool
+## (Section: TDG) -  How to remove node using nodetool
 
 * Decommission - Streams data from the leaving node (prefered and guaranteed consistency as if it started)
 * Removenode -  Streams data from any available node that owns the range
 * assassinate - Forcefully remove a dead node without re-replicating any data. Use as a last resort if you cannot removenode
 
-## Cassandra linux limits
+## (Section: TDG) -  Cassandra linux limits
 
 * if cassandra has 30 sstables, it would use 30 * 6 - 180 file handles
 * XX:MaxDirectMemorySize - we can set off-heap memory (outside JVM on OS)
  
 
-## Cassandra troubleshoot linux commands
+## (Section: TDG) -  Cassandra troubleshoot linux commands
 
 ```bash
 cat /proc/cass_proc_id/limits | grep files
 ```
 
 
-## How does cassandra-topolgoy.properties look alike
+## (Section: TDG) -  How does cassandra-topolgoy.properties look alike
 
 ```txt
 # datacenter One
@@ -494,7 +494,7 @@ default=DC3:RAC1
 ```
 
 
-## Cassandra Client - features (Datastax Driver 4.9.0)
+## (Section: TDG) -  Cassandra Client - features (Datastax Driver 4.9.0)
 
 *  
     ```xml 
@@ -516,20 +516,20 @@ default=DC3:RAC1
 * Security can be configured between client and server
 * Deifferent profiles can be configured between invocation by the same client
 
-## Cassandra Client - Retry Failied Queries (if node failed)
+## (Section: TDG) -  Cassandra Client - Retry Failied Queries (if node failed)
 
 * ExponentialReconnectionPolicy  vs ConstantReconnectionPolicy
 * onReadTimeout(), onWriteTimeout(), and onUnavailable()
 * The RetryPolicy operations return a RetryDecision
 
 
-## Cassandra Client side - SPECULATIVE EXECUTION
+## (Section: TDG) -  Cassandra Client side - SPECULATIVE EXECUTION
 
 * The driver can preemptively start an additional execution of the query against a different coordinator node.
 * When one of the queries returns, the driver provides that response and cancels any other outstanding queries.
 * ConstantSpeculativeExecutionPolicy
 
-## Cassandra Client side - CONNECTION POOLING
+## (Section: TDG) -  Cassandra Client side - CONNECTION POOLING
 
 * Default single connection per node
 * 128 simultaneous requests in protocol - v2
@@ -537,7 +537,7 @@ default=DC3:RAC1
 * 1024 -  Default maximum number of simultaneous requests per connection.
 
 
-## Cassandra Client side driver configuration 
+## (Section: TDG) -  Cassandra Client side driver configuration 
 
 ```json
 datastax-java-driver {
@@ -548,7 +548,7 @@ datastax-java-driver {
 }
 ```
 
-## Cassandra Client (Datastax Driver 4.9.0) - Java API
+## (Section: TDG) -  Cassandra Client (Datastax Driver 4.9.0) - Java API
 
 ```java
 CqlSession cqlSession = CqlSession.builder()
@@ -557,7 +557,7 @@ CqlSession cqlSession = CqlSession.builder()
     .withLocalDatacenter("<data center name>")
     .build()
 ```
-## Cassandra Client Mapper/Entity Annotations
+## (Section: TDG) -  Cassandra Client Mapper/Entity Annotations
 
 * @Mapper
 * @Select
@@ -566,7 +566,7 @@ CqlSession cqlSession = CqlSession.builder()
 * @Query
 
 
-## Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
+## (Section: TDG) -  Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
 
 ```java
 Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmation")
@@ -576,7 +576,7 @@ Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmat
 SimpleStatement reseravationSelectStatement = reservationSelect.build()
 ```
 
-## Cassandra Client (Datastax Driver 5.0) - Async API
+## (Section: TDG) -  Cassandra Client (Datastax Driver 5.0) - Async API
 * CQL native protocol is asynchronous
 * 
 ```java
@@ -608,7 +608,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
             }      
 ```
 
-## JDK 9 - Reactive style API
+## (Section: TDG) -  JDK 9 - Reactive style API
 * The CqlSession interface extends a new ReactiveSession interface. Which adds methods such as executeReactive() to process queries expressed as reactive streams.
 * 
   ```java
@@ -630,7 +630,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
             }
   ```
 
-## Cassandra write path
+## (Section: TDG) -  Cassandra write path
 
 * Performance optimzied for write using append only
 * Database commit log and hinted handoff design, the database is always writable, and within a row, writes are always atomic.
@@ -650,7 +650,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 * Memtables are stored as SS-Table to disk
 
 
-## Cassandra write path - Materialized view
+## (Section: TDG) -  Cassandra write path - Materialized view
 
 * Partition must be locked while consensus negotiated between replicas
 * Logged batches are used to maintain materialized views
@@ -659,7 +659,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 * But one delete in a source table might create multiple tombstones in the materialized view
 
 
-## Cassandra write/read - consistency CQLS
+## (Section: TDG) -  Cassandra write/read - consistency CQLS
 
 * ```bash
       cqlsh> CONSISTENCY;
@@ -669,19 +669,19 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
       ## statement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
   ```
 
-## Cassandra failures and solutions
+## (Section: TDG) -  Cassandra failures and solutions
 
 * java.lang.OutOfMemoryError: Map failed` - Almost always incorrect user limits - check ulimit -a 
   * Check the values of max memory size and virtual memory
 
-## Scaling Quotes
+## (Section: TDG) -  Scaling Quotes
 
 * If you can’t split it, you can’t scale it. "Randy Shoup, Distinguished Architect, eBay"
 * [“The Case for Shared Nothing” - Michael Stonebreaker](http://db.cs.berkeley.edu/papers/hpts85-nothing.pdf)
 * No sane pilot would take off in an airplane without the ability to land, and no sane engineer would roll code that they could not pull back off in an emergency
 * Management means measurement, and a failure to measure is a failure to manage.
 
-## Performance Quotes
+## (Section: TDG) -  Performance Quotes
 
 1. “The recommendation for speeding up .... is to add cache and more cache. And after that add a little more cache just in case.”
 1. “When something becomes slow it's a candidate for caching.”
@@ -689,14 +689,14 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 1. “Rather than dealing with the uncertainty of the correctness of an answer, the data is made unavailable until it is absolutely certain that it is correct.” (pitfall of strong consistency)
 
 
-## Nodetool
+## (Section: TDG) -  Nodetool
 
 * Adminstration tool uses JMX to interact with Cassandra
 * TPstats (threadpoolstatus) and Tablestats  are subcommands in nodetool
 * nodetool help tpstats
 * nodetool tpstats --
 
-## Building Cassandra
+## (Section: TDG) -  Building Cassandra
 
 * Cassandra is built using Ant & Maven (Ant in-turn uses Maven)
 * [Apache Builds](https://builds.apache.org/)
@@ -709,7 +709,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 * Ant default target would produce apache-cassandra-x.x.x.jar
 
 
-## Resources
+## (Section: TDG) -  Resources
 
 * https://community.datastax.com/
 * user@cassandra.apache.org - provides a general discussion list for users and is frequently used by new users or those needing assistance.
@@ -724,7 +724,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
   * [https://www.datastax.com/blog](https://www.datastax.com/blog)
 
 
-## Follow-up questions for Cassandra
+## (Section: TDG) -  Follow-up questions for Cassandra
 
 * What are the other peer-to-peer databases?
   * How clients are connecting to them?  
@@ -735,7 +735,7 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 * PHI THRESHOLD AND ACCRUAL FAILURE DETECTORS (Surprise)
 
 
-## Definitive Guide References
+## (Section: TDG) -  Definitive Guide References
 
 * [Cassandra Guide](https://github.com/jeffreyscarpenter/cassandra-guide)
 * [Cassandra Paper](http://www.cs.cornell.edu/projects/ladis2009/papers/lakshman-ladis2009.pdf)
@@ -759,14 +759,14 @@ SimpleStatement reseravationSelectStatement = reservationSelect.build()
 * [Incremental Repair Improvements in Cassandra 4](https://thelastpickle.com/blog/2018/09/10/incremental-repair-improvements-in-cassandra-4.html)
 * CassandraSummit
 
-## Code 
+## (Section: TDG) -  Code 
 
 * [jeffreyscarpenter/reservation-service](https://github.com/jeffreyscarpenter/reservation-service)
 * [Datastax KillrVideo sample java application](https://killrvideo.github.io/docs/languages/java/)
 * [Datastax spring pet-clinic](https://github.com/DataStax-Examples/spring-petclinic-reactive#prerequisites)
 
 
-## How to create anki from this markdown file
+## (Section: TDG) -  How to create anki from this markdown file
 
 ```
 mdanki Cassandra_Definitive_Guide_Anki.md Cassandra_Definitive_Guide.apkg --deck "Mohan::Cassandra::DefinitiveGuide"
