@@ -395,7 +395,9 @@ rack=RAC
   * Separate management thread for Mem-table-flush, Compaction, Hints, Streaming
 * OSS - Executor thread-pool
 
+## (Section: Architecture) -  Under what circumstances is the use of lightweight transactions justified?
 
+* Race conditions and low data contention
 
 ## (Section: Architecture) -  Reference
 
