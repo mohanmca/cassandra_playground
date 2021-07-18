@@ -19,5 +19,6 @@
 #include "Cassandra_Tombstones.md"
 #include "Cassandra_Write_Read.md"
 #include "Cassandra_Compaction_Deepdive.md"
+#include "Cassandra_Experimental_Anki.md"
 #include "Cassandra_AntiPatterns.md"
 #include "Cassandra_References.md"
