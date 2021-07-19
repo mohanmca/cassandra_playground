@@ -24,21 +24,19 @@
 
 1. Use consistency levels LOCAL_QUORUM and higher for base table writes.
 1. Standard recommended repair procedures should be performed on both tables and views regularly or whenever a node is removed, replaced or started back up.
-1. 
-
 
 ## (Section: Experimental) - Example of MVs.
 
 1.
     ```sql 
-    CREATE TABLE users (
-        email TEXT, name TEXT,
-        age INT,date_joined DATE,
-        PRIMARY KEY ((email))
-    );
+        CREATE TABLE users (
+            email TEXT, name TEXT,
+            age INT,date_joined DATE,
+            PRIMARY KEY ((email))
+        );
 
-    CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_name AS SELECT * FROM users    WHERE name IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((name), email);
-    CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_date_joined AS SELECT * FROM users WHERE date_joined IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((date_joined), email);
+        CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_name AS SELECT * FROM users    WHERE name IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((name), email);
+        CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_date_joined AS SELECT * FROM users WHERE date_joined IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((date_joined), email);
     ```
 
 
@@ -68,7 +66,7 @@
     -- Expensive analytical query
     SELECT * FROM ratings_by_movie    WHERE rating >= 8 AND rating <= 10;
     ```    
-## What is the main real-time transactional use case for a secondary index?
+## (Section: Experimental) - What is the main real-time transactional use case for a secondary index?
 
 1. Retrieving rows from a large multi-row partition
 

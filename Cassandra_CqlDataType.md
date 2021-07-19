@@ -1,6 +1,30 @@
 ## (Section: Advanced Type) - What are all the basic data-types?
 
 * TEXT, INT, FLOAT, and DATE
+* TIMESTAMP -- we can use in query like added_date > '2013-03-17';
+
+## (Section: Advanced Type) - What are all the current-time-date functions?
+
+* uuid() function takes no parameters and generates a random Type 4 UUID
+* select toTimestamp(now()) from system.local; - Find current time
+* select toDate(now()) from system.local; - Find current date
+
+## (Section: Advanced Type) - What are all the timestamp functions?
+
+* toDate(timestamp) - Converts timestamp to date in YYYY-MM-DD format.
+* toUnixTimestamp(timestamp) - Converts timestamp to UNIX timestamp format.
+* toTimestamp(date) - Converts date to timestamp format.
+* toUnixTimestamp(date) - Converts date to UNIX timestamp format.
+* system.totimestamp(system.now())
+
+## (Section: Advanced Type) - What are all the timeuuid functions?
+
+* now() - Generates a new unique timeuuid in milliseconds when the statement is executed.
+* toDate(timeuuid) - Converts timeuuid to date in YYYY-MM-DD format.
+* toTimestamp(timeuuid) - Converts timeuuid to timestamp format.
+* toUnixTimestamp(timeuuid) - Converts timeuuid to UNIX timestamp format.
+* minTimeuuid() and maxTimeuuid() - The values returned by minTimeuuid and maxTimeuuid functions are not true UUIDs in that the values do not conform to the Time-Based UUID generation process specified by the RFC 4122. The results of these functions are deterministic, unlike the now() function.
+* select mintimeuuid(toTimestamp(now())) from system.local;
 
 ## (Section: Advanced Type) - How to add SET<TEXT> AND UPDATE its columns values?
 

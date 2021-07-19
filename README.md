@@ -104,6 +104,10 @@
     POOLING](#section-tdg---cassandra-client-side---connection-pooling)
 -   [(Section: TDG) - Cassandra Client side driver
     configuration](#section-tdg---cassandra-client-side-driver-configuration)
+-   [(Section: TDG) - How to connect to Cassandra using Java
+    API](#section-tdg---how-to-connect-to-cassandra-using-java-api)
+-   [(Section: TDG) - How to connect to Cassandra using Python
+    API](#section-tdg---how-to-connect-to-cassandra-using-python-api)
 -   [(Section: TDG) - Cassandra Client (Datastax Driver 4.9.0) - Java
     API](#section-tdg---cassandra-client-datastax-driver-4.9.0---java-api)
 -   [(Section: TDG) - Cassandra Client Mapper/Entity
@@ -451,9 +455,11 @@
     com.datastax.oss.driver.api.core.connection.ConnectionIntiException..
     ssl should be
     configured](#server-side---com.datastax.oss.driver.api.core.connection.connectionintiexception..-ssl-should-be-configured)
--   [How to connect to Cassandra from
-    API](#how-to-connect-to-cassandra-from-api)
--   [TO setup python](#to-setup-python)
+-   [(Client side) - \[SSLL
+    SSLV3_ALERT_HANDSHAKE_FAILURE\]](#client-side---ssll-sslv3_alert_handshake_failure)
+-   [(Client side) - Since you provided explicit contact points, the
+    local DC must be explicitly set (see
+    basic.load-balancing-policy.local-datacenter)](#client-side---since-you-provided-explicit-contact-points-the-local-dc-must-be-explicitly-set-see-basic.load-balancing-policy.local-datacenter)
 -   [Cluster level monitoring](#cluster-level-monitoring)
 -   [Top worst performing](#top-worst-performing)
 -   [List monitoring elements](#list-monitoring-elements)
@@ -567,8 +573,34 @@
     where STATIC columns are
     updated](#section-cqls---what-would-happen-if-we-use-clustering-column-where-static-columns-are-updated)
 -   [(Section: Cqls) - Reference](#section-cqls---reference)
--   [(Section: SSTable) - Storage
-    Architecture](#section-sstable---storage-architecture)
+-   [(Section: Advanced Type) - What are all the basic
+    data-types?](#section-advanced-type---what-are-all-the-basic-data-types)
+-   [(Section: Advanced Type) - What are all the current-time-date
+    functions?](#section-advanced-type---what-are-all-the-current-time-date-functions)
+-   [(Section: Advanced Type) - What are all the timestamp
+    functions?](#section-advanced-type---what-are-all-the-timestamp-functions)
+-   [(Section: Advanced Type) - What are all the timeuuid
+    functions?](#section-advanced-type---what-are-all-the-timeuuid-functions)
+-   [(Section: Advanced Type) - How to add SET`<TEXT>`{=html} AND UPDATE
+    its columns
+    values?](#section-advanced-type---how-to-add-set-and-update-its-columns-values)
+-   [(Section: Advanced Type) - How to add LIST`<TEXT>`{=html} AND
+    UPDATE its columns
+    values?](#section-advanced-type---how-to-add-list-and-update-its-columns-values)
+-   [(Section: Advanced Type) - How to add MAP\<TEXT, TEXT> AND UPDATE
+    its columns
+    values?](#section-advanced-type---how-to-add-maptext-text-and-update-its-columns-values)
+-   [(Section: Advanced Type) - How to UDT ADDRESS\<street, city, state,
+    postal_code> AND UPDATE ADDRESS columns
+    values?](#section-advanced-type---how-to-udt-addressstreet-city-state-postal_code-and-update-address-columns-values)
+-   [(Section: Advanced Type) - Single vs Multiple
+    batch?](#section-advanced-type---single-vs-multiple-batch)
+-   [(Section: Advanced Type) - Batch
+    restrictions?](#section-advanced-type---batch-restrictions)
+-   [(Section: Advanced Type) - Batch cost and
+    performance?](#section-advanced-type---batch-cost-and-performance)
+-   [(Section: Advanced Type) - Batch - System tables
+    involved?](#section-advanced-type---batch---system-tables-involved)
 -   [(Section: SSTable) - SStable - settings in
     cassandra.yaml](#section-sstable---sstable---settings-in-cassandra.yaml)
 -   [(Section: SSTable) - What are the files part of
@@ -636,6 +668,12 @@
     CQL](#section-administration---consistency-in-cql)
 -   [(Section: Administration) -
     Reference](#section-administration---reference)
+-   [(Section: Tools) - How to load json/csv in fastest way into
+    Cassandra:](#section-tools---how-to-load-jsoncsv-in-fastest-way-into-cassandra)
+-   [(Section: Tools) - What are all DSBulk
+    commands](#section-tools---what-are-all-dsbulk-commands)
+-   [(Section: Tools) - Load CSV data into Cassandra (using name-to-name
+    mapping):](#section-tools---load-csv-data-into-cassandra-using-name-to-name-mapping)
 -   [Time-series presentations](#time-series-presentations)
 -   [(Section: Tombstone) - What are all the majore issues due to
     Tombstones](#section-tombstone---what-are-all-the-majore-issues-due-to-tombstones)
@@ -644,44 +682,6 @@
     solution)](#section-tombstone---how-to-agressively-collect-tombstones-to-resolve-few-of-the-query-timeout-tactical-solution)
 -   [(Section: Tombstone) - Where is Tombstones are
     handled?](#section-tombstone---where-is-tombstones-are-handled)
--   [(Section: WriteRead) - How read
-    works?](#section-writeread---how-read-works)
--   [(Section: WriteRead) - Read Repair (Happens only when
-    CL=All)](#section-writeread---read-repair-happens-only-when-clall)
--   [(Section: WriteRead) - Read Repair Chance (when CL \< ALL) (less
-    than ALL consistency
-    read)](#section-writeread---read-repair-chance-when-cl-all-less-than-all-consistency-read)
--   [(Section: WriteRead) - Nodetool
-    repair](#section-writeread---nodetool-repair)
--   [(Section: WriteRead) - Nodetool Sync (only
-    datastax)](#section-writeread---nodetool-sync-only-datastax)
--   [(Section: WriteRead) - Nodetool Sync Save points (only
-    datastax)](#section-writeread---nodetool-sync-save-points-only-datastax)
--   [(Section: WriteRead) - Nodetool Sync - Segments
-    Sizes](#section-writeread---nodetool-sync---segments-sizes)
--   [(Section: WriteRead) - Nodetool Sync - Segments
-    failures](#section-writeread---nodetool-sync---segments-failures)
--   [(Section: WriteRead) - Nodetool Sync - Segments
-    Validation](#section-writeread---nodetool-sync---segments-validation)
--   [(Section: WriteRead) - Cassandra Write Path (inside the node, and
-    for *a*
-    partition)](#section-writeread---cassandra-write-path-inside-the-node-and-for-a-partition)
--   [(Section: WriteRead) - Cassandra Read Path (inside the node, and
-    for particular a
-    partition)](#section-writeread---cassandra-read-path-inside-the-node-and-for-particular-a-partition)
--   [(Section: WriteRead) - Cassandra Read Path
-    workflow](#section-writeread---cassandra-read-path-workflow)
--   [(Section: WriteRead) - Bloom
-    filter](#section-writeread---bloom-filter)
--   [(Section: WriteRead) - Datastax](#section-writeread---datastax)
--   [(Section: WriteRead) - Compaction (merging
-    ss-tables)](#section-writeread---compaction-merging-ss-tables)
--   [(Section: WriteRead) - Compaction Strategies (based on
-    use-case)](#section-writeread---compaction-strategies-based-on-use-case)
--   [(Section: WriteRead) - Advanced Peformance Gains in
-    (DSE)](#section-writeread---advanced-peformance-gains-in-dse)
--   [(Section: WriteRead) - Before and after
-    flush](#section-writeread---before-and-after-flush)
 -   [(Section: WriteRead) - Sample data directory wiht WITH
     bloom_filter_fp_chance =
     0.1;](#section-writeread---sample-data-directory-wiht-with-bloom_filter_fp_chance-0.1)
@@ -1394,6 +1394,48 @@ datastax-java-driver {
     session-keyspace = reservation
   }
 }
+```
+
+## (Section: TDG) - How to connect to Cassandra using Java API
+
+1.  Create Cluster object
+
+2.  Create Session object
+
+3.  Execute Query using session and retrieve the result
+
+4.  ``` java
+    Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
+    Session session = cluster.connect("KillrVideo")
+    ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
+
+    boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
+
+    List<Book> books = new ArrayList<Book>();
+    result.forEach(r -> {
+      books.add(new Book(
+          r.getUUID("id"), 
+          r.getString("title"),  
+          r.getString("subject")));
+    });
+    return books;
+    ```
+
+## (Section: TDG) - How to connect to Cassandra using Python API
+
+``` bash
+python -m pip install --upgrade pip
+pip install cassandra-driver
+``
+
+```python
+from cassandra.cluster import Cluster
+cluster = Cluster(protocol_version = 3)
+session = cluster.connect('Killrvideo')
+result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
+print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
+for val in session.execute("select * from videos_by_tag"):
+   print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
 ```
 
 ## (Section: TDG) - Cassandra Client (Datastax Driver 4.9.0) - Java API
@@ -3978,61 +4020,15 @@ authentication_options:
 
 -   Client side should enable ssl ; true (in spring-boot
     application.yaml)
-    -   spring.data.cassandra.ssl: true ## (Client side) - \[SSLL
-        SSLV3_ALERT_HANDSHAKE_FAILURE\]
+    -   spring.data.cassandra.ssl: true
 
--   Ensure you configured SSL on cient side ## (Client side) - Since you
-    provided explicit contact points, the local DC must be explicitly
-    set (see basic.load-balancing-policy.local-datacenter)
+## (Client side) - \[SSLL SSLV3_ALERT_HANDSHAKE_FAILURE\]
 
--   spring.data.cassandra.local-datacenter: asiapac ## Cassandra read -
-    query timedout out after PT2S
+-   Ensure you configured SSL on cient side
 
--   ## Data types
+## (Client side) - Since you provided explicit contact points, the local DC must be explicitly set (see basic.load-balancing-policy.local-datacenter)
 
--   Text
-
--   timestamp -- we can use in query like added_date > '2013-03-17';
-
-## How to connect to Cassandra from API
-
-1.  Create Cluster object
-2.  Create Session object
-3.  Execute Query using session and retrieve the result
-
-``` java
-Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build()
-Session session = cluster.connect("KillrVideo")
-ResultSet result = session.execute("select * from videos_by_tag where tag='cassandra'");
-
-boolean columnExists = result.getColumnDefinitions().asList().stream().anyMatch(cl -> cl.getName().equals("publisher"));
-
-List<Book> books = new ArrayList<Book>();
-result.forEach(r -> {
-   books.add(new Book(
-      r.getUUID("id"), 
-      r.getString("title"),  
-      r.getString("subject")));
-});
-return books;
-```
-
-## TO setup python
-
-``` bash
-python -m pip install --upgrade pip
-pip install cassandra-driver
-``
-
-```python
-from cassandra.cluster import Cluster
-cluster = Cluster(protocol_version = 3)
-session = cluster.connect('Killrvideo')
-result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
-print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
-for val in session.execute("select * from videos_by_tag"):
-   print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
-```
+-   spring.data.cassandra.local-datacenter: asiapac
 
 ## Cluster level monitoring
 
@@ -4614,7 +4610,144 @@ message="Invalid restrictions on clustering columns since the UPDATE statement m
 -   [A deep look at the CQL WHERE
     clause](https://www.datastax.com/blog/deep-look-cql-where-clause)
 
-## (Section: SSTable) - Storage Architecture
+## (Section: Advanced Type) - What are all the basic data-types?
+
+-   TEXT, INT, FLOAT, and DATE
+-   TIMESTAMP -- we can use in query like added_date > '2013-03-17';
+
+## (Section: Advanced Type) - What are all the current-time-date functions?
+
+-   uuid() function takes no parameters and generates a random Type 4
+    UUID
+-   select toTimestamp(now()) from system.local; - Find current time
+-   select toDate(now()) from system.local; - Find current date
+
+## (Section: Advanced Type) - What are all the timestamp functions?
+
+-   toDate(timestamp) - Converts timestamp to date in YYYY-MM-DD format.
+-   toUnixTimestamp(timestamp) - Converts timestamp to UNIX timestamp
+    format.
+-   toTimestamp(date) - Converts date to timestamp format.
+-   toUnixTimestamp(date) - Converts date to UNIX timestamp format.
+-   system.totimestamp(system.now())
+
+## (Section: Advanced Type) - What are all the timeuuid functions?
+
+-   now() - Generates a new unique timeuuid in milliseconds when the
+    statement is executed.
+-   toDate(timeuuid) - Converts timeuuid to date in YYYY-MM-DD format.
+-   toTimestamp(timeuuid) - Converts timeuuid to timestamp format.
+-   toUnixTimestamp(timeuuid) - Converts timeuuid to UNIX timestamp
+    format.
+-   minTimeuuid() and maxTimeuuid() - The values returned by minTimeuuid
+    and maxTimeuuid functions are not true UUIDs in that the values do
+    not conform to the Time-Based UUID generation process specified by
+    the RFC 4122. The results of these functions are deterministic,
+    unlike the now() function.
+-   select mintimeuuid(toTimestamp(now())) from system.local;
+
+## (Section: Advanced Type) - How to add SET`<TEXT>`{=html} AND UPDATE its columns values?
+
+``` sql
+ALTER TABLE movies ADD production SET<TEXT>;
+SELECT title, year, production FROM movies;
+Add three production companies for one of the movies:
+
+UPDATE movies SET production = { 'Walt Disney Pictures', 'Roth Films' } WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
+UPDATE movies SET production = production + { 'Team Todd' } WHERE id = 5069cc15-4300-4595-ae77-381c3af5dc5e;
+SELECT title, year, production FROM movies;
+```
+
+## (Section: Advanced Type) - How to add LIST`<TEXT>`{=html} AND UPDATE its columns values?
+
+``` sql
+ALTER TABLE users ADD emails LIST<TEXT>;
+UPDATE users SET emails = [ 'joe@datastax.com', 'joseph@datastax.com' ] WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+SELECT id, name, emails FROM users;
+```
+
+## (Section: Advanced Type) - How to add MAP\<TEXT, TEXT> AND UPDATE its columns values?
+
+``` sql
+ALTER TABLE users ADD preferences MAP<TEXT,TEXT>;
+UPDATE users SET preferences['color-scheme'] = 'dark' WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+UPDATE users SET preferences['quality'] = 'auto' WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+SELECT name, preferences FROM users;
+```
+
+## (Section: Advanced Type) - How to UDT ADDRESS\<street, city, state, postal_code> AND UPDATE ADDRESS columns values?
+
+``` sql
+CREATE TYPE ADDRESS (
+    street TEXT,
+    city TEXT,
+    state TEXT,
+    postal_code TEXT
+);
+Alter table users to add column address of type ADDRESS:
+
+ALTER TABLE users ADD address ADDRESS;
+SELECT name, address FROM users;
+Add an address for one of the users:
+
+UPDATE users 
+SET address = { street: '1100 Congress Ave',
+                city: 'Austin',
+                state: 'Texas',
+                postal_code: '78701' }
+WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
+```
+
+## (Section: Advanced Type) - Single vs Multiple batch?
+
+-   A single-partition batch is an atomic batch where all operations
+    work on the same partition and that, under the hood, can be executed
+    as a single write operation. As a result, single-partition batches
+    guarantee both all-or-nothing atomicity and isolation. The main use
+    case for single-partition batches is updating related data that may
+    become corrupt unless atomicity is enforced.
+
+-   A multi-partition batch is an atomic batch where operations work on
+    different partitions that belong to the same table or different
+    tables. Multi-partition batches only guarantee atomicity. Their main
+    use case is updating the same data duplicated across multiple
+    partitions due to denormalization. Atomicity ensures that all
+    duplicates are consistent
+
+## (Section: Advanced Type) - Batch restrictions?
+
+1.  A batch starts with BEGIN BATCH and ends with APPLY BATCH.
+2.  Single-partition batches can even contain lightweight transactions,
+    but multi-partition batches cannot.
+3.  The order of statements in a batch is not important as they can be
+    executed in arbitrary order.
+4.  Unlogged and Counter - should never be used as they have no useful
+    applications or there exist better alternatives.
+5.  Unlogged batches break the atomicity guarantee and counter batches
+    are not safe to replay automatically as counter updates are not
+    idempotent.
+6.  Do not use batches to group operations just for the sake of
+    grouping. This example is an anti-pattern:
+7.  A counter update (inside batch) is not an idempotent operation.
+
+## (Section: Advanced Type) - Batch cost and performance?
+
+1.  Single-partition batches are quite efficient and can performance
+    better than individual statements because batches save on
+    client-coordinator and coordinator-replicas communication.
+2.  Sending a large batch with hundreds of statements to one coordinator
+    node can also negatively affect workload balancing.
+3.  Multi-partition batches are substantially more expensive as they
+    require maintaining a batchlog in a separate Cassandra table.
+4.  Use multi-partition batches only when atomicity is truly important
+    for your application.
+
+## (Section: Advanced Type) - Batch - System tables involved?
+
+1.  batches - id, mutations, version
+2.  batchlog - id, data, version, written_at ## (Section: SSTable) -
+    Storage Architecture
 
 -   Only one commit log per cluster
 -   Commit-logs are flused to (via MemTable) sstables
@@ -5013,6 +5146,30 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
 -   [Datastax Virtual-box
     VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
 
+## (Section: Tools) - How to load json/csv in fastest way into Cassandra:
+
+1.  DSKBulk or Apache Spark (faster works for json and CSV)
+2.  CQL-Copy (slow and only for CSV)
+
+## (Section: Tools) - What are all DSBulk commands
+
+1.  load
+2.  unload
+3.  count - statistics
+
+## (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
+
+``` sql
+dsbulk load -url users.csv       \
+            -k killr_video       \
+            -t users             \
+            -header true         \
+            -m "user_id=id,      \
+                gender=gender,   \
+                age=age"         \
+            -logDir /tmp/logs
+```
+
 ## Time-series presentations
 
 1.  (https://www.youtube.com/watch?v=nHes8XW1VHw)
@@ -5053,270 +5210,284 @@ select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invali
     -   protected boolean worthDroppingTombstones(SSTableReader sstable,
         int gcBefore)
     -   `java           System.currentTimeMillis() > sstable.getCreationTimeFor(Component.DATA) + tombstoneCompactionInterval * 1000           AND           double droppableRatio = sstable.getEstimatedDroppableTombstoneRatio(gcBefore);           if (droppableRatio > tombstoneThreshold=0.2f)`
-        ## (Section: WriteRead) - Hinted Handoff
--   Simple sticky note on co-ordinator
--   Once actual node is available, Co-ordinator would deliver the
-    message
--   Previous version used to store hinted-handoff in the table (not
-    nowadays)
--   Cassandra is not good fit to design *Queue*, Hence hinted handoff is
-    not stored in table
--   There after timeout exceeds hinted-handoff itself dropped
-    -   By default 2 hours
--   How co-ordinator knows node came online?
-    -   Gossip protocol helps to trigger
--   COnsistency level of ANY - Hinted handoff is considered as valid
-    transaction
+        \`\`\`bash wget
+        http://archive.apache.org/dist/cassandra/4.0-alpha4/apache-cassandra-4.0-alpha4-bin.tar.gz
+        wget
+        http://archive.apache.org/dist/cassandra/4.0-rc2/apache-cassandra-4.0-rc2-bin.tar.gz
 
-## (Section: WriteRead) - How read works?
+tar xvfz
+http://archive.apache.org/dist/cassandra/4.0-rc2/apache-cassandra-4.0-rc2-bin.tar.gz
+cd apache-cassandra-4.0-rc2 bin/cassandra -R bin/stop-server
+\$\>user=`whoami`;pkill -u \$user -f cassandra
 
--   Co-ordinator reads data from fastest machine
--   Co-ordinator reads checksum form other two machine
--   if 1 and 2, matches, then we co-ordinator responds to client queries
 
-## (Section: WriteRead) - Read Repair (Happens only when CL=All)
-
--   Over-time nodes goes out-of-sync
--   Every write chooses between availablity and consistency
--   When we choose availablity over consistency
-    -   We also agree that some inconsistency between server, data
-        becomes out-of-sync
--   When Co-ordinator observes data between 3 cluster is not valid, it
-    does the following sequence
-    1.  Request all nodes to return latest copies of data
-    2.  Every cell (column) has latest timestamp, Finds the latest
-        timestamp data and latest copy is chosen as valid
-    3.  It sends latest copies to two other nodes for them to udpate
-        (their obsolete data is repaired)
-    4.  Responds to client with latest result
-
-## (Section: WriteRead) - Read Repair Chance (when CL \< ALL) (less than ALL consistency read)
-
--   Cassandra does read-repair even for request less than ALL, But not
-    100% but probablistically
-    -   Probability is configurable
-    -   dclocal_read_repair_chance - (0.1 -- 10%)
-    -   read_repair_chance
--   Client can't be sure if data is latest or replicas are in sync
--   Read repair done asynchronously in the background
-
-## (Section: WriteRead) - Nodetool repair
-
--   It is the last line of defence for us to improve consistency within
-    stored data
--   Syncs all data in the cluster
--   Expensive
-    -   Grows with amount of data in cluster
--   Use with clusters servicing high writes/deletes
--   Must run to synchronize a failed node coming back online
--   Run on nodes not read from very often
-
-## (Section: WriteRead) - Nodetool Sync (only datastax)
-
--   Peforming full-repair is costly
--   Full-repair should be run before gc_grace_seconds
--   It is default and automatically enabled in datastax
--   Repairs in small chunks as we go rather than full repair
-    -   Create table myTable (...) WITH nodesync = {'enabled': 'true'};
-
-## (Section: WriteRead) - Nodetool Sync Save points (only datastax)
-
--   Each node splits its local range into segments
-    -   Small token range of a table
--   Each segment makes a save point
-    -   NodeSync repairs a segment
-    -   Then NodeSync saves its progress
-    -   Repeat
-    -   Save-point is the place where progress is stored
--   NodeSync priorities segments to meet deadline target
-
-## (Section: WriteRead) - Nodetool Sync - Segments Sizes
-
--   Eache segment is less than 200MB
--   If a partition is great than 200MB win over segments less than 200MB
--   Each segment cannot be less than its partition size, hence if
-    segments are larger .. it means partition was larger
-
-## (Section: WriteRead) - Nodetool Sync - Segments failures
-
--   Node fails during segment validation, node drops all work for that
-    segment and starts over
--   A segment repair is automic operation
--   system_distributed.nodesync_status table - has the information and
-    progress
--   segment_outcomes
-    -   full_in_sync : All replicas were in sync
-    -   full_repaired : Some repair necessary
-    -   partial_in_sync : all respondent were in sync, but not all
-        replicas responded
-    -   partial_repaired
-    -   uncompleted : one node availabled/responded; no validation
-        occurred
-    -   failed: unexpected error happened; check logs.
-
-## (Section: WriteRead) - Nodetool Sync - Segments Validation
-
--   NodeSync - simply performs a read repair on the segment
--   read-data from all replicas
--   Check for inconsistencies
--   Repair stale nodes
-
-## (Section: WriteRead) - Cassandra Write Path (inside the node, and for *a* partition)
-
--   Two atomic operation makes a write successfull (Both commit-log +
-    mem-table)
-    -   HDD - Commit Log
-    -   Memory - MemTable
--   Commit log
-    -   It is append only commit log
-    -   Only retrieved during server restart (for replay)
-    -   Mem-Table: ![alt text](img/mem_table_commitlog.JPG "Commit-Log")
--   Ensure Commit-log and ss-tables are stored in different drive
-    -   Commit log is append only for peformance
-    -   When we share same disk, disk seek operation for MM-Table would
-        cause performance degradation
--   Once Mem-Table is full, it is written as SS-Table (SSTable is
-    immutable)
--   No inplace update performed on SS-Table
-
-## (Section: WriteRead) - Cassandra Read Path (inside the node, and for particular a partition)
-
--   Read is easy if records are in mem-table
-    -   Based on token, just to binary-search on mem-table and return
-        the data to client
--   Read is bit more complex than write
-    -   Write path created plenty of SS-Table in disk for a partition
--   SSTable has token:byte_off_set index
-    -   7:0,13:1120,18:3528,21:4392
-    -   7 partition token starts at 0th byte-offset
-    -   13 partition token starts at 1120th byte-offset
--   Read_Token_58_From_SS_Table: ![alt
-    text](img/read_58_token.JPG%20Read-token%22)
--   There is a file named "partition_index" that has details about token
-    vs file-byte-offset index. It is used before reading ss-table
--   Partition-summary is an another index used by Cassandra
-    -   Partition-summary resides in memory
-
-## (Section: WriteRead) - Cassandra Read Path workflow
-
--   ReadRequest --> Bloomfilter --> Key Cache --> Partition Summary -->
-    Partition Index --> SS-Table
--   Checks in key-cache (if succseeds, data returned directly reading
-    ss-table)
--   Checks in partition-index (partition-summary-table)
-    -   Finds the byte-offset of ss-table from partition-index
-    -   Reads byte-offset from ss-table for actual data of the
-        primary-key
-    -   Updates key-cache
-        -   key-cache contains byte-offsets of the most recently
-            accessed records
-        -   key-cache is cache for partition-index (it avoids searcing
-            in partition-index about ss-table byte-offset)
--   Finally... bloom filter can optimize all the above
-
-## (Section: WriteRead) - Bloom filter
-
--   It might stop the entire process if the data is not present
--   It might produce false positives, but never ends in false negative
--   If Bloom-filter says "no-data", there is no such partition data in
-    that node
--   If Bloom-filter says "possible-data", there may or may not present
-    data in that node
-
-## (Section: WriteRead) - Datastax
-
--   Trie based partition-summary is being used
--   SSTable lookups are extreemly fast
--   When migrating from OSS to Datastax
-    -   Datastax can work with both kinds of ss_table-partition-index
-    -   It will gradually compact oss version into Trie-based
-        partition-index
-    -   Tried based partition index is extreemly faster
-
-## (Section: WriteRead) - Compaction (merging ss-tables)
-
--   Compaction
-    -   Removes old un-necessary immutable data
-    -   Deleted data (columns) are removed after gc_grace_seconds
-    -   Lesser number of ss-table, but during compaction it requires
-        both old and new ss-table
--   It merges two set-of partitions into one
-    -   Common partition data values are merged
-    -   Last write wins selected
-    -   Tombstone is marker for deleted record, that won't move into new
-        ss-table (if record passed gc_grace_seconds=10-days)
-    -   nodetool compact `<keyspace>`{=html}
-        ```{=html}
-        <table>
+    # How to find the Cassandra and CQL (Native protocol supported versions) version?
+    1. grep -m 1 -A 2 "Cassandra version" logs/system.log
+    1. 
+        ```pre
+            $ grep -m 1 -C 1 "Cassandra version" logs/system.log 
+            INFO  [main] 2021-07-16 09:53:21,299 QueryProcessor.java:150 - Preloaded 0 prepared statements
+            INFO  [main] 2021-07-16 09:53:21,301 StorageService.java:615 - Cassandra version: 4.0-alpha4
+            INFO  [main] 2021-07-16 09:53:21,302 StorageService.java:616 - CQL version: 3.4.5    
         ```
-        , There is no real offline compaction
--   Not all tombstones are discarded
--   
--   We never modify ss-table
-    -   Merge creates new ss-table
-    -   Stale data removed and compacted (reduced and combined into
-        fewer ss-tables)
 
-## (Section: WriteRead) - Compaction Strategies (based on use-case)
+    # How to find where Cassandra is initializing internal data structures, such as caches:
+    1. grep -m 4 "CacheService.java" logs/system.log
 
--   Choose proper strategy based on use-case
-    -   SizeTieredCompaction - For write heavy
-    -   LeveledCompaction - For read heavy
-    -   TimeWindowCompaction - For timeseries
--   We can change compaction strategy
+    ## How to search for terms like JMX, gossip, and listening:
 
-## (Section: WriteRead) - Advanced Peformance Gains in (DSE)
+    * 
+        ```bash
+            grep -m 1 "JMX" logs/system.log
+            grep -m 1 "gossip" logs/system.log
+            grep -m 1 "listening" logs/system.log
+        ```
+    ## How to confirm Cassandra is running normally?
+    * 
+        ```bash
+            grep -m 1 -C 1 "state jump" logs/system.log
+            INFO  [main] 2021-07-16 09:53:22,619 StorageService.java:2486 - Node 127.0.0.1:7000 state jump to NORMAL
+        ```
+    ## Howt Classify CQL
 
--   OSS uses thread-pools, might cause thread contention
--   DSE - uses only one thread per core
--   DSE - Uses asynchronous a lot and non-blocking
+    1. CQL-Shell commands
+        1. CAPTURE  CLS          COPY  DESCRIBE  EXPAND  LOGIN   SERIAL  SOURCE   UNICODE 
+        1. CLEAR    CONSISTENCY  DESC  EXIT      HELP    PAGING  SHOW    TRACING
 
-## (Section: WriteRead) - Before and after flush
+    1. CQL topics
+    ## (Section: WriteRead) - Hinted Handoff
 
-    Total number of tables: 47                  Total number of tables: 47
-    ----------------                        ----------------
-    Keyspace : keyspace1                        Keyspace : keyspace1
-        Read Count: 0                           Read Count: 0
-        Read Latency: NaN ms                        Read Latency: NaN ms
-        Write Count: 574408                     Write Count: 574408
-        Write Latency: 0.009942241403323074 ms              Write Latency: 0.009942241403323074 ms
-        Pending Flushes: 0                      Pending Flushes: 0
-            Table: standard1                        Table: standard1
-            SSTable count: 3                  |         SSTable count: 4
-            Space used (live): 92.67 MiB              |         Space used (live): 97.73 MiB
-            Space used (total): 92.67 MiB             |         Space used (total): 97.73 MiB
-            Space used by snapshots (total): 0 bytes            Space used by snapshots (total): 0 bytes
-            Off heap memory used (total): 497.8 KiB       |         Off heap memory used (total): 525.04 KiB
-            SSTable Compression Ratio: -1.0                 SSTable Compression Ratio: -1.0
-            Number of partitions (estimate): 426808       |         Number of partitions (estimate): 427070
-            Memtable cell count: 22313            |         Memtable cell count: 0
-            Memtable data size: 5.94 MiB              |         Memtable data size: 0 bytes
-            Memtable off heap memory used: 0 bytes              Memtable off heap memory used: 0 bytes
-            Memtable switch count: 18             |         Memtable switch count: 19
-            Local read count: 0                     Local read count: 0
-            Local read latency: NaN ms                  Local read latency: NaN ms
-            Local write count: 574408                   Local write count: 574408
-            Local write latency: 0.009 ms                   Local write latency: 0.009 ms
-            Pending flushes: 0                      Pending flushes: 0
-            Percent repaired: 0.0                       Percent repaired: 0.0
-            Bytes repaired: 0.000KiB                    Bytes repaired: 0.000KiB
-            Bytes unrepaired: 88.575MiB           |         Bytes unrepaired: 93.424MiB
-            Bytes pending repair: 0.000KiB                  Bytes pending repair: 0.000KiB
-            Bloom filter false positives: 0                 Bloom filter false positives: 0
-            Bloom filter false ratio: 0.00000               Bloom filter false ratio: 0.00000
-            Bloom filter space used: 497.82 KiB       |         Bloom filter space used: 525.07 KiB
-            Bloom filter off heap memory used: 497.8 KiB  |         Bloom filter off heap memory used: 525.04 KiB
-            Index summary off heap memory used: 0 bytes         Index summary off heap memory used: 0 bytes
-            Compression metadata off heap memory used: 0            Compression metadata off heap memory used: 0 
-            Compacted partition minimum bytes: 180              Compacted partition minimum bytes: 180
-            Compacted partition maximum bytes: 258              Compacted partition maximum bytes: 258
-            Compacted partition mean bytes: 258             Compacted partition mean bytes: 258
-            Average live cells per slice (last five minut           Average live cells per slice (last five minut
-            Maximum live cells per slice (last five minut           Maximum live cells per slice (last five minut
-            Average tombstones per slice (last five minut           Average tombstones per slice (last five minut
-            Maximum tombstones per slice (last five minut           Maximum tombstones per slice (last five minut
-            Dropped Mutations: 0 bytes                  Dropped Mutations: 0 bytes
-            Failed Replication Count: null                  Failed Replication Count: null
+    * Simple sticky note on co-ordinator
+    * Once actual node is available, Co-ordinator would deliver the message
+    * Previous version used to store hinted-handoff in the table (not nowadays)
+    * Cassandra is not good fit to design *Queue*, Hence hinted handoff is not stored in table
+    * There after timeout exceeds hinted-handoff itself dropped
+      * By default 2 hours
+    * How co-ordinator knows node came online?
+      * Gossip protocol helps to trigger
+    * COnsistency level of ANY - Hinted handoff is considered as valid transaction
+
+    ## (Section: WriteRead) -  How read works?
+
+    * Co-ordinator reads data from fastest machine
+    * Co-ordinator reads checksum form other two machine
+    * if 1 and 2, matches, then we co-ordinator responds to client queries
+
+    ## (Section: WriteRead) -  Read Repair (Happens only when CL=All)
+
+    * Over-time nodes goes out-of-sync
+    * Every write chooses between availablity and consistency
+    * When we choose availablity over consistency
+      * We also agree that some inconsistency between server, data becomes out-of-sync
+    * When Co-ordinator observes data between 3 cluster is not valid, it does the following sequence
+        1. Request all nodes to return latest copies of data
+        1. Every cell (column) has latest timestamp, Finds the latest timestamp data and latest copy is chosen as valid
+        1. It sends latest copies to two other nodes for them to udpate (their obsolete data is repaired)
+        1. Responds to client with latest result
+
+    ## (Section: WriteRead) -  Read Repair Chance (when CL < ALL) (less than ALL consistency read)
+
+    * Cassandra does read-repair even for request less than ALL, But not 100% but probablistically
+      * Probability is configurable
+      * dclocal_read_repair_chance  - (0.1 -- 10%)
+      * read_repair_chance
+    * Client can't be sure if data is latest or replicas are in sync
+    * Read repair done asynchronously in the background
+
+    ## (Section: WriteRead) -  Nodetool repair
+
+    * It is the last line of defence for us to improve consistency within stored data
+    * Syncs all data in the cluster
+    * Expensive
+      * Grows with amount of data in cluster
+    * Use with clusters servicing high writes/deletes
+    * Must run to synchronize a failed node coming back online
+    * Run on nodes not read from very often
+
+    ## (Section: WriteRead) -  Nodetool Sync (only datastax)
+
+    * Peforming full-repair is costly
+    * Full-repair should be run before gc_grace_seconds
+    * It is default and automatically enabled in datastax
+    * Repairs in small chunks as we go rather than full repair
+      * Create table myTable (...) WITH nodesync = {'enabled': 'true'};
+
+    ## (Section: WriteRead) -  Nodetool Sync Save points (only datastax)
+
+    * Each node splits its local range into segments
+      * Small token range of a table
+    * Each segment makes a save point
+      * NodeSync repairs a segment
+      * Then NodeSync saves its progress
+      * Repeat
+      * Save-point is the place where progress is stored
+    * NodeSync priorities segments to meet deadline target
+
+    ## (Section: WriteRead) -  Nodetool Sync - Segments Sizes
+
+    * Eache segment is less than 200MB
+    * If a partition is great than 200MB win over segments less than 200MB
+    * Each segment cannot be less than its partition size, hence if segments are larger .. it means partition was larger
+
+    ## (Section: WriteRead) -  Nodetool Sync - Segments failures
+
+    * Node fails during segment validation, node drops all work for that segment and starts over
+    * A segment repair is automic operation
+    * system_distributed.nodesync_status table - has the information and progress
+    * segment_outcomes
+      * full_in_sync : All replicas were in sync
+      * full_repaired : Some repair necessary
+      * partial_in_sync : all respondent were in sync, but not all replicas responded
+      * partial_repaired
+      * uncompleted : one node availabled/responded; no validation occurred
+      * failed: unexpected error happened; check logs.
+
+    ## (Section: WriteRead) -  Nodetool Sync - Segments Validation
+
+    * NodeSync - simply performs a read repair on the segment
+    * read-data from all replicas
+    * Check for inconsistencies
+    * Repair stale nodes
+
+
+    ## (Section: WriteRead) -  Cassandra Write Path (inside the node, and for *a* partition)
+
+    * Two atomic operation makes a write successfull (Both commit-log + mem-table)
+      * HDD - Commit Log
+      * Memory - MemTable
+    * Commit log
+      * It is append only commit log
+      * Only retrieved during server restart (for replay)
+       * Mem-Table: ![alt text][mem_table]
+    * Ensure Commit-log and ss-tables are stored in different drive
+      * Commit log is append only for peformance
+      * When we share same disk, disk seek operation for MM-Table would cause performance degradation
+    * Once Mem-Table is full, it is written as SS-Table (SSTable is immutable)
+    * No inplace update performed on SS-Table
+
+
+    ## (Section: WriteRead) -  Cassandra Read Path (inside the node, and for particular a partition)
+
+    * Read is easy if records are in mem-table
+      * Based on token, just to binary-search on mem-table and return the data to client
+    * Read is bit more complex than write
+      * Write path created plenty of SS-Table in disk for a partition
+    * SSTable has token:byte_off_set index
+      * 7:0,13:1120,18:3528,21:4392
+      * 7 partition token starts at 0th byte-offset
+      * 13 partition token starts at 1120th byte-offset
+    * Read_Token_58_From_SS_Table: ![alt text][read_token_58]
+    * There is a file named "partition_index" that has details about token vs  file-byte-offset index. It is used before reading ss-table
+    * Partition-summary is an another index used by Cassandra
+      * Partition-summary resides in memory
+      
+    ## (Section: WriteRead) -  Cassandra Read Path workflow
+
+    * ReadRequest --> Bloomfilter --> Key Cache --> Partition Summary --> Partition Index --> SS-Table
+    * Checks in key-cache (if succseeds, data returned directly reading ss-table)
+    * Checks in partition-index (partition-summary-table)
+      * Finds the byte-offset of ss-table from partition-index
+      * Reads byte-offset from ss-table for actual data of the primary-key
+      * Updates key-cache
+        * key-cache contains byte-offsets of the most recently accessed records
+        * key-cache is cache for partition-index (it avoids searcing in partition-index about ss-table byte-offset)
+    * Finally... bloom filter can optimize all the above
+      
+    ## (Section: WriteRead) -  Bloom filter
+
+    * It might stop the entire process if the data is not present
+    * It might produce false positives, but never ends in false negative
+    * If Bloom-filter says "no-data", there is no such partition data in that node
+    * If Bloom-filter says "possible-data", there may or may not present data in that node
+
+    ## (Section: WriteRead) -  Datastax
+
+    * Trie based partition-summary is being used
+    * SSTable lookups are extreemly fast
+    * When migrating from OSS to Datastax
+      * Datastax can work with both kinds of ss_table-partition-index
+      * It will gradually compact oss version into Trie-based partition-index
+      * Tried based partition index is extreemly faster
+
+    ## (Section: WriteRead) -  Compaction (merging ss-tables)
+
+    * Compaction
+      * Removes old un-necessary immutable data
+      * Deleted data (columns) are removed after gc_grace_seconds
+      * Lesser number of ss-table, but during compaction it requires both old and new ss-table
+    * It merges two set-of partitions into one
+      * Common partition data values are merged
+      * Last write wins selected
+      * Tombstone is marker for deleted record, that won't move into new ss-table (if record passed gc_grace_seconds=10-days)
+      * nodetool compact <keyspace> <table>, There is no real offline compaction
+    * Not all tombstones are discarded
+    *   
+    * We never modify ss-table
+      * Merge creates new ss-table
+      * Stale data removed and compacted (reduced and combined into fewer ss-tables)
+
+    ## (Section: WriteRead) -  Compaction Strategies (based on use-case)
+
+    * Choose proper strategy based on use-case
+      * SizeTieredCompaction - For write heavy
+      * LeveledCompaction - For read heavy
+      * TimeWindowCompaction - For timeseries
+    * We can change compaction strategy
+
+
+    ## (Section: WriteRead) -  Advanced Peformance Gains in (DSE)
+
+    * OSS uses thread-pools, might cause thread contention
+    * DSE - uses only one thread per core
+    * DSE - Uses asynchronous a lot and non-blocking
+
+    ## (Section: WriteRead) -  Before and after flush
+
+  Total number of tables: 47                                                 Total number of tables: 47
+  ------------------------------------- ---------------------------------------------------------------
+  Keyspace : keyspace1                                                             Keyspace : keyspace1
+  Read Count: 0                                                                           Read Count: 0
+  Read Latency: NaN ms                                                             Read Latency: NaN ms
+  Write Count: 574408                                                               Write Count: 574408
+  Write Latency: 0.009942241403323074                         ms Write Latency: 0.009942241403323074 ms
+  Pending Flushes: 0                                                                 Pending Flushes: 0
+  Table: standard1                                                                     Table: standard1
+  SSTable count: 3                                                                  \| SSTable count: 4
+  Space used (live): 92.67 MiB                                          \| Space used (live): 97.73 MiB
+  Space used (total): 92.67 MiB                                        \| Space used (total): 97.73 MiB
+  Space used by snapshots (total):                     0 bytes Space used by snapshots (total): 0 bytes
+  Off heap memory used (total): 49                  7.8 KiB \| Off heap memory used (total): 525.04 KiB
+  SSTable Compression Ratio: -1.0                                       SSTable Compression Ratio: -1.0
+  Number of partitions (estimate):                    426808 \| Number of partitions (estimate): 427070
+  Memtable cell count: 22313                                                  \| Memtable cell count: 0
+  Memtable data size: 5.94 MiB                                           \| Memtable data size: 0 bytes
+  Memtable off heap memory used: 0                         bytes Memtable off heap memory used: 0 bytes
+  Memtable switch count: 18                                                \| Memtable switch count: 19
+  Local read count: 0                                                               Local read count: 0
+  Local read latency: NaN ms                                                 Local read latency: NaN ms
+  Local write count: 574408                                                   Local write count: 574408
+  Local write latency: 0.009 ms                                           Local write latency: 0.009 ms
+  Pending flushes: 0                                                                 Pending flushes: 0
+  Percent repaired: 0.0                                                           Percent repaired: 0.0
+  Bytes repaired: 0.000KiB                                                     Bytes repaired: 0.000KiB
+  Bytes unrepaired: 88.575MiB                                            \| Bytes unrepaired: 93.424MiB
+  Bytes pending repair: 0.000KiB                                         Bytes pending repair: 0.000KiB
+  Bloom filter false positives: 0                                       Bloom filter false positives: 0
+  Bloom filter false ratio: 0.0000                                  0 Bloom filter false ratio: 0.00000
+  Bloom filter space used: 497.82                            KiB \| Bloom filter space used: 525.07 KiB
+  Bloom filter off heap memory use        d: 497.8 KiB \| Bloom filter off heap memory used: 525.04 KiB
+  Index summary off heap memory us              ed: 0 bytes Index summary off heap memory used: 0 bytes
+  Compression metadata off heap me            mory used: 0 Compression metadata off heap memory used: 0
+  Compacted partition minimum byte                        s: 180 Compacted partition minimum bytes: 180
+  Compacted partition maximum byte                        s: 258 Compacted partition maximum bytes: 258
+  Compacted partition mean bytes:                               258 Compacted partition mean bytes: 258
+  Average live cells per slice (la          st five minut Average live cells per slice (last five minut
+  Maximum live cells per slice (la          st five minut Maximum live cells per slice (last five minut
+  Average tombstones per slice (la          st five minut Average tombstones per slice (last five minut
+  Maximum tombstones per slice (la          st five minut Maximum tombstones per slice (last five minut
+  Dropped Mutations: 0 bytes                                                 Dropped Mutations: 0 bytes
+  Failed Replication Count: null                                         Failed Replication Count: null
+  \`\`\`                                
 
 ## (Section: WriteRead) - Sample data directory wiht WITH bloom_filter_fp_chance = 0.1;
 
@@ -5528,19 +5699,18 @@ Cassandra](https://thelastpickle.com/blog/2017/03/16/compaction-nuance.html)
 2.  Standard recommended repair procedures should be performed on both
     tables and views regularly or whenever a node is removed, replaced
     or started back up.
-3.  
 
 ## (Section: Experimental) - Example of MVs.
 
 1.  ``` sql
-    CREATE TABLE users (
-        email TEXT, name TEXT,
-        age INT,date_joined DATE,
-        PRIMARY KEY ((email))
-    );
+        CREATE TABLE users (
+            email TEXT, name TEXT,
+            age INT,date_joined DATE,
+            PRIMARY KEY ((email))
+        );
 
-    CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_name AS SELECT * FROM users    WHERE name IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((name), email);
-    CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_date_joined AS SELECT * FROM users WHERE date_joined IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((date_joined), email);
+        CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_name AS SELECT * FROM users    WHERE name IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((name), email);
+        CREATE MATERIALIZED VIEW IF NOT EXISTS users_by_date_joined AS SELECT * FROM users WHERE date_joined IS NOT NULL AND email IS NOT NULL PRIMARY KEY ((date_joined), email);
     ```
 
 ## (Section: Experimental) - What are all types of secondary index.
@@ -5581,7 +5751,7 @@ Cassandra](https://thelastpickle.com/blog/2017/03/16/compaction-nuance.html)
     SELECT * FROM ratings_by_movie    WHERE rating >= 8 AND rating <= 10;
     ```
 
-    ## What is the main real-time transactional use case for a secondary index?
+    ## (Section: Experimental) - What is the main real-time transactional use case for a secondary index?
 
 4.  Retrieving rows from a large multi-row partition
 
