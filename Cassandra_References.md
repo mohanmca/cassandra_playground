@@ -2,6 +2,7 @@
 
 * [Cassandra Fundamental](https://www.datastax.com/learn/cassandra-fundamentals)
 * [Scenarios](https://www.datastax.com/try-it-out/scenarios)
+* [Trunk Cassandra.yaml](https://github.com/apache/cassandra/blob/trunk/conf/cassandra.yaml)
 
 ## Important Spring Java project
 
