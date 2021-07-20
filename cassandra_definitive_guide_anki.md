@@ -317,6 +317,9 @@ docker stop apc2
 * Minimize the number of partitions that must be searched to satisfy a given query
 * Growing number of tombstones begins to degrade read performance. Data-model should account to minmize it
 * Partition-size = Nv=Nr(Nc−Npk−Ns)+Ns (hard-limit 2 billion, in-general 100K)
+  * Partition Size can have maximum of 2 billion cells
+  * Nv (Number of cells) = Nr * Nc (Number of rows * number of columns)
+  * Ns - Number of static columns (static columns stored once per partition)
 * in Cassandra - everything is distributed hashmap despite they look like relational-model
 * Joins are not supported and should be discouraged in Cassandra
 * NO REFERENTIAL INTEGRITY - supported in Cassandra (or any nosql)
@@ -327,12 +330,8 @@ docker stop apc2
 * group multiple related rows in a partition in order to support fast access to multiple rows within the partition in a single query.
 * Cassandra can put tremendous pressure on the java heap and garbage collector, impact read latencies, and can cause issues ranging from load shedding and dropped messages to crashed and downed nodes.
 
-## (Section: TDG) -  Cassandra Architecture - logical components (2+4+3+4+1)
+## (Section: TDG) -  Cassandra Architecture - What is the role of reconciliation?
 
-* Network topology, Peer-to-peer
-* Gossip, repair, hinted handoff, and lightweight transactions
-* Reading, writing, and deleting data
-* Data-structures of memtable, commit-logs, caches and SSTables
 * LWW-Element-Set (Last-Write-Wins-Element-Set) and no-reconciliation
 
 
