@@ -1,3 +1,4 @@
+nvm use node
 npm run docs
 pandoc -s _README.md --toc -o README.md
 pandoc -s README.md --pdf-engine prince -o README.pdf
