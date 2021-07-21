@@ -62,8 +62,8 @@
     checklist](#section-tdg---datamodel-quick-checklist)
 -   [(Section: TDG) - THE WIDE PARTITION
     PATTERN](#section-tdg---the-wide-partition-pattern)
--   [(Section: TDG) - Cassandra Architecture - logical components
-    (2+4+3+4+1)](#section-tdg---cassandra-architecture---logical-components-24341)
+-   [(Section: TDG) - Cassandra Architecture - What is the role of
+    reconciliation?](#section-tdg---cassandra-architecture---what-is-the-role-of-reconciliation)
 -   [(Section: TDG) - Cassandra token
     ring](#section-tdg---cassandra-token-ring)
 -   [(Section: TDG) - Hinted Handoff](#section-tdg---hinted-handoff)
@@ -511,6 +511,8 @@
     file](#section-repair---how-to-create-anki-from-this-markdown-file)
 -   [(Section: Cqls) - Create KeySpace (and use
     it)](#section-cqls---create-keyspace-and-use-it)
+-   [(Section: Cqls) - How to fetch data from one node using
+    CQLSH](#section-cqls---how-to-fetch-data-from-one-node-using-cqlsh)
 -   [(Section: Cqls) - Partition Key vs Primary
     Key](#section-cqls---partition-key-vs-primary-key)
 -   [(Section: Cqls) - Create TABLE and load/export data in and
@@ -1131,6 +1133,11 @@ docker stop apc2
     Data-model should account to minmize it
 -   Partition-size = Nv=Nr(Nc−Npk−Ns)+Ns (hard-limit 2 billion,
     in-general 100K)
+    -   Partition Size can have maximum of 2 billion cells
+    -   Nv (Number of cells) = Nr \* Nc (Number of rows \* number of
+        columns)
+    -   Ns - Number of static columns (static columns stored once per
+        partition)
 -   in Cassandra - everything is distributed hashmap despite they look
     like relational-model
 -   Joins are not supported and should be discouraged in Cassandra
@@ -1144,12 +1151,8 @@ docker stop apc2
     collector, impact read latencies, and can cause issues ranging from
     load shedding and dropped messages to crashed and downed nodes.
 
-## (Section: TDG) - Cassandra Architecture - logical components (2+4+3+4+1)
+## (Section: TDG) - Cassandra Architecture - What is the role of reconciliation?
 
--   Network topology, Peer-to-peer
--   Gossip, repair, hinted handoff, and lightweight transactions
--   Reading, writing, and deleting data
--   Data-structures of memtable, commit-logs, caches and SSTables
 -   LWW-Element-Set (Last-Write-Wins-Element-Set) and no-reconciliation
 
 ## (Section: TDG) - Cassandra token ring
@@ -1343,7 +1346,7 @@ default=DC3:RAC1
 
 ## (Section: TDG) - Cassandra Client - features (Datastax Driver 4.9.0)
 
--   `xml          <groupId>com.datastax.oss</groupId>         <artifactId>java-driver-query-builder</artifactId>         <artifactId>java-driver-core</artifactId>         <artifactId>java-driver-mapper-processor</artifactId>         <artifactId>java-driver-mapper-runtime</artifactId>`
+-   `xml         <dependency>           <groupId>com.datastax.oss</groupId>           <artifactId>java-driver-query-builder</artifactId>           <artifactId>java-driver-core</artifactId>           <artifactId>java-driver-mapper-processor</artifactId>           <artifactId>java-driver-mapper-runtime</artifactId>         </dependency>`
 -   CqlSession maintains TCP connections to multiple nodes, it is a
     heavyweight object. Reuse it
 -   Prefer file based client side driver configuration
@@ -1423,30 +1426,30 @@ datastax-java-driver {
 
 ## (Section: TDG) - How to connect to Cassandra using Python API
 
-``` bash
-python -m pip install --upgrade pip
-pip install cassandra-driver
-``
+-   ``` bash
+    python -m pip install --upgrade pip
+    pip install cassandra-driver
+    ```
 
-```python
-from cassandra.cluster import Cluster
-cluster = Cluster(protocol_version = 3)
-session = cluster.connect('Killrvideo')
-result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
-print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
-for val in session.execute("select * from videos_by_tag"):
-   print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
-```
+-   ``` python
+      from cassandra.cluster import Cluster
+      cluster = Cluster(['192.168.0.1', '192.168.0.2'], protocol_version = 3, port=..., ssl_context=...)
+      session = cluster.connect('Killrvideo')
+      result = session.execute("select * from videos_by_tag where tag='cassandra'")[0];
+      print('{0:12} {1:40} {2:5}'.format('Tag', 'ID', 'Title'))
+      for val in session.execute("select * from videos_by_tag"):
+        print('{0:12} {1:40} {2:5}'.format(val[0], val[2], val[3]))
+    ```
 
 ## (Section: TDG) - Cassandra Client (Datastax Driver 4.9.0) - Java API
 
-``` java
-CqlSession cqlSession = CqlSession.builder()
-    .addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
-    .withKeyspace("reservation")
-    .withLocalDatacenter("<data center name>")
-    .build()
-```
+-   ``` java
+    CqlSession cqlSession = CqlSession.builder()
+        .addContactPoint(new InetSocketAddress("127.0.0.1", 9042))
+        .withKeyspace("reservation")
+        .withLocalDatacenter("<data center name>")
+        .build()
+    ```
 
 ## (Section: TDG) - Cassandra Client Mapper/Entity Annotations
 
@@ -1459,11 +1462,11 @@ CqlSession cqlSession = CqlSession.builder()
 ## (Section: TDG) - Cassandra Client (Datastax Driver 5.0) - QueryBuilder API API
 
 ``` java
-Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmation")
-  .all()
-  .whereColumn("confirm_number").isEqualTo("RS2G0Z");
+  Select reservationSelect =  selectFrom("reservation", "reservations_by_confirmation")
+    .all()
+    .whereColumn("confirm_number").isEqualTo("RS2G0Z");
 
-SimpleStatement reseravationSelectStatement = reservationSelect.build()
+  SimpleStatement reseravationSelectStatement = reservationSelect.build()
 ```
 
 ## (Section: TDG) - Cassandra Client (Datastax Driver 5.0) - Async API
@@ -4365,6 +4368,10 @@ CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 ```
+
+## (Section: Cqls) - How to fetch data from one node using CQLSH
+
+-   Cqlsh looks at the cluster, not node
 
 ## (Section: Cqls) - Partition Key vs Primary Key
 
