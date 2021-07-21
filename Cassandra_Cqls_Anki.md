@@ -8,6 +8,10 @@ CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'repli
 USE killrvideo;
 ```
 
+## (Section: Cqls) - How to fetch data from one node using CQLSH
+
+* Cqlsh looks at the cluster, not node
+
 ## (Section: Cqls) - Partition Key vs Primary Key
 
 * Partition key uniquiely identifies partition inside a table
