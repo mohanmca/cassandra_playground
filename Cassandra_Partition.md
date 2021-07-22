@@ -128,6 +128,7 @@ select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ## (Section: Partition) -  Datastax slides
 
 * (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)[DataStax: A deep look at the CQL WHERE clause ]
+
 ## (Section: Partition) -  Reference
 * [Primary Key, Partition Key and Data Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
 * [Cassandra Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)

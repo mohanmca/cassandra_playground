@@ -240,6 +240,9 @@
 -   [(Section: Partition) - CQL](#section-partition---cql)
 -   [(Section: Partition) - Datastax
     slides](#section-partition---datastax-slides)
+-   [(Section: Partition) - Reference](#section-partition---reference)
+-   [(Section: Consistency) - CAP Theorem
+    (Consistency)](#section-consistency---cap-theorem-consistency)
 -   [(Section: Consistency) - Consistency
     Levels](#section-consistency---consistency-levels)
 -   [(Section: Consistency) - What is
@@ -2530,28 +2533,26 @@ select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ## 8.40 (Section: Partition) - Datastax slides
 
 -   (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)\[DataStax:
-    A deep look at the CQL WHERE clause \] ## (Section: Partition) -
-    Reference
+    A deep look at the CQL WHERE clause \]
+
+## 8.41 (Section: Partition) - Reference
 
 -   [Primary Key, Partition Key and Data
     Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
-
 -   [Cassandra
     Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
-    ## 8.41 (Section: Consistency) - CAP Theorem (Consistency)
+
+## 8.42 (Section: Consistency) - CAP Theorem (Consistency)
 
 -   CAP Theorm and Consistency
-
 -   Cassandra fits into AP system, doesn't promise Consistency
-
     -   Cassandra supports partition tolerance and availability
     -   Cassandra promises tunable Consistency
     -   Consistency can be controlled for each and every read/request
         independently
-
 -   Consistency is harder in distributed systems
 
-## 8.42 (Section: Consistency) - Consistency Levels
+## 8.43 (Section: Consistency) - Consistency Levels
 
 -   CL = Consistency-Number (Number of replication count for current
     transaction)
@@ -2582,7 +2583,7 @@ select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 -   Each_Quorum - Quorum of nodes in each data-center, applies to write
     only
 
-## 8.43 (Section: Consistency) - What is Each_Quorum
+## 8.44 (Section: Consistency) - What is Each_Quorum
 
 -   Quorum of nodes in each data-center, applies to write only
 -   Not many application uses it
