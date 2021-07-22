@@ -3079,17 +3079,17 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   nodetool ring -- ks_killr_vide -- for specific keyspace
 
 -   ``` bash
-    root@c1bf4c2d5378:/# nodetool ring -- killr_video | head
+        root@c1bf4c2d5378:/# nodetool ring -- killr_video | head
 
  16. Datacenter: datacenter1
-    ==========
-    Address     Rack        Status State   Load            Owns                Token
-                                                                              9187745666723249887
-    172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9143401694522716388
-    172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9002139349711660790
-    172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8851720287326751527
-    172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8617136159627124213
-    172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8578864381590385349
+        ==========
+        Address     Rack        Status State   Load            Owns                Token
+                                                                                  9187745666723249887
+        172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9143401694522716388
+        172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9002139349711660790
+        172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8851720287326751527
+        172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8617136159627124213
+        172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8578864381590385349
     ```
 
 -   
