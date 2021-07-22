@@ -354,9 +354,6 @@ rack=RAC
 * Data-stax can read OSS-Cassandra and migrate to latest format of SS-Table
   * If we know pk0020 location inside the partition-index, it is easier to find the parition-index offset for pk0024 (https://stackoverflow.com/questions/26244456/internals-of-partition-summary-in-cassandra)
 
-
-## (Section: Architecture) -  Compaction
-
 ## (Section: Architecture) -  Compacting partition
 
 * Two SS-Table paritions can be merged using merge-sort
@@ -395,10 +392,11 @@ rack=RAC
   * Separate management thread for Mem-table-flush, Compaction, Hints, Streaming
 * OSS - Executor thread-pool
 
+## Constraints of LightWeight Transaction
+
+* Lightweight transactions are also sometimes referred to as compare-and-set operations. 
+* Each lightweight transaction is atomic and always works on a single partition.
+
 ## (Section: Architecture) -  Under what circumstances is the use of lightweight transactions justified?
 
 * Race conditions and low data contention
-
-## (Section: Architecture) -  Reference
-
-* [Vnodes](https://www.datastax.com/blog/2012/12/virtual-nodes-cassandra-12)

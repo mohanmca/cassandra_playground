@@ -94,6 +94,12 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 1. Do not use batches to group operations just for the sake of grouping. This example is an anti-pattern:
 1. A counter update (inside batch) is not an idempotent operation.
 
+## (Section: Advanced Type) - Lightweight transactions
+
+* INSERT INTO ... VALUES ...IF NOT EXISTS;
+* UPDATE ... SET ... WHERE ... IF EXISTS | IF predicate [ AND ... ];
+* DELETE ... FROM ... WHERE ... IF EXISTS | IF predicate [ AND ... ];
+
 ## (Section: Advanced Type) - Batch cost and performance?
 
 1. Single-partition batches are quite efficient and can performance better than individual statements because batches save on client-coordinator and coordinator-replicas communication.
