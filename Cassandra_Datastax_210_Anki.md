@@ -257,62 +257,66 @@ root@c1bf4c2d5378:/# nodetool gcstats
 
 * nodetool tablestats -- ks_killr_video
 * nodetool tablestats -- ks_killr_video user_by_email
-*    ```bash
-    root@c1bf4c2d5378:/# nodetool tablestats -- killr_video
-    Total number of tables: 37
-    ----------------
-    Keyspace : killr_video
-            Read Count: 3952653
-            Read Latency: 2.332187202873614 ms
-            Write Count: 12577242
-            Write Latency: 0.026214161419490855 ms
-            Pending Flushes: 0
-                    Table: user_by_email
-                    SSTable count: 3
-                    Space used (live): 321599
-                    Space used (total): 321599
-                    Space used by snapshots (total): 0
-                    Off heap memory used (total): 5745
-                    SSTable Compression Ratio: 0.6803828095486517
-                    Number of partitions (estimate): 2468
-                    Memtable cell count: 1809586
-                    Memtable data size: 103656
-                    Memtable off heap memory used: 0
-                    Memtable switch count: 3
-                    Local read count: 3952653
-                    Local read latency: 0.030 ms
-                    Local write count: 12577242
-                    Local write latency: 0.003 ms
-                    Pending flushes: 0
-                    Percent repaired: 0.0
-                    Bloom filter false positives: 0
-                    Bloom filter false ratio: 0.00000
-                    Bloom filter space used: 4680
-                    Bloom filter off heap memory used: 4656
-                    Index summary off heap memory used: 1041
-                    Compression metadata off heap memory used: 48
-                    Compacted partition minimum bytes: 61
-                    Compacted partition maximum bytes: 86
-                    Compacted partition mean bytes: 84
-                    Average live cells per slice (last five minutes): 1.0
-                    Maximum live cells per slice (last five minutes): 1
-                    Average tombstones per slice (last five minutes): 1.0
-                    Maximum tombstones per slice (last five minutes): 1
-                    Dropped Mutations: 6
+*    
+  ```pre
+      root@c1bf4c2d5378:/# nodetool tablestats -- killr_video
+      Total number of tables: 37
+      ----------------
+      Keyspace : killr_video
+              Read Count: 3952653
+              Read Latency: 2.332187202873614 ms
+              Write Count: 12577242
+              Write Latency: 0.026214161419490855 ms
+              Pending Flushes: 0
+                      Table: user_by_email
+                      SSTable count: 3
+                      Space used (live): 321599
+                      Space used (total): 321599
+                      Space used by snapshots (total): 0
+                      Off heap memory used (total): 5745
+                      SSTable Compression Ratio: 0.6803828095486517
+                      Number of partitions (estimate): 2468
+                      Memtable cell count: 1809586
+                      Memtable data size: 103656
+                      Memtable off heap memory used: 0
+                      Memtable switch count: 3
+                      Local read count: 3952653
+                      Local read latency: 0.030 ms
+                      Local write count: 12577242
+                      Local write latency: 0.003 ms
+                      Pending flushes: 0
+                      Percent repaired: 0.0
+                      Bloom filter false positives: 0
+                      Bloom filter false ratio: 0.00000
+                      Bloom filter space used: 4680
+                      Bloom filter off heap memory used: 4656
+                      Index summary off heap memory used: 1041
+                      Compression metadata off heap memory used: 48
+                      Compacted partition minimum bytes: 61
+                      Compacted partition maximum bytes: 86
+                      Compacted partition mean bytes: 84
+                      Average live cells per slice (last five minutes): 1.0
+                      Maximum live cells per slice (last five minutes): 1
+                      Average tombstones per slice (last five minutes): 1.0
+                      Maximum tombstones per slice (last five minutes): 1
+                      Dropped Mutations: 6
+  ```
+
+*          Table histogram helps to find how much time taken for read/vs/write\
+*        
+    ```bash
+    killr_video/user_by_email histograms
+    Percentile  SSTables     Write Latency      Read Latency    Partition Size        Cell Count
+                                  (micros)          (micros)           (bytes)
+    50%             0.00              0.00              0.00                86                 2
+    75%             0.00              0.00              0.00                86                 2
+    95%             0.00              0.00              0.00                86                 2
+    98%             0.00              0.00              0.00                86                 2
+    99%             0.00              0.00              0.00                86                 2
+    Min             0.00              0.00              0.00                61                 2
+    Max             0.00              0.00              0.00                86                 2
     ```
-*  Table histogram helps to find how much time taken for read/vs/write
-```bash    
-killr_video/user_by_email histograms
-Percentile  SSTables     Write Latency      Read Latency    Partition Size        Cell Count
-                              (micros)          (micros)           (bytes)
-50%             0.00              0.00              0.00                86                 2
-75%             0.00              0.00              0.00                86                 2
-95%             0.00              0.00              0.00                86                 2
-98%             0.00              0.00              0.00                86                 2
-99%             0.00              0.00              0.00                86                 2
-Min             0.00              0.00              0.00                61                 2
-Max             0.00              0.00              0.00                86                 2
-```
+
 ## (Section: DS210) -  How to find large partition?
 
 * nodetool tablehistograms ks_killr_video  table -- would give multi-millions cell-count
