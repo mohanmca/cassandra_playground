@@ -1,6 +1,7 @@
 nvm use node
 npm run docs
 pandoc -s _README.md --toc -o README.md
+markdown-enum README.md 1 README.md
 pandoc -s README.md --pdf-engine prince -o README.pdf
 git add README.md
 git add main.md
