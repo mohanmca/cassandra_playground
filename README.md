@@ -3006,36 +3006,39 @@ mismatched input '`<EOF>`{=html}' expecting ')'
 ## 15.22 (Section: DS210) - Nodetool (Performance Analysis inside cluster node)
 
 -   dstat, top - can investigate inside linux
+
 -   nodetool - can investigate inside Cassandra JVM
+
 -   Every Cache size hit ratio should be higher (should be above 80%)
+
 -   Load - How much data is stored inside node
 
-```{=html}
-<!-- -->
-```
-    cqlsh:killr_video> exit
-    root@c1bf4c2d5378:/# nodetool info
-    ID                     : 020b9ef3-ae33-4c9f-902a-33eb7f9a753d
-    Gossip active          : true
-    Thrift active          : false
-    Native Transport active: true
-    Load                   : 571.88 KiB
-    Generation No          : 1625291106
-    Uptime (seconds)       : 35986
-    Heap Memory (MB)       : 209.83 / 998.44
-    Off Heap Memory (MB)   : 0.01
-    Data Center            : datacenter1
-    Rack                   : rack1
-    Exceptions             : 0
-    Key Cache              : entries 3721, size 323.3 KiB, capacity 49 MiB, 6138479 hits, 6142208 requests, 0.999 recent hit rate, 14400 save period in seconds
-    Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
-    Counter Cache          : entries 0, size 0 bytes, capacity 24 MiB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
-    Chunk Cache            : entries 27, size 1.69 MiB, capacity 217 MiB, 120 misses, 6150101 requests, 1.000 recent hit rate, NaN microseconds miss latency
-    Percent Repaired       : 100.0%
-    Token                  : (invoke with -T/--tokens to see all 256 tokens)
+-   ``` bash
+      cqlsh:killr_video> exit
+      root@c1bf4c2d5378:/# nodetool info
+      ID                     : 020b9ef3-ae33-4c9f-902a-33eb7f9a753d
+      Gossip active          : true
+      Thrift active          : false
+      Native Transport active: true
+      Load                   : 571.88 KiB
+      Generation No          : 1625291106
+      Uptime (seconds)       : 35986
+      Heap Memory (MB)       : 209.83 / 998.44
+      Off Heap Memory (MB)   : 0.01
+      Data Center            : datacenter1
+      Rack                   : rack1
+      Exceptions             : 0
+      Key Cache              : entries 3721, size 323.3 KiB, capacity 49 MiB, 6138479 hits, 6142208 requests, 0.999 recent hit rate, 14400 save period in seconds
+      Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
+      Counter Cache          : entries 0, size 0 bytes, capacity 24 MiB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
+      Chunk Cache            : entries 27, size 1.69 MiB, capacity 217 MiB, 120 misses, 6150101 requests, 1.000 recent hit rate, NaN microseconds miss latency
+      Percent Repaired       : 100.0%
+      Token                  : (invoke with -T/--tokens to see all 256 tokens)
+    ```
 
 ## 15.23 (Section: DS210) - Nodetool compaction-history - what are all the fields and output?
 
+-   ``` bash
     root@c1bf4c2d5378:/# nodetool compactionhistory
     Compaction History:
     id                                   keyspace_name columnfamily_name compacted_at            bytes_in bytes_out rows_merged
@@ -3043,6 +3046,7 @@ mismatched input '`<EOF>`{=html}' expecting ')'
     e0175ee0-dc04-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T13:45:06.254 1102     224       {1:12, 4:4}
     bacb1140-dbeb-11eb-bef5-537733e6a124 system        size_estimates    2021-07-03T10:45:06.260 169604   41922     {4:4}
     bac8ee60-dbeb-11eb-bef5-537733e6a124 system        sstable_activity  2021-07-03T10:45:06.246 968      224       {1:8, 3:1, 4:3}
+    ```
 
 ## 15.24 (Section: DS210) - To figure out the name of a node's datacenter and rack, which nodetool sub-command should you use?
 
