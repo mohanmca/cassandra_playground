@@ -240,13 +240,11 @@ root@c1bf4c2d5378:/# nodetool gcstats
 * "nodetool ring" is used to output all the tokens of a node.
 * nodetool ring -- ks_killr_vide -- for specific keyspace
 * 
-  ```bash
+  ```pre
       root@c1bf4c2d5378:/# nodetool ring -- killr_video | head
-
       Datacenter: datacenter1
       ==========
       Address     Rack        Status State   Load            Owns                Token
-                                                                                9187745666723249887
       172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9143401694522716388
       172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -9002139349711660790
       172.19.0.3  rack1       Up     Normal  624.25 KiB      100.00%             -8851720287326751527
