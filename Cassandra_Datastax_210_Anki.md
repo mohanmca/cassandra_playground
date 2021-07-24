@@ -519,6 +519,12 @@ root@c1bf4c2d5378:/# nodetool gcstats
 * tombstone_compaction_interval - At-least one day old before considered for Tombstone compaction
 * Compaction ensures that tombstones donot overlap old records in other SSTables
 * The number of expired tombstones must be above 20%
+* Aggresive Tombstone table level configuration min_threshold:2 and tombstone_threshold: 0.1
+*
+    ```sql
+      create table t(id int, PRIMARY KEY (id)) WITH compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'min_threshold': '2', 'tombstone_threshold': '0.1'};
+    ```
+  
 
 ## (Section: DS210) -  LCS - Leveled Compaction Strategy
 
@@ -631,17 +637,6 @@ root@c1bf4c2d5378:/# nodetool gcstats
 1. Usage
    1. tools/bin/sstable data/ks/table/sstable-data.db
    1. -d to view as key-value (withtout JSON)
-
-## (Section: DS210) -  SSTableloader
-
-1. sstableloader -d co-ordinator-ip /var/lib/cassandra/data/killrvideo/users/
-1. Load existing data in SSTable format into another cluster (production to test)
-1. Useful to upgrade data from one enviroment to another environment (migrating to new DC)
-1. It adheres to replication factor of target cluster
-1. Tables are repaired in target cluster after being loaded
-1. Fastest way to load the data
-1. Source should be a running node with proper Cassandra.yaml file
-1. Atleast one node in the cluster is configured as SEED
 1. sample dump
     ```json
     [
@@ -711,6 +706,17 @@ root@c1bf4c2d5378:/# nodetool gcstats
       }
     ]
     ```
+
+## (Section: DS210) -  SSTableloader
+
+1. sstableloader -d co-ordinator-ip /var/lib/cassandra/data/killrvideo/users/
+1. Load existing data in SSTable format into another cluster (production to test)
+1. Useful to upgrade data from one enviroment to another environment (migrating to new DC)
+1. It adheres to replication factor of target cluster
+1. Tables are repaired in target cluster after being loaded
+1. Fastest way to load the data
+1. Source should be a running node with proper Cassandra.yaml file
+1. Atleast one node in the cluster is configured as SEED
 
 ## (Section: DS210) -  Loading different formats of data into Cassandra
 

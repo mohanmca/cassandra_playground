@@ -3401,6 +3401,9 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   Compaction ensures that tombstones donot overlap old records in
     other SSTables
 -   The number of expired tombstones must be above 20%
+-   Aggresive Tombstone table level configuration min_threshold:2 and
+    tombstone_threshold: 0.1
+-   `sql       create table t(id int, PRIMARY KEY (id)) WITH compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'min_threshold': '2', 'tombstone_threshold': '0.1'};`
 
 ## 15.50 (Section: DS210) - LCS - Leveled Compaction Strategy
 
@@ -3544,6 +3547,8 @@ root@c1bf4c2d5378:/# nodetool gcstats
 4.  Usage
     1.  tools/bin/sstable data/ks/table/sstable-data.db
     2.  -d to view as key-value (withtout JSON)
+5.  sample dump
+    `json     [       {         "partition" : {           "key" : [ "36111c91-4744-47ad-9874-79c2ecb36ea7" ],           "position" : 0         },         "rows" : [           {             "type" : "row",             "position" : 30,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:20.642757Z" },             "cells" : [               { "name" : "v", "value" : 1 }             ]           }         ]       },       {         "partition" : {           "key" : [ "ec07b617-1348-42b8-afb1-913ff531a24c" ],           "position" : 43         },         "rows" : [           {             "type" : "row",             "position" : 73,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:39:12.173004Z" }             ]           }         ]       },       {         "partition" : {           "key" : [ "91d7d620-de0b-11eb-ad2f-537733e6a124" ],           "position" : 86         },         "rows" : [           {             "type" : "row",             "position" : 116,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:03.777666Z" },             "cells" : [               { "name" : "v", "deletion_info" : { "local_delete_time" : "2021-07-06T09:06:57Z" },                 "tstamp" : "2021-07-06T09:06:57.504609Z"               }             ]           }         ]       },       {         "partition" : {           "key" : [ "7164f397-f1cb-4341-bc83-ac10088d5bfd" ],           "position" : 128         },         "rows" : [           {             "type" : "row",             "position" : 158,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:38:56.888661Z" }             ]           }         ]       }     ]`
 
 ## 15.62 (Section: DS210) - SSTableloader
 
@@ -3558,8 +3563,6 @@ root@c1bf4c2d5378:/# nodetool gcstats
 6.  Fastest way to load the data
 7.  Source should be a running node with proper Cassandra.yaml file
 8.  Atleast one node in the cluster is configured as SEED
-9.  sample dump
-    `json     [       {         "partition" : {           "key" : [ "36111c91-4744-47ad-9874-79c2ecb36ea7" ],           "position" : 0         },         "rows" : [           {             "type" : "row",             "position" : 30,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:20.642757Z" },             "cells" : [               { "name" : "v", "value" : 1 }             ]           }         ]       },       {         "partition" : {           "key" : [ "ec07b617-1348-42b8-afb1-913ff531a24c" ],           "position" : 43         },         "rows" : [           {             "type" : "row",             "position" : 73,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:39:12.173004Z" }             ]           }         ]       },       {         "partition" : {           "key" : [ "91d7d620-de0b-11eb-ad2f-537733e6a124" ],           "position" : 86         },         "rows" : [           {             "type" : "row",             "position" : 116,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:03.777666Z" },             "cells" : [               { "name" : "v", "deletion_info" : { "local_delete_time" : "2021-07-06T09:06:57Z" },                 "tstamp" : "2021-07-06T09:06:57.504609Z"               }             ]           }         ]       },       {         "partition" : {           "key" : [ "7164f397-f1cb-4341-bc83-ac10088d5bfd" ],           "position" : 128         },         "rows" : [           {             "type" : "row",             "position" : 158,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:38:56.888661Z" }             ]           }         ]       }     ]`
 
 ## 15.63 (Section: DS210) - Loading different formats of data into Cassandra
 
