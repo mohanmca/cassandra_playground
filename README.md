@@ -3856,7 +3856,8 @@ authentication_options:
 
 -   ``` sql
       CREATE table system_auth.roles (role text primary key, can_login boolean, is_superuser boolean, number_of set<text>, salted_hash text)
-      CREATE ROLE fred with PASSWORD = 'Yababdadfdfd' and LOGIN = true;
+      CREATE ROLE wilma WITH PASSWORD = 'Pebbles123' AND SUPERUSER = true AND LOGIN = true;
+      CREATE ROLE fred with PASSWORD = 'Yababdadfdfd' and LOGIN = true;    
       if LOGIN=TRUE --- user
       if LOGIN=FALSE --- role
       LIST roles;
