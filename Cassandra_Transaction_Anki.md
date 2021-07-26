@@ -9,8 +9,11 @@
 1. LWT provides linearizable consistency
 1. LWT means that transaction like to guarantee that no other client can come in between read and write queries with their own modification.
 1. Cassandra’s LWT implementation is based on Paxos.
+
+## (Section: LWT) -  What is lightweight transaction (LWT) Restrictions?
 1. Cassandra’s lightweight transactions are limited to a single partition. 
 1. Cassandra’s LWT is more expensive than a regular write, think carefully about your use case before using LWTs.
+
 
 ## (Section: LWT) -  What is the purpose of Paxos?
 
@@ -36,5 +39,5 @@
 
 ## (Section: DS210) -  How to create anki from this markdown file
 ```
-mdanki Cassandra_Transaction_Anki.md Cassandra_Transaction_Anki.apkg --deck "Mohan::Cassandra::Txn::Fields"
+mdanki Cassandra_Transaction_Anki.md Cassandra_Transaction_Anki.apkg --deck "Mohan::Cassandra::Txn::Paxos"
 ```

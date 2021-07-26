@@ -614,6 +614,12 @@
     performance?](#section-advanced-type---batch-cost-and-performance)
 -   [(Section: Advanced Type) - Batch - System tables
     involved?](#section-advanced-type---batch---system-tables-involved)
+-   [(Section: SSTable) - When MemTable's are
+    flushed](#section-sstable---when-memtables-are-flushed)
+-   [Storage Architecture Summary
+    Jira](#storage-architecture-summary-jira)
+-   [(Section: SSTable) - How many MemTable can exist
+    at-a-time](#section-sstable---how-many-memtable-can-exist-at-a-time)
 -   [(Section: SSTable) - SStable - settings in
     cassandra.yaml](#section-sstable---sstable---settings-in-cassandra.yaml)
 -   [(Section: SSTable) - What are the files part of
@@ -4828,7 +4834,26 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 -   SSTable very poor to find absence of key (hence we need
     bloom-filter)
 
-## 15.180 (Section: SSTable) - SStable - settings in cassandra.yaml
+## 15.180 (Section: SSTable) - When MemTable's are flushed
+
+1.  When the number of objects stored in the memtable reaches a
+    threshold,
+2.  the contents of the memtable are flushed to disk in a file called an
+    SSTable.
+
+## 15.181 Storage Architecture Summary Jira
+
+-   [Storage Architecture
+    JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8099)
+
+## 15.182 (Section: SSTable) - How many MemTable can exist at-a-time
+
+1.  A new memtable is then created when old MemTable gettting flushed.
+    This flushing is a nonblocking operation;
+2.  Multiple memtables may exist for a single table, one current and the
+    rest waiting to be flushed.
+
+## 15.183 (Section: SSTable) - SStable - settings in cassandra.yaml
 
 1.  flush_compression: fast
 2.  file_cache_enabled: false
@@ -4844,7 +4869,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 7.  stream_entire_sstables: true
 8.  max_value_size_in_mb: 256
 
-## 15.181 (Section: SSTable) - What are the files part of SSTable
+## 15.184 (Section: SSTable) - What are the files part of SSTable
 
 -   mb-1-big-Summary.db
 -   mb-1-big-Index.db
@@ -4856,25 +4881,25 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     -   mb-1-big-CRC.db
     -   mb-1-big-Toc.txt -- list of the above files
 
-## 15.182 (Section: SSTable) - What is the role of index file
+## 15.185 (Section: SSTable) - What is the role of index file
 
 -   It lists the partition-keys/cluster-keys that are available inside
     the SSTable with offset information. Disk seek can directly locate
     few keys
 
-## 15.183 (Section: SSTable) - What is the role of statitics file
+## 15.186 (Section: SSTable) - What is the role of statitics file
 
 -   It has the column definition
 -   It has almost all the details about DDL of a table
 
-## 15.184 (Section: SSTable) - Why SQLite4 didn't use LSM?
+## 15.187 (Section: SSTable) - Why SQLite4 didn't use LSM?
 
 -   Every insert needs to check constraint, and it requires reads. In
     simple, every write operation also ends up with read operation.
 -   LSM is great for blind writes, but doesn't work work as well when
     constraints must be checked prior to each write
 
-## 15.185 (Section: SSTable) - LSM Pros and Cons
+## 15.188 (Section: SSTable) - LSM Pros and Cons
 
 -   Pros
     -   Faster writes
@@ -4887,7 +4912,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     -   More space on disk
     -   Greater Complexity
 
-## 15.186 (Section: SSTable) - SSTable references
+## 15.189 (Section: SSTable) - SSTable references
 
 -   [What is in All of Those SSTable Files Not Just the Data One but All
     the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit
@@ -4896,7 +4921,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
 -   [C23: Lessons from SQLite4 by SQLite.org - Richard
     Hipp](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
-    ## 15.187 (Section: Administration) - DSE Cassandra Course topics
+    ## 15.190 (Section: Administration) - DSE Cassandra Course topics
 
 1.  Install and Start Apache Cassandra™
 2.  CQL
@@ -4918,7 +4943,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 18. Compaction
 19. Advanced Performance
 
-## 15.188 (Section: Administration) - Course DSE installation
+## 15.191 (Section: Administration) - Course DSE installation
 
 ``` bash
 ubuntu@ds201-node1:~$ tar -xf dse-6.0.0-bin.tar.gz
@@ -4929,30 +4954,30 @@ cd node/bin
 ./dsetool status
 ```
 
-## 15.189 (Section: Administration) - Nodetool vs DSEtool
+## 15.192 (Section: Administration) - Nodetool vs DSEtool
 
 -   nodetool -- only Apache Cassandra
 -   dsetool -- Apache Cassandra™, Apache Spark™, Apache Solr™, Graph
 
-## 15.190 (Section: Administration) - Nodetool Gauge the server performance
+## 15.193 (Section: Administration) - Nodetool Gauge the server performance
 
 ``` sql
 ./nodetool describecluster
 ./nodetool getlogginglevels
 ./nodetool setlogginglevels org.apache.cassandra TRACE
-## 15.191 (Section: Administration) -  Create and populate garbage to stress the cluster
+## 15.194 (Section: Administration) -  Create and populate garbage to stress the cluster
 /home/ubuntu/node/resources/cassandra/tools/bin/cassandra-stress write n=50000 no-warmup -rate threads=2
 ./nodetool flush
 ./nodetool status
 ```
 
-## 15.192 (Section: Administration) - Find all the material view of a keyspace
+## 15.195 (Section: Administration) - Find all the material view of a keyspace
 
 ``` bash
 SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 ```
 
-## 15.193 (Section: Administration) - How to find number of partitions/node-of partition in a table
+## 15.196 (Section: Administration) - How to find number of partitions/node-of partition in a table
 
 -   ./nodetool tablestats -H keyspace.tablename;
 -   select token(tag) from killrvideo.videos_by_tag;
@@ -4963,7 +4988,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   ./nodetool getendpoints killrvideo videos_by_tag 'cassandra'
     -   ./nodetool getendpoints killrvideo videos_by_tag 'datastax'
 
-## 15.194 (Section: Administration) - Cassandra Node (Server/VM/H/W)
+## 15.197 (Section: Administration) - Cassandra Node (Server/VM/H/W)
 
 -   Runs a java process (JVM)
 -   Only supported on local storage or direct attached storage
@@ -4975,7 +5000,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   How do you manage node?
     -   Use nodetool utilitiy
 
-## 15.195 (Section: Administration) - Cassandra Ring (The cluster)
+## 15.198 (Section: Administration) - Cassandra Ring (The cluster)
 
 -   Any node can act as a co-ordinator to incoming data
 -   How does co-ordinator knows the node that handles the data?
@@ -4984,7 +5009,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   (2\^\^63)-1 --> (-2\^\^63) - ranges of tokents are available
     -   20 digit number - 18,446,744,073,709,551,616
 
-## 15.196 (Section: Administration) - How new nodes join the ring
+## 15.199 (Section: Administration) - How new nodes join the ring
 
 -   Uses seed-nodes configured in new-nodes Cassandra.yaml
     -   SeedNode provider could be rest-api
@@ -4994,7 +5019,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Node status could be - Leaving/Joining/Up/Running - UN (Up and
         Normal)
 
-## 15.197 (Section: Administration) - Peer-to-Peer
+## 15.200 (Section: Administration) - Peer-to-Peer
 
 -   Leader-Follower fails when we do sharding
     -   Leader-Follower model is just client-server model on the service
@@ -5007,7 +5032,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   No node is superior than other
     -   Everyone is peer
 
-## 15.198 (Section: Administration) - Why do we need VNode?
+## 15.201 (Section: Administration) - Why do we need VNode?
 
 -   When adding a new physical node, how to equally distribute data from
     existing nodes into new node?
@@ -5021,12 +5046,12 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   Adding/removing nodes with vnodes helps keep the cluster balanced
 -   By default each node has 128 vnodes
 
-## 15.199 (Section: Administration) - How to enable VNode?
+## 15.202 (Section: Administration) - How to enable VNode?
 
 -   num_tokens value should greather than 1 in Cassandra.yaml
 -   num_tokens = 1 ## Disable vnode
 
-## 15.200 (Section: Administration) - Gossip protocol (nodemeta data is the subject)
+## 15.203 (Section: Administration) - Gossip protocol (nodemeta data is the subject)
 
 -   No centralized service to spread the information - How do we share
     information?
@@ -5035,7 +5060,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   It might pick same node successive time, they don't keep track
         of the node that they gossped with
 
-## 15.201 (Section: Administration) - What do nodes Gossip about?
+## 15.204 (Section: Administration) - What do nodes Gossip about?
 
 -   They gossip about node-meta-data
     -   Heartbeat, generation, version and load
@@ -5043,7 +5068,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Generation - timestamp of when the node-bootstraps
     -   version - counter incremented every-second
 
-## 15.202 (Section: Administration) - What is Gossip data structure look like?
+## 15.205 (Section: Administration) - What is Gossip data structure look like?
 
 -   EP: 127.0.0.1, HB:100:20, LOAD:86
 
@@ -5065,19 +5090,19 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     }
     ```
 
-## 15.203 (Section: Administration) - What is Gossip protocol?
+## 15.206 (Section: Administration) - What is Gossip protocol?
 
 -   Initiator - Sends SYN
 -   Receiver - Receives SYN and Constructs and replies with ACK message
 -   Initiator - Gets ACK reponse from receiver\
 -   Initiator - ACKs the ACK (from receiver) using ACK2 reponse
 
-## 15.204 (Section: Administration) - How to find more details about Gossip
+## 15.207 (Section: Administration) - How to find more details about Gossip
 
 -   project = CASSANDRA AND component = "Cluster/Gossip"
 -   https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
-## 15.205 (Section: Administration) - Sample Gossipinfo
+## 15.208 (Section: Administration) - Sample Gossipinfo
 
 ``` json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -5123,14 +5148,14 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
   TOKENS:60:<hidden>
 ```
 
-## 15.206 (Section: Administration) - Node failure detector
+## 15.209 (Section: Administration) - Node failure detector
 
 -   Every node declares their own status.
 -   Every node detects failure of peer-node
 -   They don't send their assumptions/evaluations during gossip (nodes
     don't send their judgement about other nodes)
 
-## 15.207 (Section: Administration) - Snitch (meaning informer)
+## 15.210 (Section: Administration) - Snitch (meaning informer)
 
 -   Snitch - toplogy of cluster
 -   Informs each IP and its physical location
@@ -5154,21 +5179,21 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
         -   105 - node octet
     -   cassandra-rackdc.properties can contain the data
 
-## 15.208 (Section: Administration) - What is the role of DynamicSnitch
+## 15.211 (Section: Administration) - What is the role of DynamicSnitch
 
 -   It uses underlying snitch
 -   Maintains pulse of each nodes performance
 -   Determines which node to query based on performance
 -   Turned on by default for all snitches
 
-## 15.209 (Section: Administration) - Mandatory operational practice
+## 15.212 (Section: Administration) - Mandatory operational practice
 
 -   All nodes should use same snitch
 -   Changing network topology requires restarting all the nodes with
     latest snitch
 -   Run sequential repair and cleanup on each node
 
-## 15.210 (Section: Administration) - Replication with RF=1
+## 15.213 (Section: Administration) - Replication with RF=1
 
 -   Every node is responsible for certain token range
 -   Partitioner finds the token from the data (MurMurPartitioner)
@@ -5178,7 +5203,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns token higher than 59 is (here 63 is choosen)
     -   Node that owns 50 and above.. but below 63 would store the data
 
-## 15.211 (Section: Administration) - Replication with RF>=2
+## 15.214 (Section: Administration) - Replication with RF>=2
 
 -   Data would be stored in node that supposed to own token range
 -   For every RF>1, Node who is neighbour (token range higher) also gets
@@ -5187,7 +5212,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns 50-63 would get a copy
     -   Node that owns 63-75 would also get a copy
 
-## 15.212 (Section: Administration) - Replication with RF>=2 and Cross DataCenter
+## 15.215 (Section: Administration) - Replication with RF>=2 and Cross DataCenter
 
 -   Cross DC replication is hard
 -   We can have different RF for each DC
@@ -5195,39 +5220,39 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 -   Remote Co-ordinator would act as a local-cordinator to replicate
     data within remote DC
 
-## 15.213 (Section: Administration) - Consistency in CQL
+## 15.216 (Section: Administration) - Consistency in CQL
 
 ``` sql
 consistency ANY;
-## 15.214 Consistency level set to ANY.
+## 15.217 Consistency level set to ANY.
 
 select * from videos_by_tag;
-## 15.215 InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+## 15.218 InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 
 INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
 
 select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
-## 15.216 (Section: Administration) - Reference
+## 15.219 (Section: Administration) - Reference
 
 -   [Datastax
     videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
 -   [Datastax Virtual-box
     VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
 
-## 15.217 (Section: Tools) - How to load json/csv in fastest way into Cassandra:
+## 15.220 (Section: Tools) - How to load json/csv in fastest way into Cassandra:
 
 1.  DSKBulk or Apache Spark (faster works for json and CSV)
 2.  CQL-Copy (slow and only for CSV)
 
-## 15.218 (Section: Tools) - What are all DSBulk commands
+## 15.221 (Section: Tools) - What are all DSBulk commands
 
 1.  load
 2.  unload
 3.  count - statistics
 
-## 15.219 (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
+## 15.222 (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
 
 ``` sql
 dsbulk load -url users.csv       \
@@ -5240,7 +5265,7 @@ dsbulk load -url users.csv       \
             -logDir /tmp/logs
 ```
 
-## 15.220 Time-series presentations
+## 15.223 Time-series presentations
 
 1.  (https://www.youtube.com/watch?v=nHes8XW1VHw)
 2.  (https://www.youtube.com/watch?v=YewOx6En7WM)
@@ -5260,20 +5285,20 @@ dsbulk load -url users.csv       \
 -   When rows are queried, query has to scan over multiple expired
     cells/rows to get to the live cells
 
-## 15.221 (Section: Tombstone) - What are all the majore issues due to Tombstones
+## 15.224 (Section: Tombstone) - What are all the majore issues due to Tombstones
 
 -   Often query read ends up in timesout
 -   Memory is occupied by dead-cells
 -   Rarely TombstoneOverwhelmException happens
 
-## 15.222 (Section: Tombstone) - How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
+## 15.225 (Section: Tombstone) - How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
 
 1.  tombstone_threshold ratio to 0.1
 2.  unchecked_tombstone_compaction: true
 3.  min_threshold: 2 (Compaction would be triggered for just 2 similar
     sized SSTables)
 
-## 15.223 (Section: Tombstone) - Where is Tombstones are handled?
+## 15.226 (Section: Tombstone) - Where is Tombstones are handled?
 
 -   Tombstones are handled part of Compaction
 -   [AbstractCompactionStrategy](https://github.com/apache/cassandra/blob/cassandra-3.11/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)

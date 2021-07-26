@@ -7,6 +7,19 @@
    * A partition-key would be exist within SSTable only one page
 * SSTable very poor to find absence of key (hence we need bloom-filter)
 
+## (Section: SSTable) - When MemTable's are flushed
+
+1. When the number of objects stored in the memtable reaches a threshold, 
+1. the contents of the memtable are flushed to disk in a file called an SSTable. 
+
+## Storage Architecture Summary Jira
+
+* [Storage Architecture JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8099)
+
+## (Section: SSTable) - How many MemTable can exist at-a-time
+
+1. A new memtable is then created when old MemTable gettting flushed. This flushing is a nonblocking operation; 
+1. Multiple memtables may exist for a single table, one current and the rest waiting to be flushed. 
 
 ## (Section: SSTable) -  SStable - settings in cassandra.yaml
 
