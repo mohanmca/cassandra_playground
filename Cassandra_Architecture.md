@@ -5,15 +5,8 @@
 * A node can work with
   * 6K to 12K transaction
   * 2-4TB of data on ssd
+  * 2-TB is maximum for data, remaining for compaction
 * Cassandra can lineraly scale with new nodes
-*
-
-## (Section: Architecture) -  nodetool
-
-* help - help
-* info - jvm statistics
-* status  - all the nodes status (how this node see other nodes in cluster)
-
 
 ## (Section: Architecture) -  Ring
 
@@ -22,14 +15,20 @@
 * Each node is responsible for range of data
   * Token range
 * Every node can deduce which node owns the range of token (range of data)
-* Co-ordinate sends to acknowledge to client
-  * co-ordinator-node !12== data-node
+* Co-ordinator sends acknowledgements to client
+  * co-ordinator-node !== data-node
+  * co-ordinator-node === data-node (When using TokenAwarePolicy)
 * Range
   * (2^63)-1 to -(2^63)
 * Partitioner - Decides how to distribute data within nodes
 * Right partitioner would place the data widely
   * Murmur3 as a partitioner
   * MD5 partitioner (random and even)
+
+## (Section: Core) What is Wrapping-Range vs Token-Range?
+
+* The vnode with the lowest token owns the range less than or equal to its token and the range greater than the highest token, which is also known as the wrapping range.
+* A node claims ownership of the range of values less than or equal to each token and greater than the last token of the previous node, known as a **token range**.
 
 ## (Section: Architecture) -  When a new node joins the ring
 
@@ -53,7 +52,7 @@
 ## (Section: Architecture) -  Peer-to-Peer
 
 * We should understand the reason by behind peer-to-peer
-* Relation databases scales in one of the following way
+* Relational databases scales in one of the following way
   * Leader-follower
     * Data is not replicated realtime (hence not consistent)
   * Sharding
@@ -71,12 +70,11 @@
 
 ## (Section: Architecture) -  VNode
 
-
 * If token is distributed in contiguous-range to a physical node, it won't help when new-node joins
-  * Hence every node will not get contiguous token range for its capcity
+  * Hence every node will not get contiguous token range for it's capcity
 * Bootstraping new node is complex in peer-to-peer without vnodes
 * Adding/Removing nodes in distributed system is complex, it can't just rely on the number of physical node
-* Vnodes eases the use of heterogeneous machines in a cluster. Better machine can have more vnodes than older.
+* Vnodes eases the use of heterogeneous machines in a cluster. Better machine can have more vnodes than other.
 * We can't move all the data of one-physical node to other node when new-node joins
   * It put strain on the node that transfers the data
   * It won't happen in parallel way
@@ -133,6 +131,10 @@
 }
 ```
 
+## (Section: Architecture) -  What is the purpose of Gossip
+
+* Gossip helps to identify fastest node and helps in reading from node with lowest latency
+
 ## (Section: Architecture) -  Snitch
 
 * Snitch - means informer (with criminal background or approver)
@@ -180,6 +182,11 @@ cassandra-rackdc.properties file
 dc=DC1
 rack=RAC
 ```
+
+## (Section: Architecture) -  How nodes can find if another nodes are doing Compactions?
+
+* DynamicEndpointSnitch - can find other nodes performance and latency, It can find if another nodes is doing Compaction
+* DynamicEndpointSnitch implementation uses a modified version of the Phi failure detection mechanism used by gossip.
 
 ## (Section: Architecture) -  Cassandra replication
 

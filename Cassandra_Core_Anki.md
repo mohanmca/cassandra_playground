@@ -24,7 +24,7 @@
 1. ViewMutationStage             
 
 
-## (Section: Core) Status of SSTable
+## (Section: Core) Status of Table (SSTable)
 
 1. Average live cells per slice (last five minutes): 1.0
 1. Average tombstones per slice (last five minutes): 1.0
@@ -59,7 +59,8 @@
 1. SSTable count: 3
 1. Table: user_by_email
 
-## (Section: Core) Status of SSTable
+## (Section: Core) Status of Nodetool Info (node info)
+
 1. Chunk Cache            : entries 27, size 1.69 MiB, capacity 217 MiB, 120 misses, 6150101 requests, 1.000 recent hit rate, NaN microseconds miss latency
 1. Counter Cache          : entries 0, size 0 bytes, capacity 24 MiB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
 1. Data Center            : datacenter1

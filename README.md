@@ -171,9 +171,9 @@
     CQLSH](#section-installation---to-start-cqlsh)
 -   [(Section: Installation) -
     References](#section-installation---references)
--   [(Section: Architecture) -
-    nodetool](#section-architecture---nodetool)
 -   [(Section: Architecture) - Ring](#section-architecture---ring)
+-   [(Section: Core) What is Wrapping-Range vs
+    Token-Range?](#section-core-what-is-wrapping-range-vs-token-range)
 -   [(Section: Architecture) - When a new node joins the
     ring](#section-architecture---when-a-new-node-joins-the-ring)
 -   [(Section: Architecture) - Driver](#section-architecture---driver)
@@ -186,11 +186,16 @@
     protocol](#section-architecture---gossip-protocol)
 -   [(Section: Architecture) - What is
     gossiped?](#section-architecture---what-is-gossiped)
+-   [(Section: Architecture) - What is the purpose of
+    Gossip](#section-architecture---what-is-the-purpose-of-gossip)
 -   [(Section: Architecture) - Snitch](#section-architecture---snitch)
 -   [(Section: Architecture) - Property File
     Snitch](#section-architecture---property-file-snitch)
 -   [(Section: Architecture) - Gossiping Property File
     Snitch](#section-architecture---gossiping-property-file-snitch)
+-   [(Section: Architecture) - How nodes can find if another nodes are
+    doing
+    Compactions?](#section-architecture---how-nodes-can-find-if-another-nodes-are-doing-compactions)
 -   [(Section: Architecture) - Cassandra
     replication](#section-architecture---cassandra-replication)
 -   [(Section: Architecture) - Consistency
@@ -1915,19 +1920,11 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 
     -   6K to 12K transaction
     -   2-4TB of data on ssd
+    -   2-TB is maximum for data, remaining for compaction
 
 -   Cassandra can lineraly scale with new nodes
 
--   
-
-## 8.3 (Section: Architecture) - nodetool
-
--   help - help
--   info - jvm statistics
--   status - all the nodes status (how this node see other nodes in
-    cluster)
-
-## 8.4 (Section: Architecture) - Ring
+## 8.3 (Section: Architecture) - Ring
 
 -   Apache cassandra cluster - Collection of nodes
 -   Node that we connect is co-ordinator node
@@ -1935,14 +1932,24 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
     -   Token range
 -   Every node can deduce which node owns the range of token (range of
     data)
--   Co-ordinate sends to acknowledge to client
-    -   co-ordinator-node !12== data-node
+-   Co-ordinator sends acknowledgements to client
+    -   co-ordinator-node !== data-node
+    -   co-ordinator-node === data-node (When using TokenAwarePolicy)
 -   Range
     -   (2\^63)-1 to -(2\^63)
 -   Partitioner - Decides how to distribute data within nodes
 -   Right partitioner would place the data widely
     -   Murmur3 as a partitioner
     -   MD5 partitioner (random and even)
+
+## 8.4 (Section: Core) What is Wrapping-Range vs Token-Range?
+
+-   The vnode with the lowest token owns the range less than or equal to
+    its token and the range greater than the highest token, which is
+    also known as the wrapping range.
+-   A node claims ownership of the range of values less than or equal to
+    each token and greater than the last token of the previous node,
+    known as a **token range**.
 
 ## 8.5 (Section: Architecture) - When a new node joins the ring
 
@@ -1970,7 +1977,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 ## 8.7 (Section: Architecture) - Peer-to-Peer
 
 -   We should understand the reason by behind peer-to-peer
--   Relation databases scales in one of the following way
+-   Relational databases scales in one of the following way
     -   Leader-follower
         -   Data is not replicated realtime (hence not consistent)
     -   Sharding
@@ -1990,13 +1997,13 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 
 -   If token is distributed in contiguous-range to a physical node, it
     won't help when new-node joins
-    -   Hence every node will not get contiguous token range for its
+    -   Hence every node will not get contiguous token range for it's
         capcity
 -   Bootstraping new node is complex in peer-to-peer without vnodes
 -   Adding/Removing nodes in distributed system is complex, it can't
     just rely on the number of physical node
 -   Vnodes eases the use of heterogeneous machines in a cluster. Better
-    machine can have more vnodes than older.
+    machine can have more vnodes than other.
 -   We can't move all the data of one-physical node to other node when
     new-node joins
     -   It put strain on the node that transfers the data
@@ -2070,7 +2077,12 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 }
 ```
 
-## 8.13 (Section: Architecture) - Snitch
+## 8.13 (Section: Architecture) - What is the purpose of Gossip
+
+-   Gossip helps to identify fastest node and helps in reading from node
+    with lowest latency
+
+## 8.14 (Section: Architecture) - Snitch
 
 -   Snitch - means informer (with criminal background or approver)
 -   Rerports DC, Rack information to each other
@@ -2094,7 +2106,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
         sequential repair and clean-up on each node.
 -   All node must use same snitch
 
-## 8.14 (Section: Architecture) - Property File Snitch
+## 8.15 (Section: Architecture) - Property File Snitch
 
 -   Reads datacenter and rack information for all nodes from a file You
     must keep files in sync with all nodes in the cluster
@@ -2112,7 +2124,7 @@ cassandra-topology.properties file
 120.57.18.177=DC2:RAC2
 ```
 
-## 8.15 (Section: Architecture) - Gossiping Property File Snitch
+## 8.16 (Section: Architecture) - Gossiping Property File Snitch
 
 -   Relieves the pain of the property file snitch
 -   Declare the current node's DC/rack information in a file
@@ -2126,7 +2138,14 @@ dc=DC1
 rack=RAC
 ```
 
-## 8.16 (Section: Architecture) - Cassandra replication
+## 8.17 (Section: Architecture) - How nodes can find if another nodes are doing Compactions?
+
+-   DynamicEndpointSnitch - can find other nodes performance and
+    latency, It can find if another nodes is doing Compaction
+-   DynamicEndpointSnitch implementation uses a modified version of the
+    Phi failure detection mechanism used by gossip.
+
+## 8.18 (Section: Architecture) - Cassandra replication
 
 -   When co-ordinator responsible for token range 15-25 receives data to
     save, it finds its token range and copies data to target node
@@ -2148,7 +2167,7 @@ rack=RAC
     -   Causes overlap in the token ranges amongst nodes.
     -   Requires more storage in your cluster.
 
-## 8.17 (Section: Architecture) - Consistency Level
+## 8.19 (Section: Architecture) - Consistency Level
 
 -   **Request-Coordinator to Client** Defines how many replicas that are
     writing or reading data must respond to a **request coordinator**
@@ -2176,7 +2195,7 @@ rack=RAC
     -   Choose for local-quorum
 -   Higher consistency === higher latency (higher latency -- poor)
 
-## 8.18 (Section: Architecture) - Consistency level in Cassandra
+## 8.20 (Section: Architecture) - Consistency level in Cassandra
 
 **Consistency Settings In order of weakest to strongest** 1. ANY -
 Storing a hint at minimum is satisfactory 1. ALL - Every node must
@@ -2187,7 +2206,7 @@ LOCAL_QUORUM - Closest quorum of nodes in same data center 1.
 EACH_QUORUM - Quorum of nodes in each data center, applies to writes
 only
 
-#### 8.18.1.1 With a replication factor of three, which of the following options guarantee strong consistency?
+#### 8.20.1.1 With a replication factor of three, which of the following options guarantee strong consistency?
 
 -   [x] - write all, read one
 -   [x] - write all, read quorum
@@ -2195,7 +2214,7 @@ only
 -   [x] - write quorum, read quorum
 -   \[-\] - ~~write one, read all~~
 
-## 8.19 (Section: Architecture) - Hinted hand-off
+## 8.21 (Section: Architecture) - Hinted hand-off
 
 -   Write request can be served, even when nodes are down. Co-ordinator
     caches using hints file, later handoever the data to target node
@@ -2211,7 +2230,7 @@ only
 -   Consistency-level-Any is not practical due to hinted-hand-off
 -   We can disable hinted-hand-off
 
-## 8.20 (Section: Architecture) - Read repair (Assume RF=3)
+## 8.22 (Section: Architecture) - Read repair (Assume RF=3)
 
 -   Nodes goes out-of-sync for many reasons
     -   Network partition, node failures, storage failure
@@ -2226,7 +2245,7 @@ only
     3.  Sends the latest data to client
     4.  Replicates the latest data to the nodes that has stale copy
 
-## 8.21 (Section: Architecture) - Read Repair Chance
+## 8.23 (Section: Architecture) - Read Repair Chance
 
 -   Performed when read is at a consistency level less than ALL
 -   Request reads only a subset of the replicas
@@ -2236,14 +2255,14 @@ only
 -   Read repair done asynchronously in the background
 -   10% by default
 
-## 8.22 (Section: Architecture) - Node-repai
+## 8.24 (Section: Architecture) - Node-repai
 
-## 8.23 (Section: Architecture) - Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
+## 8.25 (Section: Architecture) - Nodetool has a repair tool that can repair entire cluster - Quite expensive operation
 
 -   nodetool repair --full
 -   Extra load on the network, IO also might spike
 
-## 8.24 (Section: Architecture) - Datastax Node-sync
+## 8.26 (Section: Architecture) - Datastax Node-sync
 
 -   It uses the same mechnism what read-repair mechnism does
 -   Datastax Node-sync (should be enabled on per-table-basis)
@@ -2266,7 +2285,7 @@ only
         -   uncompleted
         -   failed
 
-## 8.25 (Section: Architecture) - Write path
+## 8.27 (Section: Architecture) - Write path
 
 1.  Data reaches to node to write
 2.  Cassandra writes data to mem-table & commit-log
@@ -2292,7 +2311,7 @@ only
     -   Ans: After the commit log and MemTable are written
 -   SSTable and MemTable are stored sorted by clustering columns
 
-## 8.26 (Section: Architecture) - Read path
+## 8.28 (Section: Architecture) - Read path
 
 -   Data could be spread across multiple SS-Table (and in-memory), Hence
     read is bit more complex than write
@@ -2324,7 +2343,7 @@ only
 -   Read > Bloom-Filter > Key-Cache > Partition Summary > Partition
     Index > SSTable
 
-## 8.27 (Section: Architecture) - Data-stax
+## 8.29 (Section: Architecture) - Data-stax
 
 -   No partition-index, instead trie based data-structure used as index
     -   SS-Table lookup is much faster than OSS version
@@ -2334,7 +2353,7 @@ only
         easier to find the parition-index offset for pk0024
         (https://stackoverflow.com/questions/26244456/internals-of-partition-summary-in-cassandra)
 
-## 8.28 (Section: Architecture) - Compacting partition
+## 8.30 (Section: Architecture) - Compacting partition
 
 -   Two SS-Table paritions can be merged using merge-sort
     -   If keys are matching, take one with latest timestamp
@@ -2354,14 +2373,14 @@ only
     -   Faster reads
     -   Less memory pressure
 
-## 8.29 (Section: Architecture) - Compacting SSTables
+## 8.31 (Section: Architecture) - Compacting SSTables
 
 -   Two SS-Table merged using merge-sorted
 -   Merge might reduce the partition as all the stale values inside the
     parition are evicted
 -   Once new SS-Table is created, old SS-Table is dropped
 
-## 8.30 (Section: Architecture) - Types of compaction
+## 8.32 (Section: Architecture) - Types of compaction
 
 -   SizeTiered Compaction (default for write heavy-load)
 
@@ -2372,7 +2391,7 @@ only
 -   Alter table ks.myTable WITH compaction = { 'class':
     'LeveledCompactionStrategy'}
 
-## 8.31 (Section: Architecture) - Datastax ES6
+## 8.33 (Section: Architecture) - Datastax ES6
 
 -   Only one core per CPU and Non-blocking-IO
     -   Claims to be more performant than OSS version
@@ -2383,18 +2402,18 @@ only
         Hints, Streaming
 -   OSS - Executor thread-pool
 
-## 8.32 Constraints of LightWeight Transaction
+## 8.34 Constraints of LightWeight Transaction
 
 -   Lightweight transactions are also sometimes referred to as
     compare-and-set operations.
 -   Each lightweight transaction is atomic and always works on a single
     partition.
 
-## 8.33 (Section: Architecture) - Under what circumstances is the use of lightweight transactions justified?
+## 8.35 (Section: Architecture) - Under what circumstances is the use of lightweight transactions justified?
 
 -   Race conditions and low data contention
 
-## 8.34 (Section: Partition) - Partition
+## 8.36 (Section: Partition) - Partition
 
 -   The most important concept in Cassandra is patition.
 -   Primary Key (state, (id))
@@ -2411,7 +2430,7 @@ only
 -   We can choose partition after table were constructed and data
     inserted
 
-## 8.35 (Section: Partition) - Clustering Columns
+## 8.37 (Section: Partition) - Clustering Columns
 
 -   This constitutes part of Primary Key along with partition key
 -   We can have one or more clustering column
@@ -2428,7 +2447,7 @@ only
         added_date timestamp, title text, PRIMARY KEY(tag, added_date) )
         WITH CLUSTERING ORDER BY (added_date DESC);"
 
-## 8.36 (Section: Partition) - Primary Key
+## 8.38 (Section: Partition) - Primary Key
 
 -   Primary Key = Partition Key + Clustering Column
 -   Decides uniqueness and date order (sorted and stored)
@@ -2441,7 +2460,7 @@ only
         (this is often called a composite partition key) and c is the
         clustering column.
 
-## 8.37 (Section: Partition) - Impact of partition key on query (CQL)
+## 8.39 (Section: Partition) - Impact of partition key on query (CQL)
 
 -   All equality comparision comes before inequality (\<, >)
 -   Inequality comparision or range queries on clustering columns are
@@ -2457,7 +2476,7 @@ only
         partition key
     -   Don't use it
 
-## 8.38 (Section: Partition) - Querying
+## 8.40 (Section: Partition) - Querying
 
 -   Always provide partition key
 -   Follow the equality similar to the way it is defined
@@ -2467,7 +2486,7 @@ only
         follow the order of table definition
 -   
 
-## 8.39 (Section: Partition) - CQL
+## 8.41 (Section: Partition) - CQL
 
 ``` bash
 cqlsh:killrvideo> desc table video;
@@ -2530,19 +2549,19 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/home/videos-by-tag.c
 select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 ```
 
-## 8.40 (Section: Partition) - Datastax slides
+## 8.42 (Section: Partition) - Datastax slides
 
 -   (https://www.slideshare.net/planetcassandra/datastax-a-deep-look-at-the-cql-where-clause)\[DataStax:
     A deep look at the CQL WHERE clause \]
 
-## 8.41 (Section: Partition) - Reference
+## 8.43 (Section: Partition) - Reference
 
 -   [Primary Key, Partition Key and Data
     Definition](https://cassandra.apache.org/doc/latest/cql/ddl.html#the-partition-key)
 -   [Cassandra
     Acadamy](https://academy.datastax.com/units/2012-quick-wins-dse-foundations-apache-cassandra?resource=ds201-datastax-enterprise-6-foundations-of-apache-cassandra)
 
-## 8.42 (Section: Consistency) - CAP Theorem (Consistency)
+## 8.44 (Section: Consistency) - CAP Theorem (Consistency)
 
 -   CAP Theorm and Consistency
 -   Cassandra fits into AP system, doesn't promise Consistency
@@ -2552,7 +2571,7 @@ select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
         independently
 -   Consistency is harder in distributed systems
 
-## 8.43 (Section: Consistency) - Consistency Levels
+## 8.45 (Section: Consistency) - Consistency Levels
 
 -   CL = Consistency-Number (Number of replication count for current
     transaction)
@@ -2583,7 +2602,7 @@ select * from videos_by_tag where tag='cassandra' and added_date > '2013-03-17';
 -   Each_Quorum - Quorum of nodes in each data-center, applies to write
     only
 
-## 8.44 (Section: Consistency) - What is Each_Quorum
+## 8.46 (Section: Consistency) - What is Each_Quorum
 
 -   Quorum of nodes in each data-center, applies to write only
 -   Not many application uses it
