@@ -448,10 +448,17 @@ root@c1bf4c2d5378:/# nodetool gcstats
         * Shutting down the port and shutting down process
         * Data still on the disk, but should be deleted if we plan to bring the node back
   1. Inform to the rest of the cluster nodes, that a node was removed/lost
-     * nodetool removenode
+     * nodetool removenode  158a78c2-4a41-4eaa-b5ea-fb9747c29cc3 (host-id of the node, id can be copied from nodetool status)
   1. Inform the node to just leave immediately without replicating any of its data
      * nodetool assasinate  (like kill -9) && nodetool repair (on the rest of the ndoes to fix)
+     * nodetool assassinate 127.0.0.3 (assasinate requires IP - not uid)
      * Try when it is not trying to go away
+* If we remove seed-node,
+
+## (Section: DS210) - Removing a datacenter
+
+* Run a full repair to make sure that all data from the data center being decommissioned is preserved.
+* To begin decommissioning the data center, alter all of the keyspaces that reference the data center to change the replication factor for the data center to zero.
 
 ## (Section: DS210) -  Where is the data coming from when a node is removed?
 
