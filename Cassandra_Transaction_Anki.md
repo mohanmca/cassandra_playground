@@ -37,6 +37,15 @@
 1. Propose/Accept
 1. Commit/Ack
 
+## (Section: LWT) -  The Cassandra LOCAL_SERIAL and LWT 
+
+1. A SERIAL consistency level allows reading the current (and possibly uncommitted) state of data without proposing a new addition or update. 
+1. If a SERIAL read finds an uncommitted transaction in progress, Cassandra performs a read repair as part of the commit. 
+1. We also have a LOCAL_SERIAL, which is like SERIAL for the current data center
+1. [Readconsistencylevels](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html#Readconsistencylevels)
+1. [DmlLtwtTransactions](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlLtwtTransactions.html)
+1. [Dynamo](https://cassandra.apache.org/doc/latest/architecture/dynamo.html#tunable-consistency)
+
 ## (Section: DS210) -  How to create anki from this markdown file
 ```
 mdanki Cassandra_Transaction_Anki.md Cassandra_Transaction_Anki.apkg --deck "Mohan::Cassandra::Txn::Paxos"
