@@ -258,6 +258,7 @@ rack=RAC
   * Even when RF=3 and if three targe nodes for data is down, CONSISTENCY_LEVEL_ANY would successfully return to client
 * Consistency-level-Any is not practical due to hinted-hand-off
 * We can disable hinted-hand-off
+* Hints are **best effort**, however, and do not guarantee eventual consistency like anti-entropy repair <repair> does.
 
 ## (Section: Architecture) -  Read repair (Assume RF=3)
 

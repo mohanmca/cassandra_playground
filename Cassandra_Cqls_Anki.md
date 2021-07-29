@@ -115,11 +115,6 @@ CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
 * "InvalidRequest: code=2200 [Invalid query] message="Invalid number of arguments in call to function token: 1 required but 2 provided"
   * When you pass clustering column that are not part of partition_key, CQL throws this error
 
-## (Section: Cqls) - Gosspinfo
-
-```sql
-  SELECT peer, data_center, host_id, preferred_ip, rach, release_version, rpc_address, schema_version FROM system.peers;
-```
 
 ## (Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag cassandra
 
@@ -183,11 +178,6 @@ system_traces
 
 * CLEAR
 
-## (Section: Cqls) - Cassandra Dual equivalent table and SQL
-
-```sql
-1. select now() from system.local;
-```
 
 ## (Section: Cqls) - How to find avg, sum, min, max within Partition (use ratings_by_movie) as example??
 
@@ -245,6 +235,15 @@ code=2200 [Invalid query]
 message="Invalid restrictions on clustering columns since the UPDATE statement modifies only static columns"
 ```
 
+## (Section: Cqls) - System related queries
+
+* SELECT native_protocol_version FROM system.local - CQL Version
+* SELECT peer, data_center, host_id, preferred_ip, rach, release_version, rpc_address, schema_version FROM system.peers; -- Gossip info
+* select now() from system.local; -- Cassandra equivalen Oracle dual
+* select * from system_schema.keyspaces --Find list of keyspaces
+* select * from system_schema.views --Find list of materialized views
+* SELECT * FROM system.peers;
+* select keyspace_name,table_name,id from tables where system_schema.keyspace_name='oapi_dev' and table_name='logtabl';
 
 
 ## (Section: Cqls) - Reference
