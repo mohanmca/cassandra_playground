@@ -24,7 +24,7 @@
 ## (Section: LWT) -  How Paxos algorithm works between nodes?
 
 1. The basic Paxos algorithm consists of two stages: prepare/promise and propose/accept. 
-1. To modify data, a coordinator node can propose a new value to the replica nodes, taking on the role of leader. \
+1. To modify data, a coordinator node can propose a new value to the replica nodes, taking on the role of leader.
 1. Other replica nodes may act as leaders simultaneously for other modifications. 
 1. Each replica node checks the proposal, and if the proposal is the latest it has seen, it promises to not accept proposals associated with any prior proposals. 
 1. Each replica node also returns the last proposal it received that is still in progress. 
@@ -45,6 +45,14 @@
 1. [Readconsistencylevels](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlConfigConsistency.html#Readconsistencylevels)
 1. [DmlLtwtTransactions](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/dml/dmlLtwtTransactions.html)
 1. [Dynamo](https://cassandra.apache.org/doc/latest/architecture/dynamo.html#tunable-consistency)
+1. [4 phases of LWT](https://www.slideshare.net/doanduyhai/cassandra-introduction-parisjug/90)
+
+## How many consistencly levels are required for LWT?
+
+1. Lightweight transactions have two consistency levels defined.
+1. The serial consistency level defines the consistency level of the serial phase, or Paxos phase, of lightweight transactions. 
+    1. The serial consistency level is ignored for any query that is not a conditional update.
+1. The learn phase, which defines what read operations will be guaranteed to complete immediately if lightweight writes are occurring uses a normal consistency level. 
 
 ## (Section: DS210) -  How to create anki from this markdown file
 ```
