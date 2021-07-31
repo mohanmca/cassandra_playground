@@ -349,6 +349,9 @@
     Strategy](#section-ds210---stcs---size-tieres-compaction-strategy)
 -   [(Section: DS210) - STCS Pros and
     Disadvantage](#section-ds210---stcs-pros-and-disadvantage)
+-   [(Section: DS210) - STCS Hotness](#section-ds210---stcs-hotness)
+-   [(Section: DS210) - Why STCS is slower for
+    read](#section-ds210---why-stcs-is-slower-for-read)
 -   [(Section: DS210) - What triggers a STCS
     Compaction](#section-ds210---what-triggers-a-stcs-compaction)
 -   [(Section: DS210) - STCS -
@@ -3386,9 +3389,9 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   STCS Organizes SSTables into Tiers based on sizes
     -   On an exponential scale
 -   Multiple SSTables would become (larger or smaller)
-    -   Smaller - when plenty of deltes
+    -   Smaller - when plenty of deltas
     -   Largers - Sum of size of smaller SSTables (when there is no
-        delete in smaller sstable)
+        delete in smaller sstable, most of them are insert)
 -   Lower-tier means smaller SStables
 -   Higher-tier means larger SStables
 -   min_threshold and max_thrshold (number of files within the tier)
@@ -3396,44 +3399,40 @@ root@c1bf4c2d5378:/# nodetool gcstats
 ## 15.48 (Section: DS210) - STCS Pros and Disadvantage
 
 -   STCS doesn't compact 1 GB and 1MB file together
-
     -   Avoids write amplification
     -   Handles write heavy system very well
-
 -   STCS requires of at least twice the data size (Space amplification)
-
 -   How do we combine 4 \* 128MB file, we require 512MB additional space
     to combine them (at-least 50%)
-
 -   Stale records in Larger SSTables take unnecessary space (old file
     would take time to catchup)
-
 -   Concurrent_Compactors - Failed more often than helping.
-
 -   STCS - Major compaction was not recommended for producton (one big
-    large compacted file) - Never do 'nodetool compact' ## (Section:
-    DS210) - STCS Hotness
+    large compacted file) - Never do 'nodetool compact'
+
+## 15.49 (Section: DS210) - STCS Hotness
 
 -   STCS compaction chooses hottest tier first to compact
-
 -   SSTable hotness determined by number of reads per second per
-    partition key ## (Section: DS210) - Wht STCS is slower for read
+    partition key
+
+## 15.50 (Section: DS210) - Why STCS is slower for read
 
 -   If new write is in lower tier, and old values are in higher tier,
     they can't be compacted together (immediately)
 
-## 15.49 (Section: DS210) - What triggers a STCS Compaction
+## 15.51 (Section: DS210) - What triggers a STCS Compaction
 
 -   More write --> More Compaction
 -   Compaction starts every time a memtable flushes to an SSTable
--   MemTable too large, commit log too large or manual flush (Triggering
+-   Memtable too large, commit log too large or manual flush (Triggering
     events)
 -   When the cluster streams SSTable segments to the node
     -   Bootstrap, rebuild, repair
 -   Compaction continues until there are no more tiers with at least
     min_threshold tables in it
 
-## 15.50 (Section: DS210) - STCS - Tombstones
+## 15.52 (Section: DS210) - STCS - Tombstones
 
 -   If no eligible buckets, STCS compacts a single SSTable
 -   tombstone_compaction_interval - At-least one day old before
@@ -3445,7 +3444,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
     tombstone_threshold: 0.1
 -   `sql       create table t(id int, PRIMARY KEY (id)) WITH compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'min_threshold': '2', 'tombstone_threshold': '0.1'};`
 
-## 15.51 (Section: DS210) - LCS - Leveled Compaction Strategy
+## 15.53 (Section: DS210) - LCS - Leveled Compaction Strategy
 
 -   sstable_size_in_mb - Max size of SSTable
     -   'Max SSTable Size' - would be considered like unit size for
@@ -3457,7 +3456,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
     amplification
 -   L0 - is landing place
 
-## 15.52 (Section: DS210) - LCS Pros and Cons
+## 15.54 (Section: DS210) - LCS Pros and Cons
 
 -   LCS is best for reads
     -   90% of the data resides in the lowest level
@@ -3467,19 +3466,19 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   Reads are handled only by few SSTable make it faster
 -   LCS - doesn't require 50% space, it wastes less disk space
 
-## 15.53 (Section: DS210) - LCS - Lagging behind
+## 15.55 (Section: DS210) - LCS - Lagging behind
 
 -   If lower levels are two big, LCS falls back to STCS for L0
     compaction
 -   Falling to STCS would helps to create larger SSTable, and compacting
     two larger SSTable is optimum
 
-## 15.54 (Section: DS210) - LeveledCompactionStrategy
+## 15.56 (Section: DS210) - LeveledCompactionStrategy
 
 -   [LCS
     Cassandra](https://issues.apache.org/jira/browse/CASSANDRA-14605?jql=labels%20%3D%20lcs%20AND%20project%20in%20(Cassandra))
 
-## 15.55 (Section: DS210) - TWCS - Time-window compaction strategies
+## 15.57 (Section: DS210) - TWCS - Time-window compaction strategies
 
 -   Best suited for Time-series data
 -   Windowf of time can be chosen while creating Table
@@ -3487,7 +3486,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   Any SSTable that spans two window will be considered for next window
 -   Not suited for data that is being updated
 
-## 15.56 (Section: DS210) - Nodesync (Datastax Enterprise 6.0)
+## 15.58 (Section: DS210) - Nodesync (Datastax Enterprise 6.0)
 
 -   Continuous background repair
     -   only for DSE-6.0 and above
@@ -3512,7 +3511,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   nodetool nodesync vs dse/bin/nodesync (second binary is cluster-wide
     tool)
 
-## 15.57 (Section: DS210) - What are all the possible reason for large SSTable
+## 15.59 (Section: DS210) - What are all the possible reason for large SSTable
 
 -   nodetool compact (somebody run it)
     -   Major compaction using STCS would create large SSTable
@@ -3528,7 +3527,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
     sstablesplit -s 40 /user/share/data/cssandra/killr_video/users/*
     ```
 
-## 15.58 (Section: DS210) - Multi-Datacenter
+## 15.60 (Section: DS210) - Multi-Datacenter
 
 -   We can add datacenter using `alter keyspace` even before datacenter
     is available
@@ -3558,13 +3557,13 @@ root@c1bf4c2d5378:/# nodetool gcstats
 -   Without above, request with LOCAL_ONE or ONE consistency level may
     fail if the existing DC are not completely in sync
 
-## 15.59 (Section: DS210) - Multi-Datacenter Consistency Level
+## 15.61 (Section: DS210) - Multi-Datacenter Consistency Level
 
 -   Local_Quorum - TO reduce latency
 -   Each - Very heavy operation
 -   Snitch should be specified
 
-## 15.60 (Section: DS210) - What if one datacenter goes down?
+## 15.62 (Section: DS210) - What if one datacenter goes down?
 
 -   Gossip will find that DC is down
 -   Reocvery can be accomplished with a rolling repair to all nodes in
@@ -3573,13 +3572,13 @@ root@c1bf4c2d5378:/# nodetool gcstats
     updates)
 -   We should run-repair if we go beyond GC_Grace_seconds
 
-## 15.61 (Section: DS210) - Why we need additional DC?
+## 15.63 (Section: DS210) - Why we need additional DC?
 
 -   Live Backup
 -   Improved Performance
 -   Analytics vs Transaction workload
 
-## 15.62 (Section: DS210) - SSTableDump
+## 15.64 (Section: DS210) - SSTableDump
 
 1.  Old tool, quite useful
 2.  Only way to dump SSTable into json (for investigation purpose)
@@ -3590,7 +3589,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 5.  sample dump
     `json     [       {         "partition" : {           "key" : [ "36111c91-4744-47ad-9874-79c2ecb36ea7" ],           "position" : 0         },         "rows" : [           {             "type" : "row",             "position" : 30,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:20.642757Z" },             "cells" : [               { "name" : "v", "value" : 1 }             ]           }         ]       },       {         "partition" : {           "key" : [ "ec07b617-1348-42b8-afb1-913ff531a24c" ],           "position" : 43         },         "rows" : [           {             "type" : "row",             "position" : 73,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:39:12.173004Z" }             ]           }         ]       },       {         "partition" : {           "key" : [ "91d7d620-de0b-11eb-ad2f-537733e6a124" ],           "position" : 86         },         "rows" : [           {             "type" : "row",             "position" : 116,             "liveness_info" : { "tstamp" : "2021-07-06T03:38:03.777666Z" },             "cells" : [               { "name" : "v", "deletion_info" : { "local_delete_time" : "2021-07-06T09:06:57Z" },                 "tstamp" : "2021-07-06T09:06:57.504609Z"               }             ]           }         ]       },       {         "partition" : {           "key" : [ "7164f397-f1cb-4341-bc83-ac10088d5bfd" ],           "position" : 128         },         "rows" : [           {             "type" : "row",             "position" : 158,             "cells" : [               { "name" : "v", "value" : 2, "tstamp" : "2021-07-06T03:38:56.888661Z" }             ]           }         ]       }     ]`
 
-## 15.63 (Section: DS210) - SSTableloader
+## 15.65 (Section: DS210) - SSTableloader
 
 1.  sstableloader -d co-ordinator-ip
     /var/lib/cassandra/data/killrvideo/users/
@@ -3604,7 +3603,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 7.  Source should be a running node with proper Cassandra.yaml file
 8.  Atleast one node in the cluster is configured as SEED
 
-## 15.64 (Section: DS210) - Loading different formats of data into Cassandra
+## 15.66 (Section: DS210) - Loading different formats of data into Cassandra
 
 1.  Apache Spark for Dataloading
 
@@ -3644,7 +3643,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
   println ("Errors or upserts - further validation required")
 ```
 
-## 15.65 (Section: DS210) - Datstax - DSE Bulk (configuration should be in HOCON format)
+## 15.67 (Section: DS210) - Datstax - DSE Bulk (configuration should be in HOCON format)
 
 1.  CLI import tool (from csv or json)
 2.  Can move to and from files in the file-system
@@ -3656,7 +3655,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 7.  Unload and reformat as different data-model
 8.  Usage: dsbulk -f dsbulk.conf -c csv/json -k keyspace -t tablename
 
-## 15.66 (Section: DS210) - Backup and Snapshots
+## 15.68 (Section: DS210) - Backup and Snapshots
 
 1.  Why do we need your backup for distributed data?
 2.  Human error caused data wipe
@@ -3667,7 +3666,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 6.  SSTables are immutable, we can just copy them for backup purpose
 7.  usage - nodetool -h localhost -p 7199 snapshot mykeyspace
 
-## 15.67 (Section: DS210) - What is Cassandra snapshots?
+## 15.69 (Section: DS210) - What is Cassandra snapshots?
 
 1.  The DDL to create the table is stored as well.
 2.  A snapshot is a copy of a table's SSTable files at a given time,
@@ -3680,7 +3679,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   Actual files are not copied, hence less (zero) data-movement
 -   A parallel SSH tool can be used to snapshot at the same time.
 
-## 15.68 (Section: DS210) - How do incrementa backup works
+## 15.70 (Section: DS210) - How do incrementa backup works
 
 -   Every flush to disk should be added to snapshots
     -   incremental_backup: true --##cassandra.yaml
@@ -3692,31 +3691,31 @@ if (loadCount - (afterCount - beforeCount) > 0)
     pile-up)
     -   These should be manually removed before creating new snapshot
 
-## 15.69 (Section: DS210) - Where to store snapshots?
+## 15.71 (Section: DS210) - Where to store snapshots?
 
 -   Snapshots and incremental backups are stored on each cassandra-node
 -   Files should be copied to remote place (not on node)
     -   [tablesnap can store to AWS
         S3](https://github.com/JeremyGrosser/tablesnap)
 
-## 15.70 (Section: DS210) - How Truncate works?
+## 15.72 (Section: DS210) - How Truncate works?
 
 -   auto_snapshot is critical, don't disable it
 -   Helps to take Snapshots, just before table truncation.
 
-## 15.71 (Section: DS210) - How to snapshot?
+## 15.73 (Section: DS210) - How to snapshot?
 
 -   bin/nodetool snapshot -cf table - t `<tag>`{=html} -- keyspace
     keyspace2
 -   [How to snapshot and
     restore](https://docs.rackspace.com/blog/apache-casandra-backup-and-recovery/)
 
-## 15.72 (Section: DS210) - Restore (We get 1 point for backup, 99 point for restore)
+## 15.74 (Section: DS210) - Restore (We get 1 point for backup, 99 point for restore)
 
 -   Backup that doesn't help to restore is useless
 -   Restore should be tested many times and documented properly
 
-## 15.73 (Section: DS210) - [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
+## 15.75 (Section: DS210) - [Steps to restore from snapshots](https://community.datastax.com/questions/2345/how-to-restore-cassandra-snapshot-to-a-different-k.html)
 
 1.  Delete the current data files
 2.  Copy the snapshot and incremental files to the appropriate data
@@ -3734,7 +3733,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   Remember to remove old snapshots before taking new ones, not
     automatic
 
-## 15.74 (Section: DS210) - JVM settings
+## 15.76 (Section: DS210) - JVM settings
 
 1.  jvm.options can be used to modify jvm settings
 2.  cassandra-env.sh is a shell that launches cassandra server, that
@@ -3743,7 +3742,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 4.  HEAP_NEW_SIZE : -XX:NewSize=100m
 5.  Java 9 by default uses G1 Collector
 
-## 15.75 (Section: DS210) - Garbage Collections (Apache Cassandra)
+## 15.77 (Section: DS210) - Garbage Collections (Apache Cassandra)
 
 -   Cassandra on JDK-8 was using CMS
 -   Decrease Pause-Time, But increase Through-Put
@@ -3755,13 +3754,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   After many young gc, S1/S2 -\> Old GC
 -   CMS kicks in when OldGen is 75% full
 
-## 15.76 (Section: DS210) - Why does full GC runs?
+## 15.78 (Section: DS210) - Why does full GC runs?
 
 -   If the old gen fills up before the CMS collector can finish
 -   Full GC, stop the world collctor checks new-gen, old-gen and
     perm-gen
 
-## 15.77 (Section: DS210) - How to troubleshoot OutOfMemoryError issues in Casssandra?
+## 15.79 (Section: DS210) - How to troubleshoot OutOfMemoryError issues in Casssandra?
 
 -   -XX:+HeapDumpOnOutOfMemoryError - would dump the entire memory
 -   Use Eclipse Memory Analyzer tool to analyze the content of memory
@@ -3770,13 +3769,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   Ensure Cassandra has access to the directory where dump directory
     was configured, disk should have space to hold this file
 
-## 15.78 (Section: DS210) - What is TSC?
+## 15.80 (Section: DS210) - What is TSC?
 
 -   It is a register inside CPU
 -   Time Stamp Counter (counts the number of cycles), but won't match
     between processors
 
-## 15.79 (Section: DS210) - Tuning the Linux Kernel
+## 15.81 (Section: DS210) - Tuning the Linux Kernel
 
 -   NTP should be in place for Cassandra to agree time within the
     clusters
@@ -3797,7 +3796,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     10. -msgqueue unlimited
     11. -sigpending unlimited
 
-## 15.80 (Section: DS210) - What should be removed/disabled from Linux for Cassandra to work? How to remove
+## 15.82 (Section: DS210) - What should be removed/disabled from Linux for Cassandra to work? How to remove
 
 -   swapping should be removed in linux from two places
 -   swapoff -a (not permanently)
@@ -3806,7 +3805,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     -   sysctl -p should reload /etc/sysctl.conf
 -   Refer datastax for other recommended linux settings
 
-## 15.81 (Section: DS210) - Hardware resources to consider
+## 15.83 (Section: DS210) - Hardware resources to consider
 
 1.  Parameters
 
@@ -3827,7 +3826,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
 -   TWCS - can use HDD
 -   HDD should be backed with more memory
 
-## 15.82 (Section: DS210) - Datastax on Cloud
+## 15.84 (Section: DS210) - Datastax on Cloud
 
 -   Templates and scripts to install DSE on cloud
 -   OPSCenter LCM 6.0+ (Lifecycle manager)
@@ -3844,7 +3843,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     1.  Elastic volume always have the same tight latencies
     2.  pd-ssd seems faster than local-ssd
 
-## 15.83 (Section: DS210) - Cassandra on Cloud Challenges
+## 15.85 (Section: DS210) - Cassandra on Cloud Challenges
 
 -   Hyeperthreads - you don't get a real CPU
 -   Noisy neighbors - if you see CPU steal, terminate your box and get a
@@ -3856,13 +3855,13 @@ if (loadCount - (afterCount - beforeCount) > 0)
         slow but works for small workloads
     -   Google - Flat network - No config, it's great
 
-## 15.84 (Section: DS210) - Cassandra on cloud security
+## 15.86 (Section: DS210) - Cassandra on cloud security
 
 -   AWS - volume encryption for EBS
 -   Google - largely secure by default. Should go through multifactor
     auth
 
-## 15.85 (Section: DS210) - Cassandra Security Considerations
+## 15.87 (Section: DS210) - Cassandra Security Considerations
 
 -   Authentication and Authorization (Covered in DS410)
 -   Authentication in disabled by default
@@ -3876,7 +3875,7 @@ if (loadCount - (afterCount - beforeCount) > 0)
     -   ALTER change cassandra WITH PASSWORD 'newpassword'
 -   Cassandra stores all the credentials in the sys_auth keyspace
 
-## 15.86 (Section: DS210) - What is the default security configuration
+## 15.88 (Section: DS210) - What is the default security configuration
 
 ``` yaml
 authentication_options:
@@ -3886,13 +3885,13 @@ authentication_options:
   plain_text_without_ssl: warn
 ```
 
-## 15.87 (Section: DS210) - Where is roles are stored in internal-scheme? (in default scheme)
+## 15.89 (Section: DS210) - Where is roles are stored in internal-scheme? (in default scheme)
 
 -   ALTER keyspace system_auth with replication {'class' :
     'NetworkTopologyStrategy', 'dc': 1 , 'dc': 3}
 -   All the roles are stored in system_auth.roles table
 
-## 15.88 (Section: DS210) - Cassandra Authentication table (system_auth.roles - in default scheme)
+## 15.90 (Section: DS210) - Cassandra Authentication table (system_auth.roles - in default scheme)
 
 -   ``` sql
       CREATE table system_auth.roles (role text primary key, can_login boolean, is_superuser boolean, number_of set<text>, salted_hash text)
@@ -3906,7 +3905,7 @@ authentication_options:
 
 -   salted_hash is password
 
-## 15.89 (Section: DS210) - What are best practices for Cassandra security
+## 15.91 (Section: DS210) - What are best practices for Cassandra security
 
 1.  Create one more superuer_role and delete the default cassandra
     super-user
@@ -3915,7 +3914,7 @@ authentication_options:
 4.  Ensure system_auth keyspace should be replicated to multiple
     datacenter
 
-## 15.90 (Section: DS210) - Cassandra Role/Authorization management
+## 15.92 (Section: DS210) - Cassandra Role/Authorization management
 
 ``` sql
     Grant Select ON killr_video.user_by_email TO user/role;
@@ -3932,7 +3931,7 @@ authentication_options:
     * Authorize - 
 ```
 
-## 15.91 (Section: DS210) - Cassandra encryption SSL
+## 15.93 (Section: DS210) - Cassandra encryption SSL
 
 -   node-to-node
 -   client-to-node
@@ -3947,13 +3946,13 @@ authentication_options:
     -   Other nodes validate the certicate using their trust-store RCA
         details
 
-## 15.92 (Section: DS210) - What are two artifacts required for Cassandra to enable SSL
+## 15.94 (Section: DS210) - What are two artifacts required for Cassandra to enable SSL
 
 1.  TrustStore (all the trusted certificate- ROOT CA)
     1.  This is common among all the Cassandra nodes
 2.  Keystore (key-pair, its own signed certificate)
 
-## 15.93 (Section: DS210) - 8 Steps for SSL setup (node-to-node)
+## 15.95 (Section: DS210) - 8 Steps for SSL setup (node-to-node)
 
 1.  Create Root Cert (Root of entire SSL communication)
     1.  Root Cert = "CA_KEY" + "Root Cert"
@@ -3975,7 +3974,7 @@ authentication_options:
     1.  [Credit: SSL
         Configuration](https://www.slideshare.net/BrajaDas/cassandra-security-configuration?from_action=save)
 
-## 15.94 (Section: DS210) - How to harden Cassandra security
+## 15.96 (Section: DS210) - How to harden Cassandra security
 
 1.  Secure the keystore - since this contains private key
 2.  Setup firewasll so that only nodes can talk to each other on the
@@ -3984,7 +3983,7 @@ authentication_options:
 4.  Enable require_client_auth, otherwise program could spoof being a
     node
 
-## 15.95 (Section: DS210) - Datastax OpsCenter
+## 15.97 (Section: DS210) - Datastax OpsCenter
 
 1.  Two Products
 2.  Configure and deploy cluster
@@ -3992,7 +3991,7 @@ authentication_options:
 4.  Perform software upgrades
 5.  Load Certificate
 
-## 15.96 (Section: DS210) - Datastax OpsCenter (Cluster Monitoring/Alert)
+## 15.98 (Section: DS210) - Datastax OpsCenter (Cluster Monitoring/Alert)
 
 1.  Monitoring and management (Operation)
 2.  Broswer -\> OpsCenter Service -\> Agent running inside DataStax
@@ -4005,7 +4004,7 @@ authentication_options:
     5.  Performance service
 4.  Comprehensive Grafana like dashboard
 
-## 15.97 (Section: DS210) - Datastax OpsCenter (Management Service)
+## 15.99 (Section: DS210) - Datastax OpsCenter (Management Service)
 
 1.  Backup & Restore Service
 2.  NodeSync Service
@@ -4013,7 +4012,7 @@ authentication_options:
 4.  Best Practices Service
 5.  Capacity Service
 
-## 15.98 (Section: DS210) - Datastax OpsCenter (Backup and restore Service)
+## 15.100 (Section: DS210) - Datastax OpsCenter (Backup and restore Service)
 
 1.  Visual backup management
 2.  Backup & Restore on distributed system is hard
@@ -4028,7 +4027,7 @@ authentication_options:
 7.  Configurable retention polcies
 8.  Includes alerts and reporting
 
-## 15.99 (Section: DS210) - Datastax OpsCenter LifeCycle Manager (Provisioning)
+## 15.101 (Section: DS210) - Datastax OpsCenter LifeCycle Manager (Provisioning)
 
 1.  Configuration and deployment (Onboarding)
 2.  UI Menu has option for
@@ -4038,12 +4037,12 @@ authentication_options:
 6.  Add DC/Nodes/Clusters
 7.  Point in time backup & restore
 
-## 15.100 (Section: DS210) - Datastax OpsCenter NodeSync
+## 15.102 (Section: DS210) - Datastax OpsCenter NodeSync
 
 1.  Prefered over repair service
 2.  Low intensity continuous repair
 
-## 15.101 (Section: DS210) - Datastax OpsCenter other features
+## 15.103 (Section: DS210) - Datastax OpsCenter other features
 
 1.  Best Practice service - periodically audits, alerts and suggests
     solution
@@ -4058,21 +4057,21 @@ authentication_options:
     2.  Mail
     3.  SNMP - to an enterprise monitoring system
 
-## 15.102 (Section: DS210) - Follow-up course
+## 15.104 (Section: DS210) - Follow-up course
 
 1.  DS-220 - Practical application modelling with Apache Casssandra
 2.  DS-310 - DataStax Enterprise Search
 3.  DS-320 - DataStax Enterprise Apache Sparx
 4.  DS-330 - DataStax Enterprise Graph
 
-## 15.103 (Section: DS210) - Lab notes
+## 15.105 (Section: DS210) - Lab notes
 
 -   172.18.0.2
 -   /usr/share/dse/data
 -   /var/lib/cassandra/data
 -   DS-220
 
-## 15.104 (Section: DS210) - Cassandra people
+## 15.106 (Section: DS210) - Cassandra people
 
 -   [Jamie King](https://twitter.com/mrcompscience)
 
@@ -4087,7 +4086,7 @@ authentication_options:
 ```
     mdanki Cassandra_Datastax_210_Anki.md Cassandra_Datastax_210_Anki.apkg --deck "Mohan::Cassandra::DS210::Operations"
 
-## 15.105 Cassandra production error
+## 15.107 Cassandra production error
 
 -   RANGE SLICE Messages were dropped
 -   StorageProxy.readRegular(group, consistencyLevel,
@@ -4095,21 +4094,21 @@ authentication_options:
 -   SinglePartitionCommand.java\[1176\]/StorageProxy.read(this,
     consistency, clientState, queryStartNanoTime);
 
-## 15.106 (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
+## 15.108 (Server side) - com.datastax.oss.driver.api.core.connection.ConnectionIntiException.. ssl should be configured
 
 -   Client side should enable ssl ; true (in spring-boot
     application.yaml)
     -   spring.data.cassandra.ssl: true
 
-## 15.107 (Client side) - \[SSLL SSLV3_ALERT_HANDSHAKE_FAILURE\]
+## 15.109 (Client side) - \[SSLL SSLV3_ALERT_HANDSHAKE_FAILURE\]
 
 -   Ensure you configured SSL on cient side
 
-## 15.108 (Client side) - Since you provided explicit contact points, the local DC must be explicitly set (see basic.load-balancing-policy.local-datacenter)
+## 15.110 (Client side) - Since you provided explicit contact points, the local DC must be explicitly set (see basic.load-balancing-policy.local-datacenter)
 
 -   spring.data.cassandra.local-datacenter: asiapac
 
-## 15.109 Cluster level monitoring
+## 15.111 Cluster level monitoring
 
 -   Current cluster availability
 -   Current Storage Load
@@ -4117,11 +4116,11 @@ authentication_options:
 -   For Each datacenter
     -   # of client requests
 
-## 15.110 Top worst performing
+## 15.112 Top worst performing
 
 -   Top 5 worst performing nodes by client latency
 
-## 15.111 List monitoring elements
+## 15.113 List monitoring elements
 
 1.  Node status
 2.  Disk Usage
@@ -4138,7 +4137,7 @@ authentication_options:
 13. Heap memory usage
 14. Off-Heap Memory Usage
 
-## 15.112 List table level
+## 15.114 List table level
 
 1.  Read Latency
 2.  Write Latency
@@ -4147,9 +4146,9 @@ authentication_options:
 5.  Table Disk Used
 6.  Table Row Size
 
-## 15.113 Node Status
+## 15.115 Node Status
 
-## 15.114 (Section: Nodetool) - Nodetool usage
+## 15.116 (Section: Nodetool) - Nodetool usage
 
 -   
 
@@ -4160,7 +4159,7 @@ authentication_options:
           [(-p <port> | --port <port>)] <command> [<args>]
 ```
 
-## 15.115 (Section: Nodetool) - Nodetool commands
+## 15.117 (Section: Nodetool) - Nodetool commands
 
 ``` bash
      The most commonly used nodetool commands are:
@@ -4292,7 +4291,7 @@ authentication_options:
     -   datacenter_aware
         -   It is like sequential but one node per each DC
 
-## 15.116 (Section: Repair) - Repair Service (on OpsCenter)
+## 15.118 (Section: Repair) - Repair Service (on OpsCenter)
 
 1.  Runs in the background
 2.  Works on small chunks to limit performance impact
@@ -4300,7 +4299,7 @@ authentication_options:
 4.  Can run in parallel
 5.  Can work on sub-ranges or incremental
 
-## 15.117 (Section: Repair) - Repair command
+## 15.119 (Section: Repair) - Repair command
 
 -   ``` bash
     nodetool <options> repair
@@ -4310,19 +4309,19 @@ authentication_options:
     --et <end_token> used when repairing a subrange
     ```
 
-## 15.118 (Section: Repair) - Why repairs are necessary?
+## 15.120 (Section: Repair) - Why repairs are necessary?
 
 -   Nodes may go down for a period of time and miss writes
     -   Especially if down for more than max_hint_window_in_ms
 -   If nodes become overloaded and drop writes
 -   if dropped mutation is high repair was missing in its place
 
-## 15.119 (Section: Repair) - Repair guideline
+## 15.121 (Section: Repair) - Repair guideline
 
 -   Make sure repair completes within gc_grace_seconds window
 -   Repair should be scheduled once before every gc_grace_seconds
 
-## 15.120 (Section: Repair) - What is Primary Range Repair?
+## 15.122 (Section: Repair) - What is Primary Range Repair?
 
 -   The primary range is the set of tokens the node is assigned
 -   Repairing only the node's primary range will make sure that data is
@@ -4330,7 +4329,7 @@ authentication_options:
 -   Repairing only the node's primary range will eliminate reduandant
     repairs
 
-## 15.121 (Section: Repair) - How does repair work?
+## 15.123 (Section: Repair) - How does repair work?
 
 1.  Nodes build merkel-trees from partitions to represent how current
     data values are
@@ -4339,7 +4338,7 @@ authentication_options:
     synchronization
 4.  Nodes exchange data values and update their data
 
-## 15.122 (Section: Repair) - Events that trigger Repair
+## 15.124 (Section: Repair) - Events that trigger Repair
 
 -   'CL=Quorum' - Read would trigger the repair
 -   Random repair (even for non-quorum read)
@@ -4347,9 +4346,9 @@ authentication_options:
     -   dclocal_read-repair_chance
 -   Nodetool repair - externally triggered
 
-## 15.123 (Section: Repair) - Dropped Mutation vs Repair
+## 15.125 (Section: Repair) - Dropped Mutation vs Repair
 
-## 15.124 (Section: Repair) - If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
+## 15.126 (Section: Repair) - If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
 
 -   5 nodes.
 -   Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4
@@ -4357,24 +4356,24 @@ authentication_options:
 -   Node-1 would use N3 for copy-2
 -   Node-2 would use N3 for copy-1
 
-## 15.125 (Section: Repair) - How to specifically use only one node to repair itself
+## 15.127 (Section: Repair) - How to specifically use only one node to repair itself
 
 -   nodetool -pr node-3 --But we have to run in all the nodes
     immediately
 -   runing nodetool -pr on only one node is **not-recommended**
 
-## 15.126 (Section: Repair) - If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
+## 15.128 (Section: Repair) - If we run full repair on a 'n' node cluster with RF=3, How many times we are repairing the data?
 
 -   We repair thrice.
 
-## 15.127 (Section: Repair) - Developer who maintains/presented about Reaper
+## 15.129 (Section: Repair) - Developer who maintains/presented about Reaper
 
 -   [Alexander Dejanovski](Alexandar%20Dejanvoski)
 -   [Real World Tales of Repair (Alexander Dejanovski, The Last Pickle)
     \| Cassandra Summit
     2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 
-## 15.128 (Section: Repair) - Repair documentation
+## 15.130 (Section: Repair) - Repair documentation
 
 -   [All the options of
     nodetool-repair](https://cassandra.apache.org/doc/latest/tools/nodetool/repair.html#nodetool-repair)
@@ -4383,7 +4382,7 @@ authentication_options:
 -   [Datastax
     documentation](https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/tools/toolsRepair.html)
 
-## 15.129 (Section: Repair) - Repair and some number related to time
+## 15.131 (Section: Repair) - Repair and some number related to time
 
 -   First scheduled repair would always take more time
 -   Repair scheduled often generally completes faster, since there are
@@ -4393,7 +4392,7 @@ authentication_options:
 -   With 3 DC with 12 nodes, 4 tb of a keyspace took around 22 hours to
     repair it.
 
-## 15.130 (Section: Repair) - What are Reaper settings
+## 15.132 (Section: Repair) - What are Reaper settings
 
 -   Segments per node
 -   Tables
@@ -4403,7 +4402,7 @@ authentication_options:
 -   Threads
 -   Repair intensity
 
-## 15.131 (Section: Repair) - Reaper is predominantly used for repair tasks
+## 15.133 (Section: Repair) - Reaper is predominantly used for repair tasks
 
 -   Reaper uses concept called segments (despite in Cassandra world
     Segment means CommitLog)
@@ -4411,14 +4410,14 @@ authentication_options:
     for every 1 TB
 -   Smaller the segement, let reaper to repair it faster
 
-## 15.132 (Section: Repair) - Repair related commands
+## 15.134 (Section: Repair) - Repair related commands
 
 ``` bash
 nodetool repair -dc DC ## is the command to repair using nodetool
 nodetool -h 1.1.1.1 status
 ```
 
-## 15.133 (Section: Repair) - Reference
+## 15.135 (Section: Repair) - Reference
 
 -   [Repair Improvements in Apache Cassandra 4.0 \|
     DataStax](https://www.youtube.com/watch?v=kl2ea0Cxmi0)
@@ -4431,25 +4430,25 @@ nodetool -h 1.1.1.1 status
     2016](https://www.slideshare.net/DataStax/real-world-tales-of-repair-alexander-dejanovski-the-last-pickle-cassandra-summit-2016)
 -   [Repair](https://cassandra.apache.org/doc/latest/operating/repair.html)
 
-## 15.134 (Section: Repair) - How to create anki from this markdown file
+## 15.136 (Section: Repair) - How to create anki from this markdown file
 
     mdanki cassandra_repair_anki.md cassandra_repair_anki.apkg --deck "Mohan::Cassandra::Repair::doc"
 
-## 15.135 (Section: Cqls) - Create KeySpace (and use it)
+## 15.137 (Section: Cqls) - Create KeySpace (and use it)
 
 ``` sql
-## 15.136 (Section: Cqls) - Only when cluster replication exercise
+## 15.138 (Section: Cqls) - Only when cluster replication exercise
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'NetworkTopologyStrategy','east-side': 1,'west-side': 1};
 
 CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };
 USE killrvideo;
 ```
 
-## 15.137 (Section: Cqls) - How to fetch data from one node using CQLSH
+## 15.139 (Section: Cqls) - How to fetch data from one node using CQLSH
 
 -   Cqlsh looks at the cluster, not node
 
-## 15.138 (Section: Cqls) - Partition Key vs Primary Key
+## 15.140 (Section: Cqls) - Partition Key vs Primary Key
 
 -   Partition key uniquiely identifies partition inside a table
 -   Primary key uniquely identifies row inside partition
@@ -4457,7 +4456,7 @@ USE killrvideo;
 -   PrimaryKey = Partition_Key + Clustering Key
     -   Partition has multiple rows
 
-## 15.139 (Section: Cqls) - Create TABLE and load/export data in and out-of-tables
+## 15.141 (Section: Cqls) - Create TABLE and load/export data in and out-of-tables
 
 ``` sql
 CREATE TABLE videos (video_id uuid,added_date timestamp,title text,PRIMARY KEY ((video_id)));
@@ -4478,7 +4477,7 @@ UPDATE killrvideo.videos_by_tag SET title = 'Me LovEEEEEEEE Cassandra' WHERE tag
 COPY vidoes(video_id, added_date, title) TO '/tmp/videos.csv' WITH HEADER=TRUE;
 ```
 
-## 15.140 (Section: Cqls) - How to select token values of primary-key
+## 15.142 (Section: Cqls) - How to select token values of primary-key
 
 ``` sql
 SELECT token(tag), tag FROM killrvideo.videos_by_tag;
@@ -4492,7 +4491,7 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
 ```
 
-## 15.141 (Section: Cqls) - What is Conditional Insert?
+## 15.143 (Section: Cqls) - What is Conditional Insert?
 
 1.  ``` bash
     A conditional INSERT can be used to prevent an upsert when it matters, such as when two users try to register using the same email. Only the first INSERT should succeed:
@@ -4505,12 +4504,12 @@ system.token(tag)    | tag
     UPDATE users SET name = 'Arthur' WHERE email = 'art@datastax.com' IF name = 'Art';
     ```
 
-## 15.142 (Section: Cqls) - IS CQL Case-sensitive
+## 15.144 (Section: Cqls) - IS CQL Case-sensitive
 
 -   By default, names are case-insensitive, but case sensitivity can be
     forced by using double quotation marks around a name.
 
-## 15.143 (Section: Cqls) - Create Keyspace/Table Syntax
+## 15.145 (Section: Cqls) - Create Keyspace/Table Syntax
 
 ``` sql
 CREATE KEYSPACE [ IF NOT EXISTS ] keyspace_name  WITH REPLICATION = { replication_map };
@@ -4528,7 +4527,7 @@ CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
 ];
 ```
 
-## 15.144 (Section: Cqls) - CQL Copy and rules
+## 15.146 (Section: Cqls) - CQL Copy and rules
 
 -   Cassandra expects same number of columns in every row (in delimited
     file)
@@ -4539,14 +4538,14 @@ CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
 -   For importing larger datasets, use DSBulk
 -   Can be piped with standar-input and standrd-outpu
 
-## 15.145 (Section: Cqls) - CQL Copy options
+## 15.147 (Section: Cqls) - CQL Copy options
 
 1.  DELIMITER
 2.  HEADER
 3.  CHUNKSIZE - 1000 (default)
 4.  SKIPROW - number of rows to skip (for testing)
 
-## 15.146 (Section: Cqls) - How to list partition_key (or the actual token) along with other columns
+## 15.148 (Section: Cqls) - How to list partition_key (or the actual token) along with other columns
 
 -   USe token fucntion and pass all the parameter of the partition_key
 -   select tag, title, video_added_date, token(tag) from videos_by_tag;
@@ -4555,11 +4554,11 @@ CREATE TABLE [ IF NOT EXISTS ] [keyspace_name.]table_name
     -   When you pass clustering column that are not part of
         partition_key, CQL throws this error
 
-## 15.147 (Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag cassandra
+## 15.149 (Section: Cqls) - nodetool getendpoints killrvideo videos_by_tag cassandra
 
 172.19.0.2
 
-## 15.148 (Section: Cqls) - What are all the System Schema
+## 15.150 (Section: Cqls) - What are all the System Schema
 
 ``` bash
 system
@@ -4569,11 +4568,11 @@ system_schema
 system_traces
 ```
 
-## 15.149 (Section: Cqls) - See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
+## 15.151 (Section: Cqls) - See how many rows have been written into this table (Warning - row scans are expensive operations on large tables)
 
 -   SELECT COUNT (\*) FROM user;
 
-## 15.150 (Section: Cqls) - Write a couple of rows, populate different columns for each, and view the results
+## 15.152 (Section: Cqls) - Write a couple of rows, populate different columns for each, and view the results
 
 1.  INSERT INTO user (first_name, last_name, title) VALUES ('Bill',
     'Nguyen', 'Mr.');
@@ -4581,48 +4580,48 @@ system_traces
     'Rodriguez');
 3.  SELECT \* FROM user;
 
-## 15.151 (Section: Cqls) - View the timestamps generated for previous writes
+## 15.153 (Section: Cqls) - View the timestamps generated for previous writes
 
 -   SELECT first_name, last_name, writetime(last_name) FROM user;
 
-## 15.152 (Section: Cqls) - Note that we're not allowed to ask for the timestamp on primary key columns
+## 15.154 (Section: Cqls) - Note that we're not allowed to ask for the timestamp on primary key columns
 
 -   SELECT WRITETIME(first_name) FROM user;
 
-## 15.153 (Section: Cqls) - Set the timestamp on a write
+## 15.155 (Section: Cqls) - Set the timestamp on a write
 
 -   UPDATE user USING TIMESTAMP 1434373756626000 SET last_name =
     'Boateng' WHERE first_name = 'Mary' ;
 
-## 15.154 (Section: Cqls) - Verify the timestamp used
+## 15.156 (Section: Cqls) - Verify the timestamp used
 
 -   SELECT first_name, last_name, WRITETIME(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## 15.155 (Section: Cqls) - View the time to live value for a column
+## 15.157 (Section: Cqls) - View the time to live value for a column
 
 -   SELECT first_name, last_name, TTL(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## 15.156 (Section: Cqls) - Set the TTL on the last name column to one hour
+## 15.158 (Section: Cqls) - Set the TTL on the last name column to one hour
 
 -   UPDATE user USING TTL 3600 SET last_name = 'McDonald' WHERE
     first_name = 'Mary' ;
 
-## 15.157 (Section: Cqls) - View the TTL of the last_name - (counting down)
+## 15.159 (Section: Cqls) - View the TTL of the last_name - (counting down)
 
 -   SELECT first_name, last_name, TTL(last_name) FROM user WHERE
     first_name = 'Mary';
 
-## 15.158 (Section: Cqls) - Find the token
+## 15.160 (Section: Cqls) - Find the token
 
 -   SELECT last_name, first_name, token(last_name) FROM user;
 
-## 15.159 (Section: Cqls) - Clear the screen of output from previous commands
+## 15.161 (Section: Cqls) - Clear the screen of output from previous commands
 
 -   CLEAR
 
-## 15.160 (Section: Cqls) - How to find avg, sum, min, max within Partition (use ratings_by_movie) as example??
+## 15.162 (Section: Cqls) - How to find avg, sum, min, max within Partition (use ratings_by_movie) as example??
 
     How to analize ratings for the movie:
 
@@ -4635,7 +4634,7 @@ system_traces
     WHERE  title = 'Alice in Wonderland'
       AND  year  = 2010;
 
-## 15.161 (Section: Cqls) - Sample function to find days between two date?
+## 15.163 (Section: Cqls) - Sample function to find days between two date?
 
 ``` sql
   CREATE FUNCTION IF NOT EXISTS DAYS_BETWEEN_DATES(date1 TEXT, date2 TEXT)     
@@ -4657,17 +4656,17 @@ system_traces
         WHERE  email = 'joe@datastax.com';
 ```
 
-## 15.162 (Section: Cqls) - How to add/delete column to a table?
+## 15.164 (Section: Cqls) - How to add/delete column to a table?
 
 -   ALTER TABLE movies ADD country TEXT;
 -   ALTER TABLE movies drop country;
 
-## 15.163 (Section: Cqls) - Exit cqlsh
+## 15.165 (Section: Cqls) - Exit cqlsh
 
 -   EXIT
 -   Quit
 
-## 15.164 (Section: Cqls) - What would happen if we use Clustering Column where STATIC columns are updated
+## 15.166 (Section: Cqls) - What would happen if we use Clustering Column where STATIC columns are updated
 
 ``` sql
 cqlsh:killr_video> update rating_by_user set name='bkj' where email='akj@je.com' and year=2021;
@@ -4676,7 +4675,7 @@ code=2200 [Invalid query]
 message="Invalid restrictions on clustering columns since the UPDATE statement modifies only static columns"
 ```
 
-## 15.165 (Section: Cqls) - System related queries
+## 15.167 (Section: Cqls) - System related queries
 
 -   SELECT native_protocol_version FROM system.local - CQL Version
 -   SELECT peer, data_center, host_id, preferred_ip, rach,
@@ -4689,24 +4688,24 @@ message="Invalid restrictions on clustering columns since the UPDATE statement m
 -   select keyspace_name,table_name,id from tables where
     system_schema.keyspace_name='oapi_dev' and table_name='logtabl';
 
-## 15.166 (Section: Cqls) - Reference
+## 15.168 (Section: Cqls) - Reference
 
 -   [A deep look at the CQL WHERE
     clause](https://www.datastax.com/blog/deep-look-cql-where-clause)
 
-## 15.167 (Section: Advanced Type) - What are all the basic data-types?
+## 15.169 (Section: Advanced Type) - What are all the basic data-types?
 
 -   TEXT, INT, FLOAT, and DATE
 -   TIMESTAMP -- we can use in query like added_date > '2013-03-17';
 
-## 15.168 (Section: Advanced Type) - What are all the current-time-date functions?
+## 15.170 (Section: Advanced Type) - What are all the current-time-date functions?
 
 -   uuid() function takes no parameters and generates a random Type 4
     UUID
 -   select toTimestamp(now()) from system.local; - Find current time
 -   select toDate(now()) from system.local; - Find current date
 
-## 15.169 (Section: Advanced Type) - What are all the timestamp functions?
+## 15.171 (Section: Advanced Type) - What are all the timestamp functions?
 
 -   toDate(timestamp) - Converts timestamp to date in YYYY-MM-DD format.
 -   toUnixTimestamp(timestamp) - Converts timestamp to UNIX timestamp
@@ -4715,7 +4714,7 @@ message="Invalid restrictions on clustering columns since the UPDATE statement m
 -   toUnixTimestamp(date) - Converts date to UNIX timestamp format.
 -   system.totimestamp(system.now())
 
-## 15.170 (Section: Advanced Type) - What are all the timeuuid functions?
+## 15.172 (Section: Advanced Type) - What are all the timeuuid functions?
 
 -   now() - Generates a new unique timeuuid in milliseconds when the
     statement is executed.
@@ -4730,7 +4729,7 @@ message="Invalid restrictions on clustering columns since the UPDATE statement m
     unlike the now() function.
 -   select mintimeuuid(toTimestamp(now())) from system.local;
 
-## 15.171 (Section: Advanced Type) - How to add SET`<TEXT>`{=html} AND UPDATE its columns values?
+## 15.173 (Section: Advanced Type) - How to add SET`<TEXT>`{=html} AND UPDATE its columns values?
 
 ``` sql
 ALTER TABLE movies ADD production SET<TEXT>;
@@ -4742,7 +4741,7 @@ UPDATE movies SET production = production + { 'Team Todd' } WHERE id = 5069cc15-
 SELECT title, year, production FROM movies;
 ```
 
-## 15.172 (Section: Advanced Type) - How to add LIST`<TEXT>`{=html} AND UPDATE its columns values?
+## 15.174 (Section: Advanced Type) - How to add LIST`<TEXT>`{=html} AND UPDATE its columns values?
 
 ``` sql
 ALTER TABLE users ADD emails LIST<TEXT>;
@@ -4750,7 +4749,7 @@ UPDATE users SET emails = [ 'joe@datastax.com', 'joseph@datastax.com' ] WHERE id
 SELECT id, name, emails FROM users;
 ```
 
-## 15.173 (Section: Advanced Type) - How to add MAP\<TEXT, TEXT> AND UPDATE its columns values?
+## 15.175 (Section: Advanced Type) - How to add MAP\<TEXT, TEXT> AND UPDATE its columns values?
 
 ``` sql
 ALTER TABLE users ADD preferences MAP<TEXT,TEXT>;
@@ -4759,7 +4758,7 @@ UPDATE users SET preferences['quality'] = 'auto' WHERE id = 7902a572-e7dc-4428-b
 SELECT name, preferences FROM users;
 ```
 
-## 15.174 (Section: Advanced Type) - How to UDT ADDRESS\<street, city, state, postal_code> AND UPDATE ADDRESS columns values?
+## 15.176 (Section: Advanced Type) - How to UDT ADDRESS\<street, city, state, postal_code> AND UPDATE ADDRESS columns values?
 
 ``` sql
 CREATE TYPE ADDRESS (
@@ -4783,7 +4782,7 @@ WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 ```
 
-## 15.175 (Section: Advanced Type) - Single vs Multiple batch?
+## 15.177 (Section: Advanced Type) - Single vs Multiple batch?
 
 -   A single-partition batch is an atomic batch where all operations
     work on the same partition and that, under the hood, can be executed
@@ -4799,7 +4798,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     partitions due to denormalization. Atomicity ensures that all
     duplicates are consistent
 
-## 15.176 (Section: Advanced Type) - Batch restrictions?
+## 15.178 (Section: Advanced Type) - Batch restrictions?
 
 1.  A batch starts with BEGIN BATCH and ends with APPLY BATCH.
 2.  Single-partition batches can even contain lightweight transactions,
@@ -4815,7 +4814,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     grouping. This example is an anti-pattern:
 7.  A counter update (inside batch) is not an idempotent operation.
 
-## 15.177 (Section: Advanced Type) - Lightweight transactions
+## 15.179 (Section: Advanced Type) - Lightweight transactions
 
 -   INSERT INTO ... VALUES ...IF NOT EXISTS;
 -   UPDATE ... SET ... WHERE ... IF EXISTS \| IF predicate \[ AND ...
@@ -4823,7 +4822,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 -   DELETE ... FROM ... WHERE ... IF EXISTS \| IF predicate \[ AND ...
     \];
 
-## 15.178 (Section: Advanced Type) - Batch cost and performance?
+## 15.180 (Section: Advanced Type) - Batch cost and performance?
 
 1.  Single-partition batches are quite efficient and can performance
     better than individual statements because batches save on
@@ -4835,7 +4834,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 4.  Use multi-partition batches only when atomicity is truly important
     for your application.
 
-## 15.179 (Section: Advanced Type) - Batch - System tables involved?
+## 15.181 (Section: Advanced Type) - Batch - System tables involved?
 
 1.  batches - id, mutations, version
 2.  batchlog - id, data, version, written_at ## (Section: SSTable) -
@@ -4850,26 +4849,26 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 -   SSTable very poor to find absence of key (hence we need
     bloom-filter)
 
-## 15.180 (Section: SSTable) - When MemTable's are flushed
+## 15.182 (Section: SSTable) - When MemTable's are flushed
 
 1.  When the number of objects stored in the memtable reaches a
     threshold,
 2.  the contents of the memtable are flushed to disk in a file called an
     SSTable.
 
-## 15.181 Storage Architecture Summary Jira
+## 15.183 Storage Architecture Summary Jira
 
 -   [Storage Architecture
     JIRA](https://issues.apache.org/jira/browse/CASSANDRA-8099)
 
-## 15.182 (Section: SSTable) - How many MemTable can exist at-a-time
+## 15.184 (Section: SSTable) - How many MemTable can exist at-a-time
 
 1.  A new memtable is then created when old MemTable gettting flushed.
     This flushing is a nonblocking operation;
 2.  Multiple memtables may exist for a single table, one current and the
     rest waiting to be flushed.
 
-## 15.183 (Section: SSTable) - SStable - settings in cassandra.yaml
+## 15.185 (Section: SSTable) - SStable - settings in cassandra.yaml
 
 1.  flush_compression: fast
 2.  file_cache_enabled: false
@@ -4885,7 +4884,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 7.  stream_entire_sstables: true
 8.  max_value_size_in_mb: 256
 
-## 15.184 (Section: SSTable) - What are the files part of SSTable
+## 15.186 (Section: SSTable) - What are the files part of SSTable
 
 -   mb-1-big-Summary.db
 -   mb-1-big-Index.db
@@ -4897,25 +4896,25 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     -   mb-1-big-CRC.db
     -   mb-1-big-Toc.txt -- list of the above files
 
-## 15.185 (Section: SSTable) - What is the role of index file
+## 15.187 (Section: SSTable) - What is the role of index file
 
 -   It lists the partition-keys/cluster-keys that are available inside
     the SSTable with offset information. Disk seek can directly locate
     few keys
 
-## 15.186 (Section: SSTable) - What is the role of statitics file
+## 15.188 (Section: SSTable) - What is the role of statitics file
 
 -   It has the column definition
 -   It has almost all the details about DDL of a table
 
-## 15.187 (Section: SSTable) - Why SQLite4 didn't use LSM?
+## 15.189 (Section: SSTable) - Why SQLite4 didn't use LSM?
 
 -   Every insert needs to check constraint, and it requires reads. In
     simple, every write operation also ends up with read operation.
 -   LSM is great for blind writes, but doesn't work work as well when
     constraints must be checked prior to each write
 
-## 15.188 (Section: SSTable) - LSM Pros and Cons
+## 15.190 (Section: SSTable) - LSM Pros and Cons
 
 -   Pros
     -   Faster writes
@@ -4928,7 +4927,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     -   More space on disk
     -   Greater Complexity
 
-## 15.189 (Section: SSTable) - SSTable references
+## 15.191 (Section: SSTable) - SSTable references
 
 -   [What is in All of Those SSTable Files Not Just the Data One but All
     the Rest Too! (John Schulz, The Pythian Group) \| Cassandra Summit
@@ -4937,7 +4936,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
     file?](https://blog.pythian.com/so-you-have-a-broken-cassandra-sstable-file/)
 -   [C23: Lessons from SQLite4 by SQLite.org - Richard
     Hipp](https://www.slideshare.net/InsightTechnology/dbtstky2017-c23-sqlite?from_action=save)
-    ## 15.190 (Section: Administration) - DSE Cassandra Course topics
+    ## 15.192 (Section: Administration) - DSE Cassandra Course topics
 
 1.  Install and Start Apache Cassandra™
 2.  CQL
@@ -4959,7 +4958,7 @@ SELECT name, address FROM users WHERE id = 7902a572-e7dc-4428-b056-0571af415df3;
 18. Compaction
 19. Advanced Performance
 
-## 15.191 (Section: Administration) - Course DSE installation
+## 15.193 (Section: Administration) - Course DSE installation
 
 ``` bash
 ubuntu@ds201-node1:~$ tar -xf dse-6.0.0-bin.tar.gz
@@ -4970,30 +4969,30 @@ cd node/bin
 ./dsetool status
 ```
 
-## 15.192 (Section: Administration) - Nodetool vs DSEtool
+## 15.194 (Section: Administration) - Nodetool vs DSEtool
 
 -   nodetool -- only Apache Cassandra
 -   dsetool -- Apache Cassandra™, Apache Spark™, Apache Solr™, Graph
 
-## 15.193 (Section: Administration) - Nodetool Gauge the server performance
+## 15.195 (Section: Administration) - Nodetool Gauge the server performance
 
 ``` sql
 ./nodetool describecluster
 ./nodetool getlogginglevels
 ./nodetool setlogginglevels org.apache.cassandra TRACE
-## 15.194 (Section: Administration) -  Create and populate garbage to stress the cluster
+## 15.196 (Section: Administration) -  Create and populate garbage to stress the cluster
 /home/ubuntu/node/resources/cassandra/tools/bin/cassandra-stress write n=50000 no-warmup -rate threads=2
 ./nodetool flush
 ./nodetool status
 ```
 
-## 15.195 (Section: Administration) - Find all the material view of a keyspace
+## 15.197 (Section: Administration) - Find all the material view of a keyspace
 
 ``` bash
 SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 ```
 
-## 15.196 (Section: Administration) - How to find number of partitions/node-of partition in a table
+## 15.198 (Section: Administration) - How to find number of partitions/node-of partition in a table
 
 -   ./nodetool tablestats -H keyspace.tablename;
 -   select token(tag) from killrvideo.videos_by_tag;
@@ -5004,7 +5003,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   ./nodetool getendpoints killrvideo videos_by_tag 'cassandra'
     -   ./nodetool getendpoints killrvideo videos_by_tag 'datastax'
 
-## 15.197 (Section: Administration) - Cassandra Node (Server/VM/H/W)
+## 15.199 (Section: Administration) - Cassandra Node (Server/VM/H/W)
 
 -   Runs a java process (JVM)
 -   Only supported on local storage or direct attached storage
@@ -5016,7 +5015,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   How do you manage node?
     -   Use nodetool utilitiy
 
-## 15.198 (Section: Administration) - Cassandra Ring (The cluster)
+## 15.200 (Section: Administration) - Cassandra Ring (The cluster)
 
 -   Any node can act as a co-ordinator to incoming data
 -   How does co-ordinator knows the node that handles the data?
@@ -5025,7 +5024,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   (2\^\^63)-1 --> (-2\^\^63) - ranges of tokents are available
     -   20 digit number - 18,446,744,073,709,551,616
 
-## 15.199 (Section: Administration) - How new nodes join the ring
+## 15.201 (Section: Administration) - How new nodes join the ring
 
 -   Uses seed-nodes configured in new-nodes Cassandra.yaml
     -   SeedNode provider could be rest-api
@@ -5035,7 +5034,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Node status could be - Leaving/Joining/Up/Running - UN (Up and
         Normal)
 
-## 15.200 (Section: Administration) - Peer-to-Peer
+## 15.202 (Section: Administration) - Peer-to-Peer
 
 -   Leader-Follower fails when we do sharding
     -   Leader-Follower model is just client-server model on the service
@@ -5048,7 +5047,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   No node is superior than other
     -   Everyone is peer
 
-## 15.201 (Section: Administration) - Why do we need VNode?
+## 15.203 (Section: Administration) - Why do we need VNode?
 
 -   When adding a new physical node, how to equally distribute data from
     existing nodes into new node?
@@ -5062,12 +5061,12 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
 -   Adding/removing nodes with vnodes helps keep the cluster balanced
 -   By default each node has 128 vnodes
 
-## 15.202 (Section: Administration) - How to enable VNode?
+## 15.204 (Section: Administration) - How to enable VNode?
 
 -   num_tokens value should greather than 1 in Cassandra.yaml
 -   num_tokens = 1 ## Disable vnode
 
-## 15.203 (Section: Administration) - Gossip protocol (nodemeta data is the subject)
+## 15.205 (Section: Administration) - Gossip protocol (nodemeta data is the subject)
 
 -   No centralized service to spread the information - How do we share
     information?
@@ -5076,7 +5075,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   It might pick same node successive time, they don't keep track
         of the node that they gossped with
 
-## 15.204 (Section: Administration) - What do nodes Gossip about?
+## 15.206 (Section: Administration) - What do nodes Gossip about?
 
 -   They gossip about node-meta-data
     -   Heartbeat, generation, version and load
@@ -5084,7 +5083,7 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     -   Generation - timestamp of when the node-bootstraps
     -   version - counter incremented every-second
 
-## 15.205 (Section: Administration) - What is Gossip data structure look like?
+## 15.207 (Section: Administration) - What is Gossip data structure look like?
 
 -   EP: 127.0.0.1, HB:100:20, LOAD:86
 
@@ -5106,19 +5105,19 @@ SELECT view_name FROM system_schema.views where keyspace_name='myKeyspace';
     }
     ```
 
-## 15.206 (Section: Administration) - What is Gossip protocol?
+## 15.208 (Section: Administration) - What is Gossip protocol?
 
 -   Initiator - Sends SYN
 -   Receiver - Receives SYN and Constructs and replies with ACK message
 -   Initiator - Gets ACK reponse from receiver\
 -   Initiator - ACKs the ACK (from receiver) using ACK2 reponse
 
-## 15.207 (Section: Administration) - How to find more details about Gossip
+## 15.209 (Section: Administration) - How to find more details about Gossip
 
 -   project = CASSANDRA AND component = "Cluster/Gossip"
 -   https://issues.apache.org/jira/browse/CASSANDRA-16588?jql=project%20%3D%20CASSANDRA%20AND%20component%20%3D%20%22Cluster%2FGossip%22
 
-## 15.208 (Section: Administration) - Sample Gossipinfo
+## 15.210 (Section: Administration) - Sample Gossipinfo
 
 ``` json
 ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
@@ -5164,14 +5163,14 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
   TOKENS:60:<hidden>
 ```
 
-## 15.209 (Section: Administration) - Node failure detector
+## 15.211 (Section: Administration) - Node failure detector
 
 -   Every node declares their own status.
 -   Every node detects failure of peer-node
 -   They don't send their assumptions/evaluations during gossip (nodes
     don't send their judgement about other nodes)
 
-## 15.210 (Section: Administration) - Snitch (meaning informer)
+## 15.212 (Section: Administration) - Snitch (meaning informer)
 
 -   Snitch - toplogy of cluster
 -   Informs each IP and its physical location
@@ -5195,21 +5194,21 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
         -   105 - node octet
     -   cassandra-rackdc.properties can contain the data
 
-## 15.211 (Section: Administration) - What is the role of DynamicSnitch
+## 15.213 (Section: Administration) - What is the role of DynamicSnitch
 
 -   It uses underlying snitch
 -   Maintains pulse of each nodes performance
 -   Determines which node to query based on performance
 -   Turned on by default for all snitches
 
-## 15.212 (Section: Administration) - Mandatory operational practice
+## 15.214 (Section: Administration) - Mandatory operational practice
 
 -   All nodes should use same snitch
 -   Changing network topology requires restarting all the nodes with
     latest snitch
 -   Run sequential repair and cleanup on each node
 
-## 15.213 (Section: Administration) - Replication with RF=1
+## 15.215 (Section: Administration) - Replication with RF=1
 
 -   Every node is responsible for certain token range
 -   Partitioner finds the token from the data (MurMurPartitioner)
@@ -5219,7 +5218,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns token higher than 59 is (here 63 is choosen)
     -   Node that owns 50 and above.. but below 63 would store the data
 
-## 15.214 (Section: Administration) - Replication with RF>=2
+## 15.216 (Section: Administration) - Replication with RF>=2
 
 -   Data would be stored in node that supposed to own token range
 -   For every RF>1, Node who is neighbour (token range higher) also gets
@@ -5228,7 +5227,7 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
     -   Node that owns 50-63 would get a copy
     -   Node that owns 63-75 would also get a copy
 
-## 15.215 (Section: Administration) - Replication with RF>=2 and Cross DataCenter
+## 15.217 (Section: Administration) - Replication with RF>=2 and Cross DataCenter
 
 -   Cross DC replication is hard
 -   We can have different RF for each DC
@@ -5236,39 +5235,39 @@ ubuntu@ds201-node1:~/node1/bin$ ./nodetool gossipinfo
 -   Remote Co-ordinator would act as a local-cordinator to replicate
     data within remote DC
 
-## 15.216 (Section: Administration) - Consistency in CQL
+## 15.218 (Section: Administration) - Consistency in CQL
 
 ``` sql
 consistency ANY;
-## 15.217 Consistency level set to ANY.
+## 15.219 Consistency level set to ANY.
 
 select * from videos_by_tag;
-## 15.218 InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
+## 15.220 InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 
 INSERT INTO videos_by_tag(tag, added_date, video_id, title)  VALUES ('cassandra', '2016-2-11', uuid(), 'Cassandra, Take Me Home');
 
 select * from videos_by_tag;InvalidRequest: Error from server: code=2200 [Invalid query] message="ANY ConsistencyLevel is only supported for writes"
 ```
 
-## 15.219 (Section: Administration) - Reference
+## 15.221 (Section: Administration) - Reference
 
 -   [Datastax
     videos](https://www.youtube.com/watch?v=69pvhO6mK_o&list=PL2g2h-wyI4Spf5rzSmesewHpXYVnyQ2TS)
 -   [Datastax Virtual-box
     VM](https://s3.amazonaws.com/datastaxtraining/VM/DS201-VM-6.0.ova)
 
-## 15.220 (Section: Tools) - How to load json/csv in fastest way into Cassandra:
+## 15.222 (Section: Tools) - How to load json/csv in fastest way into Cassandra:
 
 1.  DSKBulk or Apache Spark (faster works for json and CSV)
 2.  CQL-Copy (slow and only for CSV)
 
-## 15.221 (Section: Tools) - What are all DSBulk commands
+## 15.223 (Section: Tools) - What are all DSBulk commands
 
 1.  load
 2.  unload
 3.  count - statistics
 
-## 15.222 (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
+## 15.224 (Section: Tools) - Load CSV data into Cassandra (using name-to-name mapping):
 
 ``` sql
 dsbulk load -url users.csv       \
@@ -5281,7 +5280,7 @@ dsbulk load -url users.csv       \
             -logDir /tmp/logs
 ```
 
-## 15.223 Time-series presentations
+## 15.225 Time-series presentations
 
 1.  (https://www.youtube.com/watch?v=nHes8XW1VHw)
 2.  (https://www.youtube.com/watch?v=YewOx6En7WM)
@@ -5301,20 +5300,20 @@ dsbulk load -url users.csv       \
 -   When rows are queried, query has to scan over multiple expired
     cells/rows to get to the live cells
 
-## 15.224 (Section: Tombstone) - What are all the majore issues due to Tombstones
+## 15.226 (Section: Tombstone) - What are all the majore issues due to Tombstones
 
 -   Often query read ends up in timesout
 -   Memory is occupied by dead-cells
 -   Rarely TombstoneOverwhelmException happens
 
-## 15.225 (Section: Tombstone) - How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
+## 15.227 (Section: Tombstone) - How to agressively collect tombstones (to resolve few of the query timeout tactical solution)
 
 1.  tombstone_threshold ratio to 0.1
 2.  unchecked_tombstone_compaction: true
 3.  min_threshold: 2 (Compaction would be triggered for just 2 similar
     sized SSTables)
 
-## 15.226 (Section: Tombstone) - Where is Tombstones are handled?
+## 15.228 (Section: Tombstone) - Where is Tombstones are handled?
 
 -   Tombstones are handled part of Compaction
 -   [AbstractCompactionStrategy](https://github.com/apache/cassandra/blob/cassandra-3.11/src/java/org/apache/cassandra/db/compaction/AbstractCompactionStrategy.java)

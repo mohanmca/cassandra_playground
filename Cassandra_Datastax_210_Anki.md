@@ -487,8 +487,8 @@ root@c1bf4c2d5378:/# nodetool gcstats
 * STCS Organizes SSTables into Tiers based on sizes
   * On an exponential scale
 * Multiple SSTables would become (larger or smaller)
-  * Smaller - when plenty of deltes
-  * Largers - Sum of size of smaller SSTables (when there is no delete in smaller sstable)
+  * Smaller - when plenty of deltas
+  * Largers - Sum of size of smaller SSTables (when there is no delete in smaller sstable, most of them are insert)
 * Lower-tier means smaller SStables
 * Higher-tier means larger SStables
 * min_threshold and max_thrshold (number of files within the tier)
@@ -503,11 +503,13 @@ root@c1bf4c2d5378:/# nodetool gcstats
 * Stale records in Larger SSTables take unnecessary space (old file would take time to catchup)
 * Concurrent_Compactors - Failed more often than helping.
 * STCS - Major compaction was not recommended for producton (one big large compacted file) - Never do 'nodetool compact'
+
 ## (Section: DS210) -  STCS Hotness
 
 * STCS compaction chooses hottest tier first to compact
 * SSTable hotness determined by number of reads per second per partition key
-## (Section: DS210) -  Wht STCS is slower for read
+
+## (Section: DS210) -  Why STCS is slower for read
 
 * If new write is in lower tier, and old values are in higher tier, they can't be compacted together (immediately)
 
@@ -515,7 +517,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
 
 * More write --> More Compaction
 * Compaction starts every time a memtable flushes to an SSTable
-* MemTable too large, commit log too large or manual flush (Triggering events)
+* Memtable too large, commit log too large or manual flush (Triggering events)
 * When the cluster streams SSTable segments to the node
   * Bootstrap, rebuild, repair
 * Compaction continues until there are no more tiers with at least min_threshold tables in it  
