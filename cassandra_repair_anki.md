@@ -1,5 +1,6 @@
 ## (Section: Repair) - What is repair?
 
+* Repair in Cassandra is synchronizes the partition across the nodes
 * Repair ensures that all replicas have identical copies of a given partition
 * Data won't be in sync due to eventual consistency pattern, Merkel-Tree based reconciliation would help to fix the data.
 * It is also called anti-entropy repair.
@@ -10,6 +11,9 @@
   * requiresParallelism  (Building merkle-tree or validation compaction would be parallel)
   * datacenter_aware
     * It is like sequential but one node per each DC
+* When replication factor is changed, Immediately repair should be run
+  * Repair would properly sycn the data
+  * Remove unwanted copies (when we reduce)    
 
 ## (Section: Repair) -  Repair Service (on OpsCenter)
 
@@ -68,7 +72,7 @@
 
 ## (Section: Repair) -  If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
 
-* 5 nodes.
+* 5 nodes. ( 2 nodes before it, 2 nodes after it, and node getting repaired)
 * Node-3 will replicate its data to 2 other nodes (N3 (primary) + N4 (copy-1)  + N5 (copy-2) )
 * Node-1 would use N3 for copy-2
 * Node-2 would use N3 for copy-1

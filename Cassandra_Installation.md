@@ -1,7 +1,7 @@
 ## (Section: Installation) - Pre-requisite for this tutorial is docker
 
 * [Docker cheatsheet](https://github.com/mohanmca/MohanLearningGround/blob/master/src/main/md/Tools/docker.md)
-* [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
+* [Dockerfile-3.11.11](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 
 ## (Section: Installation) -  Use Os-boxes as virtual machine to install cassandra
 
@@ -30,11 +30,11 @@ UN   127.0.0.1        180.95 KiB       100.00%              0                   
 ## (Section: Installation) -  Cassandra cluster using apache cassandra (Wait at-least 1 minute between successive container spin-off)
 
 ```bash
-docker pull cassandra:3.11.10
+docker pull cassandra:3.11.11
 docker network create cassnet
-docker run --name cass1 --network cassnet -d cassandra:3.11.10
-docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra:3.11.10
-docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra:3.11.10
+docker run --name cass1 --network cassnet -d cassandra:3.11.11
+docker run --name cass2 --network cassnet -e CASSANDRA_SEEDS=cass1 -d cassandra:3.11.11
+docker run --name cass3 --network cassnet -e CASSANDRA_SEEDS=cass1,cass2 -d cassandra:3.11.11
 #docker run --name  my-cassandra -p 9042:9042 -p 7000:7000 --network host -d cassandra:latest 
 ## (Section: Installation) -  Check log
 docker logs -f cass1
@@ -197,7 +197,7 @@ COPY videos(video_id, added_date, title) FROM '/home/osboxes/Downloads/labwork/d
 ```
 
 ## (Section: Installation) -  References
-* [Dockerfile-3.11.10](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
+* [Dockerfile-3.11.11](https://github.com/docker-library/cassandra/blob/master/3.11/Dockerfile)
 * [Docker DSE](https://docs.datastax.com/en/docker/doc/docker/docker67/dockerDSE.html)
 * [Docker Setup](https://docs.datastax.com/en/docker/doc/docker/docker68/dockerReadme.html)
 * [DSE Docker setup on windows](https://www.datastax.com/blog/running-dse-microsoft-windows-using-docker)
