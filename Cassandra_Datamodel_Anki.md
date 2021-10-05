@@ -24,10 +24,14 @@
 
 |Entities                    |   NoSQL|
 |----------------------------|---------|
-|1. Data-mode-applicaiton    |   Application - model - data  |
-|1. Entities                 |   Queries |
-|1. Primarykey for unique    |   Primary key for everything |(storage,cache,distribution) |
-|1. Joins and Indexes        |   Denormalization |
-|1. ACID                     |   BASE    |
-|1. Referential Integrity    |   RI not enforced |
+|Data -> model -> applicaiton  (DMA)   |   Application -> model -> data (AMD)  |
+|Entities                 |   Queries |
+|Primarykey for unique    |   Primary key for everything |(storage,cache,distribution) |
+|Joins and Indexes        |   Denormalization |
+|ACID                     |   BASE    |
+|Referential Integrity    |   RI not enforced |
+|Query not considered for modelling     |   Without query, we can't model |
+|Rollback-supported                     |   Is it supported?    |
 -------------------------------------------------
+
+## 
