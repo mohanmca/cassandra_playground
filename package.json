@@ -1,7 +1,8 @@
 {
   "name": "mohans-massandra-motes",
   "dependencies": {
-    "markdown-include": "0.4.3"
+    "markdown-include": "0.4.3",
+    "mdanki": "^1.1.1"
   },
   "scripts": {
     "docs": "markdown-include markdown.json"

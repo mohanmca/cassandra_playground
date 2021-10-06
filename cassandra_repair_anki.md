@@ -67,8 +67,6 @@
   * dclocal_read-repair_chance
 * Nodetool repair - externally triggered
 
-## (Section: Repair) -  Dropped Mutation vs Repair
-
 
 ## (Section: Repair) -  If 10 nodes equally sharing data with RF=3, if we try to repair 'nodetool repair on node-3', How many node will be involved in repair?
 
