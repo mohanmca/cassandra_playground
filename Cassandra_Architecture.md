@@ -378,7 +378,7 @@ rack=RAC
 
 ## (Section: Architecture) -  Compacting SSTables
 
-* Two SS-Table merged using merge-sorted
+* Two SS-Table merged using merge-sort
 * Merge might reduce the partition as all the stale values inside the parition are evicted
 * Once new SS-Table is created, old SS-Table is dropped
 

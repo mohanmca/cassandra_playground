@@ -34,4 +34,19 @@
 |Rollback-supported                     |   Is it supported?    |
 -------------------------------------------------
 
-## 
+## What is the default domain used for domain modelling in Datastax course
+
+1. [KillrVideo] (https://github.com/KillrVideo/killrvideo-data/blob/master/schema.cql)
+1. It is like netflix - Search Video, Watch, Rate and Comment
+
+
+## Cassandra data-type
+
+1. Int - 32 bit signed
+1. Text - UTF-8 encoded string (Alias Varchar)
+1. UUID - Type-4 (Random), Not sortable - uuid()
+1. TimeUUID - Type-1 - Sortable - now()
+1. Timestamp
+    1. 64 bit integer
+    1. Epoch since 1970-Jan-1
+    1. yyyy-MM-dd HH:mm:ssZ

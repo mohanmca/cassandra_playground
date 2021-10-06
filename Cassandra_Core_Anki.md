@@ -24,7 +24,7 @@
 1. ViewMutationStage             
 
 
-## (Section: Core) Status of Table (SSTable)
+## (Section: Core) Status of Table (SSTable tablestats)
 
 1. Average live cells per slice (last five minutes): 1.0
 1. Average tombstones per slice (last five minutes): 1.0

@@ -6,7 +6,6 @@
 #include "Cassandra_Commands_Output.md"
 #include "Cassandra_Performance.md"
 #include "Cassandra_Datastax_210_Anki.md"
-#include "Cassandra_Knownerrors.md"
 #include "Cassandra_Metrics_Monitoring.md"
 #include "Cassandra_Nodetool.md"
 #include "Cassandra_Operation.md"

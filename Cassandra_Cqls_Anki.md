@@ -8,18 +8,19 @@ CREATE KEYSPACE killrvideo WITH replication = {'class': 'SimpleStrategy', 'repli
 USE killrvideo;
 ```
 
-## (Section: Cqls) - How to fetch data from one node using CQLSH
-
-* Cqlsh looks at the cluster, not node
-
 ## (Section: Cqls) - Partition Key vs Primary Key
 
 * Partition key uniquiely identifies partition inside a table
 * Primary key uniquely identifies row inside partition
-* PartitionKey == Primary-Key, every partition has single-row
+* If PartitionKey == Primary-Key, every partition has single-row
 * PrimaryKey = Partition_Key + Clustering Key
   * Partition has multiple rows
 
+## How to find number of rows in each partition
+
+1. It is two steps proces (find unique partition kyes, count(*) per partition limit 1)
+1. select video_id from videos per partition limit; select count(*) from vidoes where video_id = 'one-of-video-id'
+  1. Loop above for each partition id
 
 ## (Section: Cqls) - Create TABLE and load/export data in and out-of-tables
 
@@ -54,6 +55,9 @@ system.token(tag)    | tag
    356242581507269238 | cassandra
    356242581507269238 | cassandra
 ```
+## Can you alter the primary key column?
+
+1. No! Primary Key column is not modifiable.
 
 ## (Section: Cqls) - What is Conditional Insert?
 
@@ -73,6 +77,13 @@ system.token(tag)    | tag
 
 * By default, names are case-insensitive, but case sensitivity can be forced by using double quotation marks around a name.
 
+
+## How to execute CQL file?
+
+1. from inside CQLSH
+  1. SOURCE 'cassandra.cql'
+1. from shell
+  1. cqlsh -u 'my_username' -p 'my_password' -f /mydir/myfile.cql  
 
 ## (Section: Cqls) - Create Keyspace/Table Syntax
 

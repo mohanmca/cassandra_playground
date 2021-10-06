@@ -303,7 +303,7 @@ root@c1bf4c2d5378:/# nodetool gcstats
                       Dropped Mutations: 6
   ```
 
-*          Table histogram helps to find how much time taken for read/vs/write\
+*  Table histogram helps to find how much time taken for read/vs/write\
 *        
     ```bash
     killr_video/user_by_email histograms

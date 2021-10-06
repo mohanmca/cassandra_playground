@@ -9,12 +9,13 @@
 * Cassandra uses SEDA architecture
   * If messages inside the are not processed with certain timeout under heavy load, they are dropped
   * If cross node is slow, it doesn't receive message fast enough, would be another cause for dropping of messages.
+  * Mutations are also dropped when a node's commitlog disk cannot keep up with the write requests being sent to it. The write operation in this case is "missed" and considered a failure by the coordinator node.
 * High number of dropped mutation would cause query timeout
   * This indicates data writes may be lost
 * Dropped mutations are automatically recovered by repair/read_repair
 * Mutation Drop could happen within same node or cross nodes.
    * INFO  [ScheduledTasks:1] 2019-07-21 11:44:46,150  MessagingService.java:1281 - MUTATION messages were dropped in last 5000 ms: 0 internal and 65 cross node. Mean internal dropped latency: 0 ms and Mean cross-node dropped latency: 4966 ms
-*  
+* Monitor the iostat and write request for over a period to confirm if traffic is increasing
 
 ## (Section: Performance) -  Configuration that affects dropped mutations
 
